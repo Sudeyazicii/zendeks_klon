@@ -1,0 +1,163 @@
+<% content_for :title, "Destek Talepleri" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Destek Talepleri</h1>
+    <p class="page-subtitle">Gelen müşteri destek talepleri, SLA süreleri ve çözüm iş akışı</p>
+  </div>
+  <div>
+    <a href="<%= new_ticket_path %>" class="btn btn-primary">+ Yeni Talep Oluştur</a>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Toplam Talep</div>
+    <div class="stat-value"><%= @total_count %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Yeni</div>
+    <div class="stat-value" style="color: #2563eb;"><%= @new_count %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Açık (İnceleniyor)</div>
+    <div class="stat-value" style="color: #d97706;"><%= @open_count %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Beklemede</div>
+    <div class="stat-value" style="color: #7c3aed;"><%= @pending_count %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Çözüldü</div>
+    <div class="stat-value" style="color: #059669;"><%= @solved_count %></div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--danger);">
+    <div class="stat-label" style="color: var(--danger);">SLA İhlali</div>
+    <div class="stat-value" style="color: var(--danger);"><%= @breached_count %></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="filter-bar">
+    <div class="filter-tabs">
+      <a href="<%= tickets_path %>" class="filter-tab <%= 'active' if @status_filter.blank? %>">
+        Tümü (<%= @total_count %>)
+      </a>
+      <a href="<%= tickets_path(status: 'new') %>" class="filter-tab <%= 'active' if @status_filter == 'new' %>">
+        Yeni (<%= @new_count %>)
+      </a>
+      <a href="<%= tickets_path(status: 'open') %>" class="filter-tab <%= 'active' if @status_filter == 'open' %>">
+        Açık (<%= @open_count %>)
+      </a>
+      <a href="<%= tickets_path(status: 'pending') %>" class="filter-tab <%= 'active' if @status_filter == 'pending' %>">
+        Beklemede (<%= @pending_count %>)
+      </a>
+      <a href="<%= tickets_path(status: 'solved') %>" class="filter-tab <%= 'active' if @status_filter == 'solved' %>">
+        Çözüldü (<%= @solved_count %>)
+      </a>
+      <a href="<%= tickets_path(status: 'breached') %>" class="filter-tab <%= 'active' if @status_filter == 'breached' %>" style="color: var(--danger);">
+        ⚠️ SLA İhlali (<%= @breached_count %>)
+      </a>
+    </div>
+
+    <%= form_with url: tickets_path, method: :get, local: true, style: "display: flex; gap: 0.5rem;" do %>
+      <%= text_field_tag :query, params[:query], placeholder: "Talep No veya Konu ara...", class: "form-control", style: "padding: 0.4rem 0.75rem; font-size: 0.85rem; width: 220px;" %>
+      <%= submit_tag "Ara", class: "btn btn-secondary btn-sm" %>
+      <% if params[:query].present? || params[:status].present? %>
+        <a href="<%= tickets_path %>" class="btn btn-secondary btn-sm">Temizle</a>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Talep No</th>
+          <th>Konu & Detay</th>
+          <th>Müşteri</th>
+          <th>Öncelik</th>
+          <th>Durum</th>
+          <th>SLA Durumu</th>
+          <th>Oluşturulma</th>
+          <th>İşlem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @tickets.any? %>
+          <% @tickets.each do |ticket| %>
+            <tr>
+              <td>
+                <strong style="color: var(--primary);">#<%= ticket.ticket_number %></strong>
+                <% if ticket.community_question_id.present? %>
+                  <br>
+                  <span class="badge" style="background-color: #f3e8ff; color: #6b21a8; font-size: 0.65rem; margin-top: 0.2rem;">
+                    Topluluktan Aktarıldı
+                  </span>
+                <% end %>
+              </td>
+              <td>
+                <div>
+                  <a href="<%= ticket_path(ticket) %>" style="font-weight: 600; color: var(--neutral-dark);">
+                    <%= ticket.subject %>
+                  </a>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--neutral-muted); margin-top: 0.15rem;">
+                  <%= truncate(ticket.description, length: 70) %>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight: 500;"><%= ticket.customer_name %></div>
+                <div style="font-size: 0.75rem; color: var(--neutral-muted);"><%= ticket.customer_email %></div>
+              </td>
+              <td>
+                <% priority_tr = { "urgent" => "Acil", "high" => "Yüksek", "medium" => "Orta", "low" => "Düşük" } %>
+                <span class="badge badge-<%= ticket.priority %>">
+                  <%= priority_tr[ticket.priority] || ticket.priority.upcase %>
+                </span>
+              </td>
+              <td>
+                <% status_tr = { "new" => "YENİ", "open" => "AÇIK", "pending" => "BEKLEMEDE", "solved" => "ÇÖZÜLDÜ" } %>
+                <span class="badge badge-<%= ticket.status %>">
+                  <%= status_tr[ticket.status] || ticket.status.upcase %>
+                </span>
+              </td>
+              <td>
+                <% if ticket.breached? %>
+                  <span class="badge badge-breached" title="Belirlenen SLA süresi aşıldı!">
+                    ⚠️ SLA İHLALİ
+                  </span>
+                <% elsif ticket.solved? %>
+                  <span class="badge badge-ok">
+                    ✓ Çözüldü
+                  </span>
+                <% else %>
+                  <% remaining = (ticket.sla_due_at - Time.current) / 3600.0 %>
+                  <% if remaining > 0 %>
+                    <span class="badge" style="background-color: #f1f5f9; color: #334155;">
+                      ⏱ Kalan: <%= sprintf("%.1f", remaining) %> sa
+                    </span>
+                  <% else %>
+                    <span class="badge badge-breached">SLA İHLALİ</span>
+                  <% end %>
+                <% end %>
+              </td>
+              <td style="font-size: 0.8rem; color: var(--neutral-muted);">
+                <%= ticket.created_at.strftime("%d.%m.%Y %H:%M") %>
+              </td>
+              <td>
+                <a href="<%= ticket_path(ticket) %>" class="btn btn-secondary btn-sm">Görüntüle</a>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--neutral-muted);">
+              Bu kriterlere uygun destek talebi bulunamadı.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

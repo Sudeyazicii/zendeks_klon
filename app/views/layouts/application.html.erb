@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <title><%= content_for?(:title) ? yield(:title) + " | PulseDesk" : "PulseDesk | Müşteri Destek & Talep Yönetimi" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="PulseDesk — SLA kurallı destek talepleri ve 24 saat yanıtsız topluluk sorularını otomatik dönüştüren modern B2B SaaS platformu.">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="<%= root_path %>" class="brand">
+          <div class="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </div>
+          <span>Pulse<span class="pulse">Desk</span></span>
+        </a>
+
+        <nav>
+          <ul class="nav-links">
+            <li>
+              <a href="<%= tickets_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && action_name == 'index' %>">
+                🎫 Destek Talepleri
+              </a>
+            </li>
+            <li>
+              <a href="<%= community_questions_path %>" class="nav-link <%= 'active' if controller_name == 'community_questions' %>">
+                💬 Topluluk Forumu
+              </a>
+            </li>
+            <li>
+              <a href="<%= sla_dashboard_path %>" class="nav-link <%= 'active' if action_name == 'sla_dashboard' %>">
+                📊 SLA & Otomasyon
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="nav-actions">
+          <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">
+            + Yeni Talep Aç
+          </a>
+          <a href="<%= new_community_question_path %>" class="btn btn-secondary btn-sm">
+            + Soru Sor
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-container">
+      <% if notice.present? %>
+        <div class="flash-notice" role="alert"><%= notice %></div>
+      <% end %>
+      <% if alert.present? %>
+        <div class="flash-alert" role="alert"><%= alert %></div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+
+    <footer class="footer">
+      <p><strong>PulseDesk</strong> — B2B Müşteri Destek & Otomasyon Platformu</p>
+      <p style="margin-top: 0.35rem; font-size: 0.8rem; color: #94a3b8;">
+        G2 İnceleme Çözümü: 24 saat yanıtsız kalan topluluk soruları otomatik bilete dönüştürülür.
+      </p>
+    </footer>
+  </body>
+</html>

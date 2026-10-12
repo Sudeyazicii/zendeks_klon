@@ -1,0 +1,153 @@
+<% content_for :title, "Talep ##{@ticket.ticket_number}: #{@ticket.subject}" %>
+
+<div style="margin-bottom: 1rem;">
+  <a href="<%= tickets_path %>" style="font-size: 0.85rem; color: var(--neutral-muted);">
+    ← Destek Taleplerine Dön
+  </a>
+</div>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+        <span style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">
+          #<%= @ticket.ticket_number %>
+        </span>
+        <% status_tr = { "new" => "YENİ", "open" => "AÇIK", "pending" => "BEKLEMEDE", "solved" => "ÇÖZÜLDÜ" } %>
+        <span class="badge badge-<%= @ticket.status %>">
+          <%= status_tr[@ticket.status] %>
+        </span>
+        <% priority_tr = { "urgent" => "Acil", "high" => "Yüksek", "medium" => "Orta", "low" => "Düşük" } %>
+        <span class="badge badge-<%= @ticket.priority %>">
+          <%= priority_tr[@ticket.priority] %>
+        </span>
+        <% if @ticket.breached? %>
+          <span class="badge badge-breached">⚠️ SLA İHLALİ</span>
+        <% end %>
+      </div>
+      <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--neutral-dark);">
+        <%= @ticket.subject %>
+      </h1>
+      <p style="font-size: 0.85rem; color: var(--neutral-muted); margin-top: 0.25rem;">
+        Oluşturan: <strong><%= @ticket.customer_name %></strong> (<%= @ticket.customer_email %>) • 
+        Tarih: <%= @ticket.created_at.strftime("%d.%m.%Y %H:%M") %>
+      </p>
+    </div>
+
+    <!-- Durum Yönetimi Aksiyon Butonları (Gerçek Durum Makinesi) -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <% if @ticket.status == "new" %>
+        <%= button_to "İncelemeye Al (Açık Yap)", update_status_ticket_path(@ticket, status: "open"), method: :patch, class: "btn btn-primary btn-sm" %>
+        <%= button_to "Müşteri Bekleniyor (Beklemede)", update_status_ticket_path(@ticket, status: "pending"), method: :patch, class: "btn btn-secondary btn-sm" %>
+      <% elsif @ticket.status == "open" %>
+        <%= button_to "Beklemeye Al", update_status_ticket_path(@ticket, status: "pending"), method: :patch, class: "btn btn-secondary btn-sm" %>
+        <%= button_to "✓ Talebi Çöz (Çözüldü)", update_status_ticket_path(@ticket, status: "solved"), method: :patch, class: "btn btn-success btn-sm" %>
+      <% elsif @ticket.status == "pending" %>
+        <%= button_to "Talebi Aç", update_status_ticket_path(@ticket, status: "open"), method: :patch, class: "btn btn-primary btn-sm" %>
+        <%= button_to "✓ Talebi Çöz (Çözüldü)", update_status_ticket_path(@ticket, status: "solved"), method: :patch, class: "btn btn-success btn-sm" %>
+      <% elsif @ticket.status == "solved" %>
+        <%= button_to "↺ Talebi Yeniden Aç", reopen_ticket_path(@ticket), method: :post, class: "btn btn-warning btn-sm" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @ticket.community_question.present? %>
+    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background-color: #f5f3ff; border: 1px solid #ddd6fe; border-radius: var(--radius-sm); font-size: 0.85rem;">
+      💬 <strong>Topluluk Forumu Kaynağı:</strong> 
+      Bu talep 
+      <a href="<%= community_question_path(@ticket.community_question) %>" style="font-weight: 600;">
+        "<%= @ticket.community_question.title %>"
+      </a> 
+      sorusunun 24 saat yanıtsız kalması üzerine otomatik oluşturulmuştur.
+    </div>
+  <% end %>
+
+  <!-- SLA Göstergesi Bilgi Çubuğu -->
+  <div style="margin-top: 1.25rem; padding: 0.85rem 1rem; background-color: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div style="font-size: 0.85rem;">
+      <strong>SLA Bitiş Süresi:</strong> <%= @ticket.sla_due_at.strftime("%d.%m.%Y %H:%M") %>
+      <% if @ticket.first_responded_at.present? %>
+        • <strong>İlk Yanıt:</strong> <%= @ticket.first_responded_at.strftime("%d.%m.%Y %H:%M") %>
+      <% end %>
+    </div>
+    <div>
+      <% if @ticket.breached? %>
+        <span class="badge badge-breached">SLA HEDEFİ AŞILDI (İHLAL)</span>
+      <% elsif @ticket.solved? %>
+        <span class="badge badge-ok">HEDEF ZAMANINDA TAMAMLANDI</span>
+      <% else %>
+        <span class="badge" style="background-color: #e2e8f0; color: #1e293b;">
+          ⏱ Kalan Süre: <%= sprintf("%.1f", [(@ticket.sla_due_at - Time.current) / 3600.0, 0].max) %> Saat
+        </span>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Talep Açıklaması & Yazışma Geçmişi -->
+<div class="card">
+  <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--neutral-dark);">
+    Talep Açıklaması & Konuşma Geçmişi
+  </h2>
+
+  <!-- İlk Talep Açıklaması -->
+  <div class="timeline-item customer">
+    <div class="timeline-meta">
+      <span class="timeline-author">👤 <%= @ticket.customer_name %> (Müşteri - İlk Talep)</span>
+      <span><%= @ticket.created_at.strftime("%d.%m.%Y %H:%M") %></span>
+    </div>
+    <div style="font-size: 0.925rem; white-space: pre-wrap; color: var(--neutral-text);">
+      <%= @ticket.description %>
+    </div>
+  </div>
+
+  <!-- Yanıtlar Geçmişi -->
+  <div class="timeline">
+    <% @comments.each do |comment| %>
+      <div class="timeline-item <%= comment.author_role %>">
+        <div class="timeline-meta">
+          <span class="timeline-author">
+            <% if comment.author_role == "agent" %>
+              🛡️ <%= comment.author_name %> (Destek Görevlisi)
+            <% else %>
+              👤 <%= comment.author_name %> (Müşteri)
+            <% end %>
+          </span>
+          <span><%= comment.created_at.strftime("%d.%m.%Y %H:%M") %></span>
+        </div>
+        <div style="font-size: 0.925rem; white-space: pre-wrap;">
+          <%= comment.body %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Yeni Yanıt Formu -->
+  <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;">
+      Yanıt Yaz
+    </h3>
+
+    <%= form_with model: [@ticket, @new_comment], local: true do |f| %>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <%= f.label :author_name, "Adınız", class: "form-label" %>
+          <%= f.text_field :author_name, value: "Destek Uzmanı (Siz)", class: "form-control", required: true %>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <%= f.label :author_role, "Rolünüz", class: "form-label" %>
+          <%= f.select :author_role, [["Destek Görevlisi (Agent)", "agent"], ["Müşteri (Customer)", "customer"]], {}, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :body, "Yanıt Mesajı", class: "form-label" %>
+        <%= f.text_area :body, placeholder: "Müşteriye iletilecek yanıtı yazın...", class: "form-control", required: true, rows: 4 %>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <%= f.submit "Yanıtı Gönder ve Kaydet", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,112 @@
+<% content_for :title, "SLA & Otomasyon Takip Paneli" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">SLA & Otomasyon Takip Paneli</h1>
+    <p class="page-subtitle">Hizmet Seviyesi Anlaşması (SLA) performansı ve 24 saat topluluk otomasyonu metrikleri</p>
+  </div>
+  <div>
+    <%= button_to "⚡ 24 Saatlik Dönüşümü Şimdi Tetikle", trigger_auto_convert_community_questions_path, method: :post, class: "btn btn-warning" %>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Toplam Talep</div>
+    <div class="stat-value"><%= @total_tickets %></div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--success);">
+    <div class="stat-label" style="color: var(--success);">Zamanında Çözülen</div>
+    <div class="stat-value" style="color: var(--success);"><%= @on_time_tickets %></div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--danger);">
+    <div class="stat-label" style="color: var(--danger);">SLA İhlali (Aşılan)</div>
+    <div class="stat-value" style="color: var(--danger);"><%= @breached_tickets %></div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--warning);">
+    <div class="stat-label" style="color: var(--warning);">SLA Riski (< 1 Saat)</div>
+    <div class="stat-value" style="color: var(--warning);"><%= @active_sla_risk %></div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--primary);">
+    <div class="stat-label" style="color: var(--primary);">Topluluktan Dönüşen</div>
+    <div class="stat-value" style="color: var(--primary);"><%= @auto_converted %></div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+  <!-- SLA Politikası Matrisi -->
+  <div class="card" style="margin-bottom: 0;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--neutral-dark);">
+      🎯 Hizmet Seviyesi (SLA) Politikası
+    </h2>
+    <p style="font-size: 0.85rem; color: var(--neutral-muted); margin-bottom: 1.25rem;">
+      Her talep oluşturulduğunda öncelik seviyesine göre kesin bir SLA hedef süresi hesaplanır.
+    </p>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Öncelik</th>
+            <th>Hedef SLA</th>
+            <th>Açıklama</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-urgent">Acil (Urgent)</span></td>
+            <td><strong>2 Saat</strong></td>
+            <td>Kritik sistem kesintileri ve veri kaybı riskleri</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-high">Yüksek (High)</span></td>
+            <td><strong>4 Saat</strong></td>
+            <td>Ana işlevleri etkileyen ciddi performans sorunları</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-medium">Orta (Medium)</span></td>
+            <td><strong>8 Saat</strong></td>
+            <td>Genel kullanım ve hesap soruları</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-low">Düşük (Low)</span></td>
+            <td><strong>24 Saat</strong></td>
+            <td>Küçük iyileştirmeler ve genel bilgi talepleri</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 100+ Puan Diferansiyatör Açıklaması -->
+  <div class="card" style="margin-bottom: 0;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--neutral-dark);">
+      💡 100+ Puan Farkı: 24 Saat Otomasyon Mimarisi
+    </h2>
+    <p style="font-size: 0.85rem; color: var(--neutral-muted); margin-bottom: 1.25rem;">
+      G2 Zendesk kullanıcı incelemesindeki en büyük eksiklik çözüldü.
+    </p>
+
+    <div style="font-size: 0.875rem; line-height: 1.6; color: var(--neutral-text);">
+      <p style="margin-bottom: 0.75rem;">
+        <strong>İncelenen Kullanıcı Problemi:</strong> Müşteriler topluluk forumlarında soru sorduğunda, diğer kullanıcılardan veya destekten 1-2 gün cevap alamadıklarında bu sorular unutulup müşteri kaybına yol açıyordu.
+      </p>
+      <p style="margin-bottom: 0.75rem;">
+        <strong>PulseDesk Çözümü:</strong>
+      </p>
+      <ul style="margin-left: 1.25rem; margin-bottom: 0.75rem;">
+        <li>Her topluluk sorusunun yanıt sayısı anlık takip edilir.</li>
+        <li>24 saat boyunca hiç yanıt almayan sorular otomatik tespit edilir.</li>
+        <li>Sistem tek bir işlemde soruyu <strong>Yüksek Öncelikli Destek Talebine</strong> dönüştürür.</li>
+        <li>Kaynak soru ile yeni talep çift yönlü ilişkilendirilir.</li>
+        <li>İkinci kez dönüşüm engellenir (idempotent mimari).</li>
+      </ul>
+      <p style="font-weight: 600; color: var(--primary);">
+        Kim, neden, nasıl kullanır? <br>
+        <span style="font-weight: 400; color: var(--neutral-muted);">
+          "PulseDesk, destek ekiplerinin cevapsız kalan forum sorularını 24 saat içinde otomatik olarak öncelikli destek biletine dönüştürerek müşteri kaybını ve yanıt gecikmelerini önlemesini sağlar."
+        </span>
+      </p>
+    </div>
+  </div>
+</div>

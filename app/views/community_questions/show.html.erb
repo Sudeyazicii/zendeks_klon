@@ -1,0 +1,115 @@
+<% content_for :title, @question.title %>
+
+<div style="margin-bottom: 1rem;">
+  <a href="<%= community_questions_path %>" style="font-size: 0.85rem; color: var(--neutral-muted);">
+    ← Topluluk Sorularına Dön
+  </a>
+</div>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+    <div>
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center;">
+        <span class="badge" style="background-color: #e2e8f0; color: #334155;">
+          <%= @question.category %>
+        </span>
+
+        <% if @question.converted_to_ticket? %>
+          <span class="badge" style="background-color: #d1fae5; color: #065f46;">
+            ✓ Destek Talebine Dönüştürüldü
+          </span>
+        <% elsif @question.answers_count.zero? %>
+          <% elapsed = (Time.current - @question.created_at) / 3600.0 %>
+          <span class="badge" style="background-color: #fef3c7; color: #92400e;">
+            ⏱ Yanıtsız (<%= sprintf("%.1f", elapsed) %> sa geçti)
+          </span>
+        <% end %>
+      </div>
+
+      <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--neutral-dark);">
+        <%= @question.title %>
+      </h1>
+
+      <p style="font-size: 0.85rem; color: var(--neutral-muted); margin-top: 0.35rem;">
+        Soran: <strong><%= @question.author_name %></strong> (<%= @question.author_email %>) • 
+        Yayınlanma: <%= @question.created_at.strftime("%d.%m.%Y %H:%M") %>
+      </p>
+    </div>
+
+    <div>
+      <% if @question.converted_to_ticket? %>
+        <a href="<%= ticket_path(@question.ticket) %>" class="btn btn-success btn-sm">
+          Destek Talebini Aç (#<%= @question.ticket.ticket_number %>) →
+        </a>
+      <% else %>
+        <%= button_to "Bu Soruyu Destek Talebine Dönüştür", convert_to_ticket_community_question_path(@question), method: :post, class: "btn btn-primary btn-sm" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @question.converted_to_ticket? %>
+    <div style="margin-top: 1.25rem; padding: 1rem; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); font-size: 0.9rem; color: #065f46;">
+      🛡️ <strong>Otomasyon Bilgisi:</strong> Bu soru, 
+      <strong><%= @question.converted_at.strftime("%d.%m.%Y %H:%M") %></strong> tarihinde 
+      <a href="<%= ticket_path(@question.ticket) %>" style="color: #065f46; font-weight: 700; text-decoration: underline;">
+        #<%= @question.ticket.ticket_number %>
+      </a> 
+      numaralı resmi destek talebine başarıyla aktarılmıştır.
+    </div>
+  <% end %>
+
+  <div style="margin-top: 1.5rem; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; padding-top: 1.25rem; border-top: 1px solid var(--border);">
+    <%= @question.body %>
+  </div>
+</div>
+
+<!-- Yanıtlar Bölümü -->
+<div class="card">
+  <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--neutral-dark);">
+    Topluluk Yanıtları (<%= @answers.count %>)
+  </h2>
+
+  <div class="timeline">
+    <% if @answers.any? %>
+      <% @answers.each do |ans| %>
+        <div class="timeline-item">
+          <div class="timeline-meta">
+            <span class="timeline-author">💬 <%= ans.author_name %></span>
+            <span><%= ans.created_at.strftime("%d.%m.%Y %H:%M") %></span>
+          </div>
+          <div style="font-size: 0.925rem; white-space: pre-wrap;">
+            <%= ans.body %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div style="padding: 1.5rem; text-align: center; color: var(--neutral-muted); font-size: 0.9rem;">
+        Henüz bir yanıt verilmedi. İlk yanıtı siz yazabilirsiniz. 
+        <br><small>(24 saat boyunca yanıt gelmezse sistem bu soruyu otomatik olarak destek talebine çevirecektir.)</small>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Yanıt Ekle Formu -->
+  <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;">
+      Yanıtını Paylaş
+    </h3>
+
+    <%= form_with model: [@question, @new_answer], local: true do |f| %>
+      <div class="form-group">
+        <%= f.label :author_name, "Adınız Soyadınız", class: "form-label" %>
+        <%= f.text_field :author_name, placeholder: "Örn. Zeynep Kaya", class: "form-control", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :body, "Yanıtınız", class: "form-label" %>
+        <%= f.text_area :body, placeholder: "Topluluk sorusuna çözüm veya önerinizi yazın...", class: "form-control", required: true, rows: 4 %>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <%= f.submit "Yanıtı Gönder", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
