@@ -1,0 +1,170 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Otomasyon & İş Akışı Yönetimi</h1>
+    <p class="page-subtitle">
+      Zendesk'in karmaşık kurallarına karşı <strong>güvenli önizleme (dry-run)</strong>, <strong>çakışma uyarıları</strong> ve <strong>denetim geçmişi</strong> ile tam kontrol.
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <%= link_to "📜 Denetim Geçmişi (Audit Logs)", audit_logs_automations_path, class: "btn btn-secondary" %>
+    <%= link_to "+ Yeni Kural Oluştur", new_automation_path, class: "btn btn-primary" %>
+  </div>
+</div>
+
+<% if @conflicts.any? %>
+  <div class="duplicate-banner" style="border-left-color: #ef4444; background: #fef2f2; border-color: #fecaca;">
+    <div class="duplicate-banner-content">
+      <h4 style="color: #991b1b;">⚠️ Kural Çakışması / Yanlış Yapılandırma Uyarısı (G2 Şikâyeti Çözümü)</h4>
+      <p style="color: #b91c1c;">
+        Aşağıdaki kurallar aynı koşulları hedefleyip birbirine zıt aksiyonlar içeriyor:
+      </p>
+      <ul style="margin-top: 0.35rem; margin-left: 1.25rem; font-size: 0.85rem; color: #b91c1c;">
+        <% @conflicts.each do |c| %>
+          <li><%= c %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>
+
+<!-- PulseDesk Differentiator Callout -->
+<div class="feature-callout">
+  <div class="feature-callout-text">
+    <h3>🛡️ Güvenli Önizleme (Dry-Run) ve Mükerrer İşlem Engelleme</h3>
+    <p>
+      Bir kuralı çalıştırmadan önce sistem veritabanına dokunmadan hangi kayıtların etkileneceğini gösterir. Aynı kural tekrar çalıştırıldığında zaten uygulanmış kayıtlar otomatik atlanır.
+    </p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Kural Adı</th>
+          <th>Tetikleyici</th>
+          <th>Hedef Koşullar</th>
+          <th>Planlanan Aksiyonlar</th>
+          <th>Durum</th>
+          <th>Son Çalışma</th>
+          <th style="text-align: right;">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @rules.empty? %>
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem; color: var(--neutral-muted);">
+              Henüz tanımlı bir otomasyon kuralı bulunmuyor. Yeni bir kural oluşturarak başlayabilirsiniz.
+            </td>
+          </tr>
+        <% else %>
+          <% @rules.each do |rule| %>
+            <% conds = rule.parsed_conditions %>
+            <% acts = rule.parsed_actions %>
+            <tr>
+              <td>
+                <strong><%= rule.name %></strong>
+                <% if rule.description.present? %>
+                  <div style="font-size: 0.8rem; color: var(--neutral-muted);"><%= rule.description %></div>
+                <% end %>
+              </td>
+              <td>
+                <span class="table-badge badge-info"><%= rule.trigger_type == 'time_based' ? '⏱️ Zaman Tabanlı' : '⚡ Olay Tabanlı' %></span>
+              </td>
+              <td>
+                <div style="font-size: 0.825rem;">
+                  <% if conds['status'].present? %>
+                    <div>Durum: <strong><%= conds['status'].upcase %></strong></div>
+                  <% end %>
+                  <% if conds['priority'].present? %>
+                    <div>Öncelik: <strong><%= conds['priority'].upcase %></strong></div>
+                  <% end %>
+                  <% if conds['unassigned'] %>
+                    <div>Atanmamış: <strong>EVET</strong></div>
+                  <% end %>
+                </div>
+              </td>
+              <td>
+                <div style="font-size: 0.825rem;">
+                  <% if acts['set_priority'].present? %>
+                    <div>Öncelik -> <strong><%= acts['set_priority'].upcase %></strong></div>
+                  <% end %>
+                  <% if acts['assign_to_user_id'].present? %>
+                    <% u = User.find_by(id: acts['assign_to_user_id']) %>
+                    <div>Atama -> <strong><%= u&.name || "Kullanıcı ##{acts['assign_to_user_id']}" %></strong></div>
+                  <% end %>
+                  <% if acts['add_tag'].present? %>
+                    <div>Etiket -> <strong>+<%= acts['add_tag'] %></strong></div>
+                  <% end %>
+                </div>
+              </td>
+              <td>
+                <% if rule.active? %>
+                  <span class="table-badge badge-success">Aktif</span>
+                <% else %>
+                  <span class="table-badge badge-warning">Pasif</span>
+                <% end %>
+              </td>
+              <td style="font-size: 0.8rem; color: var(--neutral-muted);">
+                <%= rule.last_run_at ? rule.last_run_at.strftime("%d.%m %H:%M") : "Hiç çalışmadı" %>
+              </td>
+              <td style="text-align: right;">
+                <div style="display: inline-flex; gap: 0.4rem;">
+                  <%= link_to "🔍 Önizle (Dry-Run)", preview_automation_path(rule), class: "btn btn-secondary btn-sm" %>
+                  <%= button_to "Durum Değiştir", toggle_automation_path(rule), method: :patch, class: "btn btn-sm", style: "border: 1px solid var(--border);" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Son Çalışma Geçmişi (Mini Özet) -->
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3 style="font-size: 1.1rem; font-weight: 700;">Son Çalıştırılan Otomasyon Günlükleri (Audit Logs)</h3>
+    <%= link_to "Tümünü Görüntüle →", audit_logs_automations_path, style: "font-size: 0.85rem; font-weight: 600;" %>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Zaman</th>
+        <th>Kural Adı</th>
+        <th>Çalıştıran</th>
+        <th>Taranan</th>
+        <th>Değiştirilen</th>
+        <th>Atlanan (Mükerrer)</th>
+        <th>Sonuç</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @audit_logs.empty? %>
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--neutral-muted); padding: 1.5rem;">
+            Henüz kaydedilmiş denetim geçmişi bulunmamaktadır.
+          </td>
+        </tr>
+      <% else %>
+        <% @audit_logs.each do |log| %>
+          <tr>
+            <td style="font-size: 0.8rem;"><%= log.created_at.strftime("%d.%m.%Y %H:%M") %></td>
+            <td><strong><%= log.rule_name %></strong></td>
+            <td><%= log.executed_by %></td>
+            <td><%= log.records_scanned %></td>
+            <td><strong style="color: var(--success);"><%= log.records_modified %></strong></td>
+            <td><span style="color: var(--warning);"><%= log.records_skipped %></span></td>
+            <td>
+              <span class="table-badge badge-<%= log.status == 'success' ? 'success' : 'danger' %>">
+                <%= log.status.upcase %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

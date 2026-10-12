@@ -495,3 +495,190 @@ textarea.form-control {
   font-size: 0.85rem;
   color: var(--neutral-muted);
 }
+
+/* Notification Bell & Badge */
+.notif-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--neutral-text);
+  transition: all 0.15s ease;
+}
+.notif-btn:hover {
+  background: var(--bg-page);
+  color: var(--primary);
+  text-decoration: none;
+}
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--danger);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+}
+
+/* Role Switcher */
+.role-switcher {
+  display: flex;
+  align-items: center;
+}
+.role-form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.role-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--neutral-muted);
+}
+.role-select {
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--neutral-text);
+  cursor: pointer;
+  outline: none;
+}
+.role-select:focus {
+  border-color: var(--primary);
+}
+
+/* Internal Note Styling (Zendesk-style Yellow/Amber Warm Card) */
+.timeline-card.internal-note {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 4px solid #f59e0b;
+}
+.internal-note-badge {
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 0.725rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid #fde68a;
+}
+
+/* Similar Ticket / Duplicate Alert Banner */
+.duplicate-banner {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #f97316;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.duplicate-banner-content h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #9a3412;
+  margin-bottom: 0.2rem;
+}
+.duplicate-banner-content p {
+  font-size: 0.85rem;
+  color: #c2410c;
+}
+
+/* Knowledge Base Suggestions Box */
+.kb-suggestions {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.kb-suggestions h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.kb-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.kb-list li a {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #15803d;
+}
+.kb-list li a:hover {
+  text-decoration: underline;
+}
+
+/* Automation Dry-run Preview & Tables */
+.preview-summary-card {
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+.preview-stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--neutral-dark);
+}
+.preview-stat-label {
+  font-size: 0.85rem;
+  color: var(--neutral-muted);
+  font-weight: 600;
+}
+.preview-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-top: 1.5rem;
+}
+
+.table-badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  display: inline-block;
+}
+.badge-success { background: #dcfce7; color: #15803d; }
+.badge-warning { background: #fef3c7; color: #b45309; }
+.badge-danger { background: #fee2e2; color: #b91c1c; }
+.badge-info { background: #e0e7ff; color: #4338ca; }
+

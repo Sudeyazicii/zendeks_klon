@@ -1,0 +1,121 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Raporlar & Performans Analizi</h1>
+    <p class="page-subtitle">
+      Zendesk'in karmaşık rapor oluşturucularına alternatif olarak en kritik 6 metrik, çalışan iş yükü ve CSV dışa aktarımı.
+    </p>
+  </div>
+  <div>
+    <%= link_to "📥 CSV Olarak İndir", export_csv_reports_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- 6 Anahtar Metrik Kartı -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+  <div class="stat-card">
+    <div class="stat-value"><%= @total_tickets %></div>
+    <div class="stat-label">Toplam Talep</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value" style="color: var(--success);"><%= @solved_tickets %></div>
+    <div class="stat-label">Çözülen / Kapatılan</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value" style="color: <%= @compliance_rate >= 80 ? 'var(--success)' : 'var(--danger)' %>;">
+      %<%= @compliance_rate %>
+    </div>
+    <div class="stat-label">SLA Karşılama Oranı</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value" style="color: var(--primary);">
+      <%= @avg_first_response_minutes ? "#{@avg_first_response_minutes} dk" : "Ölçüm Yok" %>
+    </div>
+    <div class="stat-label">
+      Ortalama İlk Yanıt Süresi
+      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500;">
+        (Yalnızca yanıtlanmış <%= @responded_count %> talep üzerinden; yanıtsızlar 0 sayılmaz)
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value" style="color: #6366f1;">
+      <%= @avg_resolution_hours ? "#{@avg_resolution_hours} saat" : "Ölçüm Yok" %>
+    </div>
+    <div class="stat-label">
+      Ortalama Çözüm Süresi
+      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500;">
+        (Yalnızca çözülen <%= @solved_count %> talep üzerinden)
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value" style="color: #06b6d4;">
+      %<%= @conversion_rate %>
+    </div>
+    <div class="stat-label">
+      Forum 24h Dönüşüm Oranı
+      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500;">
+        (<%= @converted_questions %> / <%= @total_forum_questions %> soru bilete dönüştü)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+  <!-- Çalışan Başına İş Yükü -->
+  <div class="card">
+    <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; color: var(--neutral-dark);">
+      👨‍💼 Destek Çalışanları ve İş Yükü Dağılımı
+    </h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Çalışan Adı</th>
+          <th>Departman</th>
+          <th>Aktif Atanmış Talep</th>
+          <th>Çözülen Talep</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @agents.each do |agent| %>
+          <tr>
+            <td><strong><%= agent[:name] %></strong></td>
+            <td><%= agent[:department] %></td>
+            <td>
+              <span class="table-badge badge-warning"><%= agent[:assigned_count] %> aktif</span>
+            </td>
+            <td>
+              <span class="table-badge badge-success"><%= agent[:solved_count] %> çözüldü</span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Kategori Dağılımı -->
+  <div class="card">
+    <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; color: var(--neutral-dark);">
+      📂 Kategori Dağılımı
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <% @category_stats.each do |cat, count| %>
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">
+            <span><%= cat || "Diğer" %></span>
+            <span><%= count %> talep</span>
+          </div>
+          <div style="background: #f1f5f9; height: 8px; border-radius: 4px; overflow: hidden;">
+            <% pct = @total_tickets.positive? ? (count.to_f / @total_tickets * 100).round : 0 %>
+            <div style="background: var(--primary); width: <%= pct %>%; height: 100%;"></div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -18,6 +18,12 @@ class CommunityQuestionsController < ApplicationController
     @unanswered_count = CommunityQuestion.unanswered.count
     @converted_count  = CommunityQuestion.where(converted_to_ticket: true).count
     @eligible_count   = CommunityQuestion.eligible_for_auto_conversion.count
+
+    # Son çalıştırma bilgileri (Denetim günlüğünden)
+    @last_log = AutomationAuditLog.where(rule_name: "24 Saat Cevapsız Forum Sorularını Destek Talebine Dönüştür").recent_first.first
+    @last_converted_count = @last_log&.records_modified || 0
+    @last_run_at = @last_log&.created_at
+    @last_status = @last_log&.status
   end
 
   def show
@@ -49,12 +55,12 @@ class CommunityQuestionsController < ApplicationController
   end
 
   def trigger_auto_convert
-    converted = CommunityQuestion.auto_convert_unanswered!
+    converted = CommunityQuestion.auto_convert_unanswered!(executed_by: "#{current_user.name} (Manuel Çalıştırma)")
 
     if converted.any?
       redirect_to community_questions_path, notice: "#{converted.size} adet 24 saattir cevapsız soru başarıyla destek talebine dönüştürüldü."
     else
-      redirect_to community_questions_path, notice: "Şu anda 24 saat kuralına uyan dönüştürülecek cevapsız soru bulunamadı."
+      redirect_to community_questions_path, notice: "Şu anda 24 saat kuralına uyan dönüştürülecek cevapsız soru bulunamadı (Tüm sorular yanıtlanmış veya 24 saatten genç)."
     end
   end
 

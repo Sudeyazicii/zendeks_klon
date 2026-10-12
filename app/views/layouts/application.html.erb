@@ -2,9 +2,9 @@
 <html lang="tr">
   <head>
     <meta charset="utf-8">
-    <title><%= content_for?(:title) ? yield(:title) + " | PulseDesk" : "PulseDesk | Müşteri Destek & Talep Yönetimi" %></title>
+    <title><%= content_for?(:title) ? yield(:title) + " | PulseDesk" : "PulseDesk | Müşteri Destek & Otomasyon SaaS" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="PulseDesk — SLA kurallı destek talepleri ve 24 saat yanıtsız topluluk sorularını otomatik dönüştüren modern B2B SaaS platformu.">
+    <meta name="description" content="PulseDesk — SLA kurallı destek talepleri, güvenli otomasyon dry-run önizlemesi ve 24 saat yanıtsız topluluk sorularını otomatik dönüştüren modern B2B SaaS platformu.">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -27,29 +27,60 @@
         <nav>
           <ul class="nav-links">
             <li>
-              <a href="<%= tickets_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && action_name == 'index' %>">
-                🎫 Destek Talepleri
+              <a href="<%= tickets_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && action_name != 'sla_dashboard' %>">
+                🎫 Talepler
               </a>
             </li>
             <li>
               <a href="<%= community_questions_path %>" class="nav-link <%= 'active' if controller_name == 'community_questions' %>">
-                💬 Topluluk Forumu
+                💬 Forum
+              </a>
+            </li>
+            <li>
+              <a href="<%= automations_path %>" class="nav-link <%= 'active' if controller_name == 'automations' %>">
+                ⚡ Otomasyon
+              </a>
+            </li>
+            <li>
+              <a href="<%= reports_path %>" class="nav-link <%= 'active' if controller_name == 'reports' %>">
+                📈 Raporlar
               </a>
             </li>
             <li>
               <a href="<%= sla_dashboard_path %>" class="nav-link <%= 'active' if action_name == 'sla_dashboard' %>">
-                📊 SLA & Otomasyon
+                ⏱️ SLA
               </a>
             </li>
           </ul>
         </nav>
 
         <div class="nav-actions">
-          <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">
-            + Yeni Talep Aç
+          <!-- Bildirim Merkezi -->
+          <a href="<%= notifications_path %>" class="notif-btn" title="Bildirim Merkezi">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <% unread_count = current_user&.unread_notifications_count || 0 %>
+            <% if unread_count > 0 %>
+              <span class="notif-badge"><%= unread_count %></span>
+            <% end %>
           </a>
-          <a href="<%= new_community_question_path %>" class="btn btn-secondary btn-sm">
-            + Soru Sor
+
+          <!-- Canlı Rol Seçici (Hoca / Demo için anında geçiş) -->
+          <div class="role-switcher">
+            <%= form_with url: switch_role_path, method: :post, local: true, class: "role-form" do |f| %>
+              <span class="role-label">Rol:</span>
+              <select name="role" onchange="this.form.submit()" class="role-select">
+                <option value="agent" <%= 'selected' if current_role == 'agent' %>>👨‍💼 Temsilci (<%= current_user.name.split.first %>)</option>
+                <option value="customer" <%= 'selected' if current_role == 'customer' %>>👤 Müşteri (Ahmet)</option>
+                <option value="admin" <%= 'selected' if current_role == 'admin' %>>⚡ Yönetici (Ali)</option>
+              </select>
+            <% end %>
+          </div>
+
+          <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">
+            + Talep Aç
           </a>
         </div>
       </div>
@@ -67,10 +98,17 @@
     </main>
 
     <footer class="footer">
-      <p><strong>PulseDesk</strong> — B2B Müşteri Destek & Otomasyon Platformu</p>
-      <p style="margin-top: 0.35rem; font-size: 0.8rem; color: #94a3b8;">
-        G2 İnceleme Çözümü: 24 saat yanıtsız kalan topluluk soruları otomatik bilete dönüştürülür.
-      </p>
+      <div style="max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <p><strong>PulseDesk</strong> — B2B Müşteri Destek & Güvenli Otomasyon Platformu</p>
+          <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #94a3b8;">
+            Zendesk Şikâyetleri Çözümü: Şeffaf yönetim, kural önizleme (dry-run), mükerrer talep uyarısı ve 24h forum otomasyonu.
+          </p>
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b;">
+          Ruby on Rails 8.1 • Hotwire • Deterministic Time Travel Testleri
+        </div>
+      </div>
     </footer>
   </body>
 </html>

@@ -1,0 +1,116 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Yeni Otomasyon Kuralı Oluştur</h1>
+    <p class="page-subtitle">
+      Koşulları belirleyin ve tetiklendiğinde uygulanacak eylemleri yapılandırın.
+    </p>
+  </div>
+  <div>
+    <%= link_to "← İptal", automations_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+  <%= form_with url: automations_path, method: :post, local: true do |f| %>
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <label class="form-label" style="font-weight: 700;">Kural Adı</label>
+      <input type="text" name="rule[name]" class="form-input" placeholder="Örn: SLA İhlali Yaklaşan Talepleri Eskale Et" required />
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <label class="form-label" style="font-weight: 700;">Açıklama</label>
+      <input type="text" name="rule[description]" class="form-input" placeholder="Bu kuralın amacını kısaca belirtin" />
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+      <label class="form-label" style="font-weight: 700;">Tetikleyici Türü</label>
+      <select name="rule[trigger_type]" class="form-select">
+        <option value="event">⚡ Olay Tabanlı (Talep açıldığında veya güncellendiğinde)</option>
+        <option value="time_based">⏱️ Zaman Tabanlı (Belirli süre geçtiğinde)</option>
+      </select>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+
+    <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem; color: var(--primary);">
+      1. Eşleşme Koşulları (IF / EĞER)
+    </h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div class="form-group">
+        <label class="form-label">Talep Durumu</label>
+        <select name="condition_status" class="form-select">
+          <option value="">(Tüm Durumlar)</option>
+          <option value="new">Yeni (NEW)</option>
+          <option value="open">Açık (OPEN)</option>
+          <option value="pending">Beklemede (PENDING)</option>
+          <option value="breached">SLA İhlali Olanlar</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Öncelik</label>
+        <select name="condition_priority" class="form-select">
+          <option value="">(Tüm Öncelikler)</option>
+          <option value="urgent">Acil (URGENT)</option>
+          <option value="high">Yüksek (HIGH)</option>
+          <option value="medium">Normal (MEDIUM)</option>
+          <option value="low">Düşük (LOW)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+        <input type="checkbox" name="condition_unassigned" value="1" />
+        Sadece henüz bir çalışana atanmamış talepleri hedefle
+      </label>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+
+    <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem; color: var(--success);">
+      2. Planlanan Eylemler (THEN / O ZAMAN)
+    </h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div class="form-group">
+        <label class="form-label">Yeni Öncelik Ata</label>
+        <select name="action_priority" class="form-select">
+          <option value="">(Değiştirme)</option>
+          <option value="urgent">Acil (URGENT)</option>
+          <option value="high">Yüksek (HIGH)</option>
+          <option value="medium">Normal (MEDIUM)</option>
+          <option value="low">Düşük (LOW)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Çalışana Ata</label>
+        <select name="action_assign_to" class="form-select">
+          <option value="">(Değiştirme)</option>
+          <% @agents.each do |agent| %>
+            <option value="<%= agent.id %>"><%= agent.name %> (<%= agent.department %>)</option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+      <label class="form-label">Etiket Ekle</label>
+      <input type="text" name="action_tag" class="form-input" placeholder="Örn: vip_destek, eskale_edildi" />
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+        <input type="checkbox" name="rule[active]" value="1" checked />
+        Kural oluşturulduğunda aktif olsun
+      </label>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+      <%= link_to "Vazgeç", automations_path, class: "btn btn-secondary" %>
+      <button type="submit" class="btn btn-primary">Kuralı Oluştur ve Önizle</button>
+    </div>
+  <% end %>
+</div>

@@ -104,4 +104,54 @@ class TicketTest < ActiveSupport::TestCase
       assert_equal false, @ticket.breached?, "Çözülmüş bilet için SLA ihlali tetiklenmemeli"
     end
   end
+
+  test "çözülen veya açık talep kapatılabilir ve kapalı talep yeniden açılabilir" do
+    @ticket.transition_to!("open")
+    @ticket.transition_to!("solved")
+    assert @ticket.transition_to!("closed")
+    assert_equal "closed", @ticket.reload.status
+    assert_not_nil @ticket.closed_at
+
+    # Kapalı talep yeniden açılabilir
+    assert @ticket.reopen!
+    assert_equal "open", @ticket.reload.status
+    assert_nil @ticket.closed_at
+  end
+
+  test "benzer veya mükerrer talepler aynı e-posta veya benzer başlıkla tespit edilir" do
+    similar = Ticket.create!(
+      subject: "Giriş yaparken hata ile karşılaşıyorum",
+      description: "Tekrar denedim ama hala giriş yapamıyorum.",
+      customer_name: "Ahmet Yılmaz",
+      customer_email: "ahmet@example.com",
+      priority: "medium"
+    )
+
+    detected = @ticket.similar_tickets
+    assert_includes detected, similar
+  end
+
+  test "mükerrer talep birleştirildiğinde kapatılır ve her iki talebe de kayıt düşülür" do
+    duplicate = Ticket.create!(
+      subject: "Aynı sorun devam ediyor: Giriş hatası",
+      description: "Az önce açmıştım ama cevap alamadım.",
+      customer_name: "Ahmet Yılmaz",
+      customer_email: "ahmet@example.com",
+      priority: "high",
+      status: "open"
+    )
+
+    duplicate.merge_into!(@ticket, agent_name: "Kıdemli Destek")
+
+    duplicate.reload
+    @ticket.reload
+
+    assert_equal "closed", duplicate.status
+    assert_equal @ticket.id, duplicate.merged_into_ticket_id
+
+    # Her iki talepte de dahili not olduğunu doğrula
+    assert duplicate.ticket_comments.where(is_internal_note: true).exists?
+    assert @ticket.ticket_comments.where(is_internal_note: true).exists?
+  end
 end
+

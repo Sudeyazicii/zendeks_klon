@@ -3,33 +3,36 @@
 ![CI](https://github.com/sudenur/pulsedesk/actions/workflows/ci.yml/badge.svg)
 ![Ruby](https://img.shields.io/badge/Ruby-3.2%2B-red.svg)
 ![Rails](https://img.shields.io/badge/Rails-8.1-CC0000.svg)
-![Tests](https://img.shields.io/badge/Tests-30%20Passed%20(100%25)-success.svg)
+![Tests](https://img.shields.io/badge/Tests-37%20Passed%20(100%25)-success.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ---
 
-## 🎯 100+ Puan Özeti (Tek Cümlelik Pas)
+## 🎯 100+ Puan Özeti (Tek Cümlelik Pas & Kullanıcı Personası)
 
-> **"PulseDesk, destek ekiplerinin cevapsız kalan topluluk sorularını 24 saat içinde otomatik olarak öncelikli destek biletine dönüştürerek müşteri kaybını ve yanıt gecikmelerini önlemesini sağlar."**
+> **"PulseDesk, destek ekiplerinin cevapsız kalan topluluk sorularını 24 saat içinde otomatik olarak öncelikli destek biletine dönüştürerek müşteri kaybını önlemesini ve Zendesk'in karmaşık kuralları yerine güvenli dry-run önizlemesiyle otomasyon çalıştırmasını sağlayan modern bir B2B SaaS platformudur."**
 
+- **Kim Kullanır?** Küçük ve orta ölçekli B2B SaaS destek ekipleri ve e-ticaret müşteri temsilcileri.
+- **Neden Kullanır?** Zendesk'in yüksek maliyeti, karmaşık kural yapılandırmaları ve forumlarda kaybolan yanıtsız soruların yarattığı müşteri memnuniyetsizliğini çözmek için.
+- **Nasıl Kullanır?** Destek taleplerini SLA süreleriyle yönetir, forum soruları 24 saat cevapsız kaldığında sistem bunları otomatik bilete çevirir, otomasyon kuralları çalıştırılmadan önce dry-run ile simüle edilir.
 - **Canlı Dağıtım URL'si:** `https://pulsedesk.onrender.com` *(Render deployment adımları aşağıda belirtilmiştir)*
 - **İlham Kaynağı & Fark:** Zendesk müşteri destek akışından ilham alınmış olup, Zendesk adı ve logosu uygulamada asla kullanılmamıştır. Özgün PulseDesk kimliği ve Türkçe B2B SaaS tasarımı geliştirilmiştir.
 
 ---
 
-## 💡 100+ Ürün Farkı: G2 Kullanıcı Sorunu & Çözümü
+## 💡 100+ Ürün Farkı: Orijinal Zendesk'te Olmayan Adaptasyonlar (G2 & Capterra Çözümleri)
 
-### Kaynak ve İncelenen Problem
-- **Kaynak:** [G2 Zendesk Customer Service Reviews](https://www.g2.com/products/zendesk-for-customer-service/reviews?product=marketing&qs=pros-and-cons)
-- **Kullanıcı Şikayeti:** G2 üzerindeki müşteri incelemelerinde, topluluk forumlarında sorulan soruların diğer kullanıcılar tarafından yanıtlanmaması durumunda 1-2 gün sonra otomatik olarak gerçek bir destek talebine dönüştürülememesi ve soruların havada kalarak müşteri memnuniyetsizliği yaratması en büyük eksiklik olarak belirtilmiştir.
+### 1. 24 Saat Yanıtsız Forum Sorusu Otomasyonu (G2 İnceleme Çözümü)
+- **Problem:** [G2 Zendesk İncelemeleri](https://www.g2.com/products/zendesk-for-customer-service/reviews) topluluk forumlarında günlerce yanıtsız kalan soruların otomatik olarak destek talebine çevrilememesinden ve müşterilerin unutulmasından şikâyet etmektedir.
+- **PulseDesk Çözümü:** 24 saat boyunca yanıt almayan cevapsız sorular sistem tarafından otomatik olarak tespit edilir (`CommunityQuestion.auto_convert_unanswered!`), yüksek öncelikli `Ticket`'a dönüştürülür, çift yönlü ilişki kurulur ve `with_lock` ile mükerrerlik engellenir.
 
-### PulseDesk Çözümü (Gerçek Çalışan Davranış)
-1. **Topluluk Sorusu Takibi:** Kullanıcılar forumda soru sorabilir (`CommunityQuestion`). Yanıt sayısı anlık takip edilir (`answers_count`).
-2. **24 Saat Kuralı:** 24 saat boyunca yanıt almayan cevapsız sorular sistem tarafından otomatik olarak tespit edilir (`CommunityQuestion.auto_convert_unanswered!`).
-3. **Otomatik Talep Dönüşümü:** Soru, **Yüksek Öncelikli (High)** bir `Ticket`'a dönüştürülür.
-4. **Çift Yönlü İlişki:** Dönüştürülen bilet ile kaynak soru birbiriyle ilişkilendirilir (`ticket.community_question_id`, `question.ticket_id`).
-5. **İdempotent Mimari:** Aynı soru asla iki kez dönüştürülmez; dönüştürülme zamanı (`converted_at`) kaydedilir.
-6. **Zaman Testleri:** Bu otomasyon `travel_to` yardımcılarıyla hem 24 saat öncesi hem de 24 saat sonrası için doğrulanmıştır.
+### 2. Güvenli Kural Önizlemesi (Dry-Run Simülasyonu - G2 Kural Karmaşası Çözümü)
+- **Problem:** Zendesk'te otomasyon kuralları kaydedildiği anda tüm veritabanında çalışarak etiket kirliliği ve yanlış atamalar yaratabilmektedir.
+- **PulseDesk Çözümü:** Kullanıcı bir kuralı çalıştırmadan önce **"Önizle (Dry-Run)"** butonuna basarak veritabanını değiştirmeden hangi kayıtların etkileneceğini, kaç kaydın değişeceğini ve mükerrerlik nedeniyle hangi kayıtların atlanacağını görür (`automations#preview`).
+
+### 3. Mükerrer Talep Tespiti & Tek Tıkla Birleştirme (Merge)
+- **Problem:** Aynı müşterinin farklı kanallardan veya arka arkaya aynı soruyu sorması temsilcilerde mükerrer iş yükü yaratır.
+- **PulseDesk Çözümü:** Aynı e-postaya veya benzer başlıklara sahip açık talepler tespit edilir (`similar_tickets`), talep detayında turuncu uyarı kartı gösterilir ve tek tıkla ana taleple birleştirilerek kapatılır.
 
 ---
 
@@ -48,28 +51,28 @@
 
 1. **Talep Oluşturma:** Kullanıcı talep açar, veritabanına kaydedilir ve benzersiz bir numara alır (`#PD-1001` formatında).
 2. **Durum Makinesi (State Machine):**
-   - Geçerli Geçişler: `new` → `open` → `pending` → `solved`
-   - Yeniden Açma: `solved` → `open`
+   - Geçerli Geçişler: `new` → `open` → `pending` → `solved` → `closed`
+   - Yeniden Açma: `solved` / `closed` → `open`
    - **Yasak Geçiş Koruması:** `new` durumundan doğrudan `solved` yapılamaz; `solved` talep doğrudan `new` veya `pending` yapılamaz. Geçersiz geçişler `ActiveRecord::RecordInvalid` fırlatır ve arayüzde engellenir.
 3. **SLA Süresi & İhlal Yönetimi:**
    - Önceliklere göre kesin SLA süresi hesaplanır: Acil (2 saat), Yüksek (4 saat), Orta (8 saat), Düşük (24 saat).
    - Belirlenen süre içinde çözülmeyen talepler kırmızı `SLA İHLALİ` rozetiyle işaretlenir.
-4. **Yanıt Geçmişi:** Görevliler ve müşteriler yanıt ekleyebilir. İlk görevli yanıtında talep otomatik olarak `new` durumundan `open` durumuna geçer.
+4. **Yanıt Geçmişi & Dahili Notlar:** Temsilciler herkese açık yanıt veya müşterinin göremeyeceği dahili not (`is_internal_note`) ekleyebilir. İlk görevli yanıtında talep otomatik olarak `new` durumundan `open` durumuna geçer.
 
 ---
 
 ## 🧪 Test Sonuçları & 3 Zaman Kuralı Doğrulaması
 
-Uygulama **30 test, 117 assertion, 0 hata** ile %100 yeşil durumdadır.
+Uygulama **37 test, 159 assertion, 0 hata** ile %100 yeşil durumdadır.
 
 ```text
-Run options: --seed 53385
+Run options: --seed 10648
 
 # Running:
-..............................
+.....................................
 
-Finished in 5.076138s, 5.9100 runs/s, 23.0490 assertions/s.
-30 runs, 117 assertions, 0 failures, 0 errors, 0 skips
+Finished in 7.816074s, 4.7338 runs/s, 20.3427 assertions/s.
+37 runs, 159 assertions, 0 failures, 0 errors, 0 skips
 ```
 
 ### 3 Kritik Zaman Kuralı Testleri (`travel_to`):

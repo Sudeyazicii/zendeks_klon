@@ -3,7 +3,7 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">Destek Talepleri</h1>
-    <p class="page-subtitle">Gelen müşteri destek talepleri, SLA süreleri ve çözüm iş akışı</p>
+    <p class="page-subtitle">Gelen müşteri destek talepleri, kategori, SLA süreleri ve çözüm iş akışı</p>
   </div>
   <div>
     <a href="<%= new_ticket_path %>" class="btn btn-primary">+ Yeni Talep Oluştur</a>
@@ -38,8 +38,8 @@
 </div>
 
 <div class="card">
-  <div class="filter-bar">
-    <div class="filter-tabs">
+  <div class="filter-bar" style="flex-wrap: wrap; gap: 1rem;">
+    <div class="filter-tabs" style="flex-wrap: wrap;">
       <a href="<%= tickets_path %>" class="filter-tab <%= 'active' if @status_filter.blank? %>">
         Tümü (<%= @total_count %>)
       </a>
@@ -55,31 +55,44 @@
       <a href="<%= tickets_path(status: 'solved') %>" class="filter-tab <%= 'active' if @status_filter == 'solved' %>">
         Çözüldü (<%= @solved_count %>)
       </a>
+      <a href="<%= tickets_path(status: 'closed') %>" class="filter-tab <%= 'active' if @status_filter == 'closed' %>">
+        Kapatıldı (<%= @closed_count %>)
+      </a>
+      <a href="<%= tickets_path(status: 'unassigned') %>" class="filter-tab <%= 'active' if @status_filter == 'unassigned' %>">
+        Atanmamış (<%= @unassigned_count %>)
+      </a>
       <a href="<%= tickets_path(status: 'breached') %>" class="filter-tab <%= 'active' if @status_filter == 'breached' %>" style="color: var(--danger);">
         ⚠️ SLA İhlali (<%= @breached_count %>)
       </a>
     </div>
 
-    <%= form_with url: tickets_path, method: :get, local: true, style: "display: flex; gap: 0.5rem;" do %>
-      <%= text_field_tag :query, params[:query], placeholder: "Talep No veya Konu ara...", class: "form-control", style: "padding: 0.4rem 0.75rem; font-size: 0.85rem; width: 220px;" %>
-      <%= submit_tag "Ara", class: "btn btn-secondary btn-sm" %>
-      <% if params[:query].present? || params[:status].present? %>
+    <%= form_with url: tickets_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do %>
+      <select name="category" class="form-select" onchange="this.form.submit()" style="font-size: 0.825rem; padding: 0.35rem 0.65rem;">
+        <option value="">Tüm Kategoriler</option>
+        <% Ticket::CATEGORIES.each do |cat| %>
+          <option value="<%= cat %>" <%= 'selected' if params[:category] == cat %>><%= cat %></option>
+        <% end %>
+      </select>
+      <%= text_field_tag :query, params[:query], placeholder: "No, konu veya müşteri...", class: "form-input", style: "padding: 0.35rem 0.65rem; font-size: 0.85rem; width: 180px;" %>
+      <%= submit_tag "Filtrele", class: "btn btn-secondary btn-sm" %>
+      <% if params[:query].present? || params[:status].present? || params[:category].present? %>
         <a href="<%= tickets_path %>" class="btn btn-secondary btn-sm">Temizle</a>
       <% end %>
     <% end %>
   </div>
 
-  <div class="table-responsive">
-    <table class="table">
+  <div class="table-container">
+    <table class="data-table">
       <thead>
         <tr>
           <th>Talep No</th>
-          <th>Konu & Detay</th>
+          <th>Konu & Kategori</th>
           <th>Müşteri</th>
+          <th>Atanan</th>
           <th>Öncelik</th>
           <th>Durum</th>
           <th>SLA Durumu</th>
-          <th>Oluşturulma</th>
+          <th>Tarih</th>
           <th>İşlem</th>
         </tr>
       </thead>
@@ -91,8 +104,14 @@
                 <strong style="color: var(--primary);">#<%= ticket.ticket_number %></strong>
                 <% if ticket.community_question_id.present? %>
                   <br>
-                  <span class="badge" style="background-color: #f3e8ff; color: #6b21a8; font-size: 0.65rem; margin-top: 0.2rem;">
+                  <span class="table-badge" style="background-color: #f3e8ff; color: #6b21a8; font-size: 0.65rem; margin-top: 0.2rem;">
                     Topluluktan Aktarıldı
+                  </span>
+                <% end %>
+                <% if ticket.merged_into_ticket_id.present? %>
+                  <br>
+                  <span class="table-badge" style="background-color: #fef3c7; color: #92400e; font-size: 0.65rem; margin-top: 0.2rem;">
+                    Birleştirildi (#PD-<%= ticket.merged_into_ticket&.ticket_number %>)
                   </span>
                 <% end %>
               </td>
@@ -102,58 +121,74 @@
                     <%= ticket.subject %>
                   </a>
                 </div>
-                <div style="font-size: 0.8rem; color: var(--neutral-muted); margin-top: 0.15rem;">
-                  <%= truncate(ticket.description, length: 70) %>
+                <div style="font-size: 0.775rem; color: var(--neutral-muted); margin-top: 0.15rem; display: flex; gap: 0.4rem; align-items: center;">
+                  <span class="table-badge" style="background: #f1f5f9; color: #475569; font-size: 0.7rem;"><%= ticket.category %></span>
+                  <% if ticket.tags.present? %>
+                    <% ticket.tags.split(",").map(&:strip).each do |t| %>
+                      <span class="table-badge badge-info" style="font-size: 0.65rem;"><%= t %></span>
+                    <% end %>
+                  <% end %>
                 </div>
               </td>
               <td>
-                <div style="font-weight: 500;"><%= ticket.customer_name %></div>
+                <div style="font-weight: 500; font-size: 0.85rem;"><%= ticket.customer_name %></div>
                 <div style="font-size: 0.75rem; color: var(--neutral-muted);"><%= ticket.customer_email %></div>
               </td>
               <td>
+                <% if ticket.assigned_to.present? %>
+                  <span style="font-size: 0.825rem; font-weight: 600; color: var(--neutral-dark);">
+                    👤 <%= ticket.assigned_to.name.split.first %>
+                  </span>
+                <% else %>
+                  <span style="font-size: 0.8rem; color: var(--neutral-muted); font-style: italic;">
+                    Atanmamış
+                  </span>
+                <% end %>
+              </td>
+              <td>
                 <% priority_tr = { "urgent" => "Acil", "high" => "Yüksek", "medium" => "Orta", "low" => "Düşük" } %>
-                <span class="badge badge-<%= ticket.priority %>">
+                <span class="table-badge badge-<%= ticket.priority == 'urgent' || ticket.priority == 'high' ? 'danger' : 'info' %>">
                   <%= priority_tr[ticket.priority] || ticket.priority.upcase %>
                 </span>
               </td>
               <td>
-                <% status_tr = { "new" => "YENİ", "open" => "AÇIK", "pending" => "BEKLEMEDE", "solved" => "ÇÖZÜLDÜ" } %>
-                <span class="badge badge-<%= ticket.status %>">
+                <% status_tr = { "new" => "YENİ", "open" => "AÇIK", "pending" => "BEKLEMEDE", "solved" => "ÇÖZÜLDÜ", "closed" => "KAPATILDI" } %>
+                <span class="table-badge badge-<%= ticket.solved? ? 'success' : (ticket.closed? ? 'info' : 'warning') %>">
                   <%= status_tr[ticket.status] || ticket.status.upcase %>
                 </span>
               </td>
               <td>
                 <% if ticket.breached? %>
-                  <span class="badge badge-breached" title="Belirlenen SLA süresi aşıldı!">
-                    ⚠️ SLA İHLALİ
+                  <span class="table-badge badge-danger" title="SLA süresi aşıldı!">
+                    ⚠️ İHLAL
                   </span>
-                <% elsif ticket.solved? %>
-                  <span class="badge badge-ok">
-                    ✓ Çözüldü
+                <% elsif ticket.solved? || ticket.closed? %>
+                  <span class="table-badge badge-success">
+                    ✓ Tamamlandı
                   </span>
                 <% else %>
                   <% remaining = (ticket.sla_due_at - Time.current) / 3600.0 %>
                   <% if remaining > 0 %>
-                    <span class="badge" style="background-color: #f1f5f9; color: #334155;">
-                      ⏱ Kalan: <%= sprintf("%.1f", remaining) %> sa
+                    <span class="table-badge badge-info">
+                      ⏱ <%= sprintf("%.1f", remaining) %> sa
                     </span>
                   <% else %>
-                    <span class="badge badge-breached">SLA İHLALİ</span>
+                    <span class="table-badge badge-danger">İHLAL</span>
                   <% end %>
                 <% end %>
               </td>
-              <td style="font-size: 0.8rem; color: var(--neutral-muted);">
-                <%= ticket.created_at.strftime("%d.%m.%Y %H:%M") %>
+              <td style="font-size: 0.775rem; color: var(--neutral-muted);">
+                <%= ticket.created_at.strftime("%d.%m %H:%M") %>
               </td>
               <td>
-                <a href="<%= ticket_path(ticket) %>" class="btn btn-secondary btn-sm">Görüntüle</a>
+                <a href="<%= ticket_path(ticket) %>" class="btn btn-secondary btn-sm">Aç</a>
               </td>
             </tr>
           <% end %>
         <% else %>
           <tr>
-            <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--neutral-muted);">
-              Bu kriterlere uygun destek talebi bulunamadı.
+            <td colspan="9" style="text-align: center; padding: 2.5rem; color: var(--neutral-muted);">
+              Bu filtrelere uygun destek talebi bulunamadı.
             </td>
           </tr>
         <% end %>

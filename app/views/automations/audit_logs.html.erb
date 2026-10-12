@@ -1,0 +1,60 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Otomasyon Denetim Geçmişi (Audit Logs)</h1>
+    <p class="page-subtitle">
+      Her otomasyon kuralının çalıştırma geçmişi, kim tarafından başlatıldığı, taranan, değiştirilen ve atlanan kayıtlar.
+    </p>
+  </div>
+  <div>
+    <%= link_to "← Kurallara Dön", automations_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Zaman</th>
+          <th>Kural Adı</th>
+          <th>Tetikleyici</th>
+          <th>Çalıştıran</th>
+          <th>Taranan</th>
+          <th>Değiştirilen</th>
+          <th>Atlanan</th>
+          <th>Durum</th>
+          <th>Özet / Detay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @logs.empty? %>
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 3rem; color: var(--neutral-muted);">
+              Henüz çalıştırılmış bir otomasyon kaydı bulunmuyor.
+            </td>
+          </tr>
+        <% else %>
+          <% @logs.each do |log| %>
+            <tr>
+              <td style="font-size: 0.8rem;"><%= log.created_at.strftime("%d.%m.%Y %H:%M:%S") %></td>
+              <td><strong><%= log.rule_name %></strong></td>
+              <td><span class="table-badge badge-info"><%= log.trigger_type %></span></td>
+              <td><%= log.executed_by %></td>
+              <td><%= log.records_scanned %></td>
+              <td><strong style="color: var(--success);"><%= log.records_modified %></strong></td>
+              <td><span style="color: var(--warning);"><%= log.records_skipped %></span></td>
+              <td>
+                <span class="table-badge badge-<%= log.status == 'success' ? 'success' : 'danger' %>">
+                  <%= log.status.upcase %>
+                </span>
+              </td>
+              <td style="font-size: 0.825rem; color: var(--neutral-muted);">
+                <%= log.summary %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

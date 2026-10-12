@@ -1,0 +1,127 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Güvenli Kural Önizlemesi (Dry-Run)</h1>
+    <p class="page-subtitle">
+      <strong>"<%= @rule.name %>"</strong> kuralının simülasyon sonucu. Veritabanında hiçbir değişiklik yapılmamıştır.
+    </p>
+  </div>
+  <div>
+    <%= link_to "← Kurallara Dön", automations_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<% if @conflicts.any? %>
+  <div class="duplicate-banner" style="background: #fef2f2; border-color: #fca5a5; border-left-color: #ef4444;">
+    <div class="duplicate-banner-content">
+      <h4 style="color: #991b1b;">⚠️ Kural Çakışma Uyarısı</h4>
+      <p style="color: #b91c1c;">
+        Bu kural çalıştırıldığında diğer aktif kurallarla çelişkili sonuçlar doğurabilir:
+      </p>
+      <ul style="margin-top: 0.35rem; margin-left: 1.25rem; font-size: 0.85rem; color: #b91c1c;">
+        <% @conflicts.each do |c| %>
+          <li><%= c %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>
+
+<div class="preview-summary-card">
+  <div>
+    <div class="preview-stat-number"><%= @preview[:scanned_count] %></div>
+    <div class="preview-stat-label">Toplam Taranan Talep</div>
+  </div>
+  <div>
+    <div class="preview-stat-number" style="color: var(--primary);"><%= @preview[:matched_records].size %></div>
+    <div class="preview-stat-label">Değiştirilecek Kayıt</div>
+  </div>
+  <div>
+    <div class="preview-stat-number" style="color: var(--warning);"><%= @preview[:skipped_records].size %></div>
+    <div class="preview-stat-label">Atlanan (Zaten Uygulanmış)</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; color: var(--neutral-dark);">
+    ✅ Koşullara Uyan ve Değiştirilecek Talepler (<%= @preview[:matched_records].size %>)
+  </h3>
+  <% if @preview[:matched_records].empty? %>
+    <p style="color: var(--neutral-muted); font-size: 0.9rem; padding: 1rem 0;">
+      Şu anda bu kuralın koşullarına uyan ve işlem bekleyen talep bulunmuyor.
+    </p>
+  <% else %>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Talep No</th>
+            <th>Konu</th>
+            <th>Seçilme / Eşleşme Nedeni</th>
+            <th>Planlanan Değişiklikler</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @preview[:matched_records].each do |item| %>
+            <tr>
+              <td><strong><%= item[:ticket_number] %></strong></td>
+              <td><%= item[:subject] %></td>
+              <td>
+                <span class="table-badge badge-info"><%= item[:match_reason] %></span>
+              </td>
+              <td>
+                <ul style="list-style: none; font-size: 0.85rem; font-weight: 600; color: #166534;">
+                  <% item[:planned_actions].each do |act| %>
+                    <li>• <%= act %></li>
+                  <% end %>
+                </ul>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; color: var(--neutral-dark);">
+    ⏭️ Mükerrerlik Nedeniyle Atlanacak Talepler (<%= @preview[:skipped_records].size %>)
+  </h3>
+  <% if @preview[:skipped_records].empty? %>
+    <p style="color: var(--neutral-muted); font-size: 0.9rem; padding: 1rem 0;">
+      Atlanacak talep bulunmamaktadır.
+    </p>
+  <% else %>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Talep No</th>
+            <th>Konu</th>
+            <th>Atlanma Nedeni</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @preview[:skipped_records].each do |item| %>
+            <tr>
+              <td><strong><%= item[:ticket_number] %></strong></td>
+              <td><%= item[:subject] %></td>
+              <td>
+                <span class="table-badge badge-warning"><%= item[:reason] %></span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
+
+<div class="preview-actions-bar">
+  <div>
+    <strong>Onay Adımı:</strong> Yukarıdaki önizleme doğrultusunda <%= @preview[:matched_records].size %> adet kayıt güncellenecektir.
+  </div>
+  <div>
+    <%= button_to "🚀 Önizlemeyi Onayla ve Gerçekten Çalıştır", execute_automation_path(@rule), method: :post, class: "btn btn-primary", disabled: @preview[:matched_records].empty? %>
+  </div>
+</div>
