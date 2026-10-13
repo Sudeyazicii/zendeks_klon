@@ -3,7 +3,7 @@
 ![CI](https://github.com/sudenur/pulsedesk/actions/workflows/ci.yml/badge.svg)
 ![Ruby](https://img.shields.io/badge/Ruby-3.2%2B-red.svg)
 ![Rails](https://img.shields.io/badge/Rails-8.1-CC0000.svg)
-![Tests](https://img.shields.io/badge/Tests-78%20Passed%20(100%25)-success.svg)
+![Tests](https://img.shields.io/badge/Tests-85%20Passed%20(100%25)-success.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ---
@@ -94,16 +94,14 @@
 
 ## 🧪 Test Sonuçları & Kritik Zaman Kuralı Doğrulaması
 
-Uygulama **78 test, 327 assertion, 0 hata** ile %100 yeşil durumdadır.
+Uygulama **85 test, 342 assertion, 0 hata** ile %100 yeşil durumdadır.
 
 ```text
-Run options: --seed 20104
-
 # Running:
-..............................................................................
+.....................................................................................
 
-Finished in 12.509093s, 6.2355 runs/s, 26.1410 assertions/s.
-78 runs, 327 assertions, 0 failures, 0 errors, 0 skips
+Finished in 18.515362s, 4.5908 runs/s, 18.4711 assertions/s.
+85 runs, 342 assertions, 0 failures, 0 errors, 0 skips
 ```
 
 ### Zaman Kuralı Testleri (`travel_to`):
@@ -173,7 +171,7 @@ Finished in 12.509093s, 6.2355 runs/s, 26.1410 assertions/s.
 ### G5: Ürünün Yaklaşık Kod Büyüklüğü ve Tahmin Yöntemi
 - **Zendesk Kod Büyüklüğü Tahmini:** Yaklaşık **1.8 milyon – 2.5 milyon Satır Kod (SLOC)**.
 - **Tahmin Yöntemi:** COCOMO II modeli ve Zendesk Engineering Blog mimari verileri.
-- **PulseDesk Kod Büyüklüğü:** ~2.100 Satır Kod (68 Minitest testi, modeller, servisler, kontroller, ERB ve CSS).
+- **PulseDesk Kod Büyüklüğü:** ~2.300 Satır Kod (85 Minitest testi, modeller, servisler, kontroller, ERB ve CSS).
 
 ---
 
