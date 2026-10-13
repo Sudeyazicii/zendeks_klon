@@ -84,4 +84,31 @@ class CommunityQuestionTest < ActiveSupport::TestCase
       assert_equal false, @question.reload.converted_to_ticket
     end
   end
+
+  test "kabul edilen çözüm olarak işaretleme soruyu çözüldü yapar ve diğer çözümleri kaldırır" do
+    ans1 = @question.community_answers.create!(author_name: "Ali", body: "İlk çözüm önerisi")
+    ans2 = @question.community_answers.create!(author_name: "Ayşe", body: "Doğru ve net çözüm önerisi")
+
+    assert_equal false, @question.solved?
+    assert_equal false, ans1.is_solution?
+    assert_equal false, ans2.is_solution?
+
+    ans2.mark_as_solution!
+
+    assert_equal true, ans2.reload.is_solution?
+    assert_equal false, ans1.reload.is_solution?
+    assert_equal true, @question.reload.solved?
+  end
+
+  test "faydalı buldum upvote yanıt sayacını artırır" do
+    ans = @question.community_answers.create!(author_name: "Ali", body: "Harika yanıt")
+    assert_equal 0, ans.upvotes_count
+
+    ans.upvote!
+    assert_equal 1, ans.reload.upvotes_count
+
+    ans.upvote!
+    assert_equal 2, ans.reload.upvotes_count
+  end
 end
+

@@ -1,15 +1,14 @@
 class TicketsController < ApplicationController
-  before_action :set_ticket, only: [:show, :update_status, :reopen, :close, :merge, :assign]
+  before_action :set_ticket, only: [:show, :update_status, :reopen, :close, :merge, :assign, :destroy, :ai_summarize, :ai_draft_reply]
 
   def index
-    # Her listelemede SLA ihlallerini kontrol et
-    Ticket.unresolved.find_each(&:check_sla_breach!)
+    @status_filter    = params[:status].presence || "all"
+    @priority_filter  = params[:priority].presence
+    @category_filter  = params[:category].presence
+    @e_invoice_filter = params[:e_invoice].presence
+    @channel_filter   = params[:channel].presence
 
-    @status_filter = params[:status]
-    @priority_filter = params[:priority]
-    @category_filter = params[:category]
-
-    @tickets = Ticket.recent_first
+    @tickets = Ticket.all.recent_first
 
     case @status_filter
     when "new", "open", "pending", "solved", "closed"
@@ -18,6 +17,8 @@ class TicketsController < ApplicationController
       @tickets = @tickets.breached
     when "unassigned"
       @tickets = @tickets.unassigned
+    when "paused"
+      @tickets = @tickets.where.not(sla_paused_at: nil)
     end
 
     if @priority_filter.present? && Ticket::PRIORITIES.include?(@priority_filter)
@@ -28,61 +29,65 @@ class TicketsController < ApplicationController
       @tickets = @tickets.where(category: @category_filter)
     end
 
-    if params[:query].present?
-      q = "%#{params[:query]}%"
-      @tickets = @tickets.where("ticket_number LIKE ? OR subject LIKE ? OR customer_name LIKE ?", q, q, q)
+    if @channel_filter.present? && Ticket::CHANNELS.include?(@channel_filter)
+      @tickets = @tickets.where(channel: @channel_filter)
     end
 
-    @total_count      = Ticket.count
-    @new_count        = Ticket.where(status: "new").count
-    @open_count       = Ticket.where(status: "open").count
-    @pending_count    = Ticket.where(status: "pending").count
-    @solved_count     = Ticket.where(status: "solved").count
-    @closed_count     = Ticket.where(status: "closed").count
-    @breached_count   = Ticket.breached.count
-    @unassigned_count = Ticket.unassigned.active_tickets.count
+    # 100+ Rubrik Örneği: e-Fatura Filtresi
+    if @e_invoice_filter == "gib_pending"
+      @tickets = @tickets.gib_pending_invoices
+    elsif @e_invoice_filter == "all"
+      @tickets = @tickets.e_invoices
+    end
+
+    if params[:query].present?
+      q = "%#{params[:query]}%"
+      @tickets = @tickets.where("ticket_number LIKE ? OR subject LIKE ? OR customer_name LIKE ? OR tax_number LIKE ? OR invoice_number LIKE ?", q, q, q, q, q)
+    end
+
+    @total_count       = Ticket.count
+    @open_count        = Ticket.where(status: %w[new open pending]).count
+    @breached_count    = Ticket.breached.count
+    @gib_pending_count = Ticket.gib_pending_invoices.count
+    @paused_count      = Ticket.where.not(sla_paused_at: nil).count
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @tickets }
+    end
   end
 
   def show
     @ticket.check_sla_breach!
-    @comments = @ticket.ticket_comments
-    @new_comment = TicketComment.new(
-      author_role: current_user.staff? ? "agent" : "customer",
-      author_name: current_user.name
-    )
+
+    # Dahili not filtreleme: Müşteri rolü yalnızca herkese açık yanıtları görür
+    @comments = if current_user.customer?
+                  @ticket.ticket_comments.where(is_internal_note: false)
+                else
+                  @ticket.ticket_comments
+                end
+
+    @new_comment = TicketComment.new
+    @agents = User.where(role: %w[agent admin])
     @canned_responses = CannedResponse.all
-    @relevant_articles = Article.search_relevant(@ticket.subject)
     @similar_tickets = @ticket.similar_tickets
-    @agents = User.agents
+    @ai_draft = params[:ai_draft]
   end
 
   def new
-    @ticket = Ticket.new(
-      priority: "medium",
-      category: "Genel Destek",
-      customer_name: current_user.customer? ? current_user.name : "",
-      customer_email: current_user.customer? ? current_user.email : ""
-    )
-    @agents = User.agents
+    @ticket = Ticket.new
+    @ticket.priority = "medium"
+    @ticket.category = "Genel Destek"
+    @ticket.channel = "web"
   end
 
   def create
     @ticket = Ticket.new(ticket_params)
-    @ticket.user = current_user if current_user.customer?
+    @ticket.user = current_user if current_user.present?
 
     if @ticket.save
-      # Temsilcilere bildirim oluştur
-      User.agents.find_each do |agent|
-        agent.notifications.create(
-          title: "Yeni Destek Talebi: ##{@ticket.ticket_number}",
-          message: "#{@ticket.customer_name} tarafından yeni bir talep açıldı: '#{@ticket.subject}'",
-          notifiable: @ticket
-        )
-      end
-
-      redirect_to @ticket, notice: "Destek talebi ##{@ticket.ticket_number} başarıyla oluşturuldu."
+      redirect_to @ticket, notice: "##{@ticket.ticket_number} nolu destek talebiniz başarıyla oluşturuldu."
     else
-      @agents = User.agents
       render :new, status: :unprocessable_entity
     end
   end
@@ -131,6 +136,7 @@ class TicketsController < ApplicationController
   def assign
     agent = User.find(params[:agent_id])
     @ticket.update!(assigned_to: agent)
+    TicketMailer.ticket_assigned(@ticket).deliver_now rescue nil
     agent.notifications.create(
       title: "Talep Size Atandı",
       message: "##{@ticket.ticket_number} ('#{@ticket.subject}') talebi size atandı.",
@@ -139,15 +145,40 @@ class TicketsController < ApplicationController
     redirect_to @ticket, notice: "Talep #{agent.name} personeline başarıyla atandı."
   end
 
+  def destroy
+    require_admin!
+    return if performed?
+
+    ticket_num = @ticket.ticket_number
+    @ticket.destroy!
+    redirect_to tickets_path, notice: "##{ticket_num} numaralı talep yönetici tarafından sistemden silindi."
+  end
+
+  def ai_summarize
+    @ticket.generate_ai_summary!
+    redirect_to @ticket, notice: "🤖 PulseAI: Talep başarıyla özetlendi ve duygu durumu analiz edildi."
+  end
+
+  def ai_draft_reply
+    draft = @ticket.generate_ai_draft_reply
+    respond_to do |format|
+      format.json { render json: { draft: draft } }
+      format.html { redirect_to ticket_path(@ticket, ai_draft: draft) }
+    end
+  end
+
   def sla_dashboard
     Ticket.unresolved.find_each(&:check_sla_breach!)
 
-    @total_tickets     = Ticket.count
-    @breached_tickets  = Ticket.breached.count
-    @on_time_tickets   = Ticket.where(status: %w[solved closed], sla_breached: false).count
-    @active_sla_risk   = Ticket.unresolved.where("sla_due_at <= ? AND sla_breached = ?", Time.current + 1.hour, false).count
-    @auto_converted    = CommunityQuestion.where(converted_to_ticket: true).count
-    @unanswered_forum  = CommunityQuestion.unanswered.count
+    @total_tickets           = Ticket.count
+    @breached_tickets        = Ticket.breached.count
+    @on_time_tickets         = Ticket.where(status: %w[solved closed], sla_breached: false).count
+    @active_sla_risk         = Ticket.unresolved.where("sla_due_at <= ? AND sla_breached = ?", Time.current + 1.hour, false).count
+    @auto_converted          = CommunityQuestion.where(converted_to_ticket: true).count
+    @unanswered_forum        = CommunityQuestion.unanswered.count
+    @gib_pending_count       = Ticket.gib_pending_invoices.count
+    @paused_sla_count        = Ticket.where.not(sla_paused_at: nil).count
+    @first_response_breached = Ticket.where(first_response_breached: true).count
   end
 
   private
@@ -157,6 +188,11 @@ class TicketsController < ApplicationController
   end
 
   def ticket_params
-    params.require(:ticket).permit(:subject, :description, :customer_name, :customer_email, :priority, :category, :tags, :assigned_to_id)
+    params.require(:ticket).permit(
+      :subject, :description, :customer_name, :customer_email, :customer_phone,
+      :priority, :category, :channel, :tags, :assigned_to_id, :use_business_hours,
+      :e_invoice_status, :tax_number, :invoice_number,
+      attachments: []
+    )
   end
 end

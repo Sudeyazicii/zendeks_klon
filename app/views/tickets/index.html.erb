@@ -64,9 +64,23 @@
       <a href="<%= tickets_path(status: 'breached') %>" class="filter-tab <%= 'active' if @status_filter == 'breached' %>" style="color: var(--danger);">
         ⚠️ SLA İhlali (<%= @breached_count %>)
       </a>
+      <a href="<%= tickets_path(e_invoice: 'gib_pending') %>" class="filter-tab <%= 'active' if @e_invoice_filter == 'gib_pending' %>" style="color: #d97706; font-weight: 700;">
+        🧾 e-Fatura (GİB) (<%= @gib_pending_count %>)
+      </a>
+      <a href="<%= tickets_path(status: 'pending') %>" class="filter-tab <%= 'active' if @status_filter == 'pending' %>">
+        ⏸️ SLA Duraklatıldı (<%= @paused_sla_count %>)
+      </a>
     </div>
 
-    <%= form_with url: tickets_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do %>
+    <%= form_with url: tickets_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;" do %>
+      <select name="channel" class="form-select" onchange="this.form.submit()" style="font-size: 0.825rem; padding: 0.35rem 0.65rem;">
+        <option value="">Tüm Kanallar (Omnichannel)</option>
+        <option value="web" <%= 'selected' if params[:channel] == 'web' %>>🌐 Web Portalı</option>
+        <option value="whatsapp" <%= 'selected' if params[:channel] == 'whatsapp' %>>💬 WhatsApp</option>
+        <option value="email" <%= 'selected' if params[:channel] == 'email' %>>✉️ E-posta</option>
+        <option value="live_chat" <%= 'selected' if params[:channel] == 'live_chat' %>>🗨️ Canlı Sohbet</option>
+        <option value="api" <%= 'selected' if params[:channel] == 'api' %>>⚡ REST API</option>
+      </select>
       <select name="category" class="form-select" onchange="this.form.submit()" style="font-size: 0.825rem; padding: 0.35rem 0.65rem;">
         <option value="">Tüm Kategoriler</option>
         <% Ticket::CATEGORIES.each do |cat| %>
@@ -75,7 +89,7 @@
       </select>
       <%= text_field_tag :query, params[:query], placeholder: "No, konu veya müşteri...", class: "form-input", style: "padding: 0.35rem 0.65rem; font-size: 0.85rem; width: 180px;" %>
       <%= submit_tag "Filtrele", class: "btn btn-secondary btn-sm" %>
-      <% if params[:query].present? || params[:status].present? || params[:category].present? %>
+      <% if params[:query].present? || params[:status].present? || params[:category].present? || params[:channel].present? %>
         <a href="<%= tickets_path %>" class="btn btn-secondary btn-sm">Temizle</a>
       <% end %>
     <% end %>
@@ -102,9 +116,20 @@
             <tr>
               <td>
                 <strong style="color: var(--primary);">#<%= ticket.ticket_number %></strong>
+                <% ch = ticket.channel_badge %>
+                <br>
+                <span class="table-badge <%= ch[:class] %>" style="font-size: 0.65rem; margin-top: 0.2rem;">
+                  <%= ch[:icon] %> <%= ch[:text] %>
+                </span>
+                <% if ticket.use_business_hours? %>
+                  <br>
+                  <span class="table-badge badge-success" style="font-size: 0.65rem; margin-top: 0.15rem;">
+                    ⏰ Mesai SLA
+                  </span>
+                <% end %>
                 <% if ticket.community_question_id.present? %>
                   <br>
-                  <span class="table-badge" style="background-color: #f3e8ff; color: #6b21a8; font-size: 0.65rem; margin-top: 0.2rem;">
+                  <span class="table-badge" style="background-color: #f3e8ff; color: #6b21a8; font-size: 0.65rem; margin-top: 0.15rem;">
                     Topluluktan Aktarıldı
                   </span>
                 <% end %>
@@ -158,7 +183,11 @@
                 </span>
               </td>
               <td>
-                <% if ticket.breached? %>
+                <% if ticket.sla_paused? %>
+                  <span class="table-badge badge-warning" title="Müşteri bekleniyor, SLA sayacı duraklatıldı">
+                    ⏸️ Duraklatıldı
+                  </span>
+                <% elsif ticket.breached? %>
                   <span class="table-badge badge-danger" title="SLA süresi aşıldı!">
                     ⚠️ İHLAL
                   </span>
@@ -176,12 +205,24 @@
                     <span class="table-badge badge-danger">İHLAL</span>
                   <% end %>
                 <% end %>
+
+                <% if ticket.first_response_breached? %>
+                  <br><span class="table-badge badge-danger" style="font-size: 0.65rem; margin-top: 0.2rem;">İlk Yanıt Gecikti</span>
+                <% end %>
+                <% if ticket.e_invoice? %>
+                  <br><span class="table-badge" style="background: #fef3c7; color: #92400e; font-size: 0.65rem; margin-top: 0.2rem;">🧾 e-Fatura</span>
+                <% end %>
               </td>
               <td style="font-size: 0.775rem; color: var(--neutral-muted);">
                 <%= ticket.created_at.strftime("%d.%m %H:%M") %>
               </td>
               <td>
-                <a href="<%= ticket_path(ticket) %>" class="btn btn-secondary btn-sm">Aç</a>
+                <div style="display: flex; gap: 0.35rem; align-items: center;">
+                  <a href="<%= ticket_path(ticket) %>" class="btn btn-secondary btn-sm">Aç</a>
+                  <% if current_user.admin? %>
+                    <%= button_to "Sil", ticket_path(ticket), method: :delete, data: { turbo_confirm: "##{ticket.ticket_number} talebini silmek istediğinize emin misiniz?" }, class: "btn btn-sm", style: "background: var(--danger); color: white; padding: 0.25rem 0.45rem; font-size: 0.75rem;" %>
+                  <% end %>
+                </div>
               </td>
             </tr>
           <% end %>

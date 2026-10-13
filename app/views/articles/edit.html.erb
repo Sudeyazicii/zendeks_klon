@@ -1,0 +1,37 @@
+<% content_for :title, "Makaleyi Düzenle: #{@article.title}" %>
+
+<div style="margin-bottom: 1.25rem;">
+  <%= link_to "← Makaleye Dön", article_path(@article), style: "font-size: 0.85rem; color: var(--neutral-muted);" %>
+</div>
+
+<div class="card" style="max-width: 720px; margin: 0 auto;">
+  <h1 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem;">Bilgi Bankası Makalesini Düzenle</h1>
+
+  <%= form_with model: @article, local: true do |f| %>
+    <% if @article.errors.any? %>
+      <div class="flash-alert" style="margin-bottom: 1.25rem;">
+        <%= @article.errors.full_messages.join(", ") %>
+      </div>
+    <% end %>
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <%= f.label :title, "Makale Başlığı", style: "display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;" %>
+      <%= f.text_field :title, class: "form-input", required: true %>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <%= f.label :category, "Kategori", style: "display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;" %>
+      <%= f.select :category, ["Fatura & Ödeme", "Genel Destek", "Teknik Hata", "Entegrasyon & API", "Hesap & Güvenlik"], {}, class: "form-select", style: "width: 100%;" %>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <%= f.label :body, "Makale İçeriği", style: "display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;" %>
+      <%= f.text_area :body, rows: 10, class: "form-input", required: true %>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+      <%= link_to "İptal", article_path(@article), class: "btn btn-secondary" %>
+      <%= f.submit "Değişiklikleri Kaydet", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

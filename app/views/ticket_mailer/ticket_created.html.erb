@@ -1,0 +1,24 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
+  <div style="background: #4f46e5; color: white; padding: 16px; border-radius: 6px; text-align: center;">
+    <h2 style="margin: 0;">⚡ PulseDesk Destek Sistemi</h2>
+  </div>
+  <div style="padding: 20px 0;">
+    <p>Merhaba <strong><%= @ticket.customer_name %></strong>,</p>
+    <p>Destek talebiniz başarıyla oluşturulmuştur ve kayıt altına alınmıştır.</p>
+    <div style="background: #f8fafc; border-left: 4px solid #4f46e5; padding: 12px 16px; margin: 16px 0;">
+      <p style="margin: 4px 0;"><strong>Talep No:</strong> #<%= @ticket.ticket_number %></p>
+      <p style="margin: 4px 0;"><strong>Konu:</strong> <%= @ticket.subject %></p>
+      <p style="margin: 4px 0;"><strong>Kategori:</strong> <%= @ticket.category %></p>
+      <p style="margin: 4px 0;"><strong>Öncelik:</strong> <%= @ticket.priority.upcase %></p>
+      <p style="margin: 4px 0;"><strong>Kanal:</strong> <%= @ticket.channel.upcase %></p>
+    </div>
+    <p>Talebinizin açıklaması:</p>
+    <blockquote style="background: #f1f5f9; padding: 12px; border-radius: 4px; font-style: italic; margin: 0 0 16px 0;">
+      <%= @ticket.description %>
+    </blockquote>
+    <p>Destek ekibimiz en kısa sürede inceleyip size bu e-posta adresi üzerinden dönüş yapacaktır.</p>
+  </div>
+  <div style="border-top: 1px solid #e2e8f0; padding-top: 12px; font-size: 12px; color: #64748b; text-align: center;">
+    PulseDesk Müşteri Destek Portalı — Tüm hakları saklıdır.
+  </div>
+</div>

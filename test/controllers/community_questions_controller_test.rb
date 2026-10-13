@@ -89,4 +89,23 @@ class CommunityQuestionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to community_questions_url
     assert_equal true, old_q.reload.converted_to_ticket
   end
+
+  test "topluluk yanıtı çözüm olarak işaretlenebilir ve oy verilebilir" do
+    ans = @question.community_answers.create!(author_name: "Uzman", body: "İşte tam çözüm")
+
+    # Upvote
+    assert_difference("ans.reload.upvotes_count", 1) do
+      post upvote_community_question_community_answer_url(@question, ans)
+    end
+    assert_redirected_to community_question_url(@question)
+
+    # Mark as solution (temsilci rolüyle)
+    post switch_role_url, params: { role: "agent" }
+    post mark_solution_community_question_community_answer_url(@question, ans)
+
+    assert_redirected_to community_question_url(@question)
+    assert_equal true, ans.reload.is_solution?
+    assert_equal true, @question.reload.solved?
+  end
 end
+

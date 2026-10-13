@@ -1,0 +1,17 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
+  <div style="background: #0284c7; color: white; padding: 16px; border-radius: 6px; text-align: center;">
+    <h2 style="margin: 0;">⚡ Yeni Görev Ataması</h2>
+  </div>
+  <div style="padding: 20px 0;">
+    <p>Merhaba <strong><%= @ticket.assignee&.name %></strong>,</p>
+    <p>Aşağıdaki destek talebi size atanmıştır:</p>
+    <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 12px 16px; margin: 16px 0;">
+      <p style="margin: 4px 0;"><strong>Talep No:</strong> #<%= @ticket.ticket_number %></p>
+      <p style="margin: 4px 0;"><strong>Konu:</strong> <%= @ticket.subject %></p>
+      <p style="margin: 4px 0;"><strong>Müşteri:</strong> <%= @ticket.customer_name %> (<%= @ticket.customer_email %>)</p>
+      <p style="margin: 4px 0;"><strong>Öncelik:</strong> <%= @ticket.priority.upcase %></p>
+      <p style="margin: 4px 0;"><strong>SLA Bitiş:</strong> <%= @ticket.sla_due_at.strftime('%d.%m.%Y %H:%M') %></p>
+    </div>
+    <p>Lütfen paneline giriş yaparak talebi inceleyiniz.</p>
+  </div>
+</div>

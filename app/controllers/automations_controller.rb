@@ -1,6 +1,6 @@
 class AutomationsController < ApplicationController
   before_action :require_agent!
-  before_action :set_rule, only: [:preview, :execute, :toggle]
+  before_action :set_rule, only: [:preview, :execute, :toggle, :edit, :update, :destroy]
 
   def index
     @rules = AutomationRule.order(priority_order: :asc, id: :asc)
@@ -41,6 +41,46 @@ class AutomationsController < ApplicationController
       @agents = User.agents
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def edit
+    @agents = User.agents
+    @conds = @rule.parsed_conditions
+    @acts = @rule.parsed_actions
+  end
+
+  def update
+    conds = {
+      "status" => params[:condition_status].presence,
+      "priority" => params[:condition_priority].presence,
+      "unassigned" => params[:condition_unassigned].presence == "1"
+    }.compact
+
+    acts = {
+      "set_priority" => params[:action_priority].presence,
+      "assign_to_user_id" => params[:action_assign_to].presence,
+      "add_tag" => params[:action_tag].presence
+    }.compact
+
+    if @rule.update(
+      name: params[:rule][:name],
+      description: params[:rule][:description],
+      trigger_type: params[:rule][:trigger_type],
+      conditions: conds.to_json,
+      actions: acts.to_json,
+      active: params[:rule][:active] == "1"
+    )
+      redirect_to preview_automation_path(@rule), notice: "Kural güncellendi. Yeni önizleme (Dry-Run) simülasyonunu inceleyebilirsiniz."
+    else
+      @agents = User.agents
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    rule_name = @rule.name
+    @rule.destroy!
+    redirect_to automations_path, notice: "'#{rule_name}' otomasyon kuralı silindi."
   end
 
   def preview

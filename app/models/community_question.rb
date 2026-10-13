@@ -1,5 +1,6 @@
 class CommunityQuestion < ApplicationRecord
-  has_many :community_answers, -> { order(created_at: :asc) }, dependent: :destroy
+  has_many :community_answers, -> { order(is_solution: :desc, upvotes_count: :desc, created_at: :asc) }, dependent: :destroy
+  has_one :accepted_solution, -> { where(is_solution: true) }, class_name: "CommunityAnswer"
   belongs_to :ticket, optional: true
 
   validates :title, presence: true, length: { maximum: 255 }
@@ -9,6 +10,8 @@ class CommunityQuestion < ApplicationRecord
 
   scope :recent_first, -> { order(created_at: :desc) }
   scope :unanswered, -> { where(answers_count: 0) }
+  scope :answered, -> { where("answers_count > 0") }
+  scope :solved, -> { where(solved: true) }
   scope :not_converted, -> { where(converted_to_ticket: false) }
   scope :eligible_for_auto_conversion, -> { unanswered.not_converted.where("created_at <= ?", 24.hours.ago) }
 

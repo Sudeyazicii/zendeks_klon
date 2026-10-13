@@ -42,6 +42,11 @@
               </a>
             </li>
             <li>
+              <a href="<%= articles_path %>" class="nav-link <%= 'active' if controller_name == 'articles' %>">
+                📚 Bilgi Bankası
+              </a>
+            </li>
+            <li>
               <a href="<%= reports_path %>" class="nav-link <%= 'active' if controller_name == 'reports' %>">
                 📈 Raporlar
               </a>
@@ -49,6 +54,11 @@
             <li>
               <a href="<%= sla_dashboard_path %>" class="nav-link <%= 'active' if action_name == 'sla_dashboard' %>">
                 ⏱️ SLA
+              </a>
+            </li>
+            <li>
+              <a href="<%= sent_emails_path %>" class="nav-link <%= 'active' if controller_name == 'sent_emails' %>">
+                ✉️ E-postalar
               </a>
             </li>
           </ul>

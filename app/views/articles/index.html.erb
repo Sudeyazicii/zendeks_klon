@@ -1,0 +1,70 @@
+<% content_for :title, "Bilgi Bankası & Yardım Makaleleri" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Bilgi Bankası (Knowledge Base)</h1>
+    <p class="page-subtitle">Müşteriler için self-servis rehberler, e-Fatura kılavuzları ve teknik dokümantasyon</p>
+  </div>
+  <% if current_user.staff? %>
+    <div>
+      <%= link_to "+ Yeni Makale Yaz", new_article_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="filter-bar" style="flex-wrap: wrap; gap: 1rem;">
+    <div class="filter-tabs">
+      <a href="<%= articles_path %>" class="filter-tab <%= 'active' if @category.blank? %>">
+        Tüm Makaleler (<%= Article.count %>)
+      </a>
+      <% @categories.each do |cat| %>
+        <a href="<%= articles_path(category: cat) %>" class="filter-tab <%= 'active' if @category == cat %>">
+          <%= cat %> (<%= Article.where(category: cat).count %>)
+        </a>
+      <% end %>
+    </div>
+
+    <%= form_with url: articles_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do %>
+      <%= text_field_tag :query, params[:query], placeholder: "Makalelerde ara...", class: "form-input", style: "padding: 0.35rem 0.65rem; font-size: 0.85rem; width: 200px;" %>
+      <%= submit_tag "Ara", class: "btn btn-secondary btn-sm" %>
+      <% if params[:query].present? || params[:category].present? %>
+        <%= link_to "Temizle", articles_path, class: "btn btn-secondary btn-sm" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+    <% if @articles.empty? %>
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--neutral-muted);">
+        Henüz bu kriterde makale bulunamadı.
+      </div>
+    <% else %>
+      <% @articles.each do |art| %>
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="table-badge badge-info"><%= art.category %></span>
+              <span style="font-size: 0.75rem; color: var(--neutral-muted);">👁️ <%= art.views_count %> görüntülenme</span>
+            </div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">
+              <%= link_to art.title, article_path(art), style: "color: var(--neutral-dark);" %>
+            </h3>
+            <p style="font-size: 0.875rem; color: var(--neutral-muted); line-height: 1.5; margin-bottom: 1rem;">
+              <%= truncate(art.body, length: 120) %>
+            </p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 0.75rem;">
+            <%= link_to "Devamını Oku →", article_path(art), style: "font-weight: 600;" %>
+            <% if current_user.staff? %>
+              <div style="display: flex; gap: 0.5rem;">
+                <%= link_to "Düzenle", edit_article_path(art), style: "color: var(--neutral-muted);" %>
+                <%= button_to "Sil", article_path(art), method: :delete, data: { turbo_confirm: "Makaleyi silmek istediğinize emin misiniz?" }, class: "btn btn-sm", style: "color: var(--danger); background: none; padding: 0; border: none; font-size: 0.8rem;" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

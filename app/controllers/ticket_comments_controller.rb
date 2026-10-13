@@ -38,6 +38,6 @@ class TicketCommentsController < ApplicationController
   private
 
   def comment_params
-    params.require(:ticket_comment).permit(:author_name, :author_role, :body, :is_internal_note)
+    params.require(:ticket_comment).permit(:author_name, :author_role, :body, :is_internal_note, attachments: [])
   end
 end

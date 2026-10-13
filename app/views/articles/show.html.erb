@@ -1,0 +1,29 @@
+<% content_for :title, @article.title %>
+
+<div style="margin-bottom: 1.25rem;">
+  <%= link_to "← Bilgi Bankasına Dön", articles_path, style: "font-size: 0.85rem; color: var(--neutral-muted);" %>
+</div>
+
+<div class="card" style="max-width: 860px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <span class="table-badge badge-info"><%= @article.category %></span>
+    <span style="font-size: 0.8rem; color: var(--neutral-muted);">
+      👁️ <%= @article.views_count %> kez okundu • <%= @article.created_at.strftime("%d.%m.%Y") %>
+    </span>
+  </div>
+
+  <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--neutral-dark); margin-bottom: 1.5rem; line-height: 1.3;">
+    <%= @article.title %>
+  </h1>
+
+  <div style="font-size: 1rem; line-height: 1.8; color: var(--neutral-text); white-space: pre-wrap; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-bottom: 2rem;">
+    <%= @article.body %>
+  </div>
+
+  <% if current_user.staff? %>
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+      <%= link_to "Makaleyi Düzenle", edit_article_path(@article), class: "btn btn-secondary btn-sm" %>
+      <%= button_to "Makaleyi Sil", article_path(@article), method: :delete, data: { turbo_confirm: "Silmek istediğinize emin misiniz?" }, class: "btn btn-sm", style: "background: var(--danger); color: white;" %>
+    </div>
+  <% end %>
+</div>

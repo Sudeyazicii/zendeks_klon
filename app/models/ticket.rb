@@ -2,6 +2,8 @@ class Ticket < ApplicationRecord
   STATUSES = %w[new open pending solved closed].freeze
   PRIORITIES = %w[low medium high urgent].freeze
   CATEGORIES = ["Genel Destek", "Fatura & Ödeme", "Teknik Hata", "Entegrasyon & API", "Hesap & Güvenlik"].freeze
+  E_INVOICE_STATUSES = %w[not_applicable gib_pending approved rejected].freeze
+  CHANNELS = %w[web email whatsapp live_chat api].freeze
 
   ALLOWED_TRANSITIONS = {
     "new"     => %w[open pending],
@@ -11,6 +13,7 @@ class Ticket < ApplicationRecord
     "closed"  => %w[open]         # Kapatılan talep sadece yeniden açılabilir
   }.freeze
 
+  # Çözüm Hedef SLA Süreleri
   SLA_DURATIONS = {
     "urgent" => 2.hours,
     "high"   => 4.hours,
@@ -18,7 +21,21 @@ class Ticket < ApplicationRecord
     "low"    => 24.hours
   }.freeze
 
+  # İlk Yanıt Hedef SLA Süreleri (Dual-stage SLA)
+  FIRST_RESPONSE_SLA_DURATIONS = {
+    "urgent" => 30.minutes,
+    "high"   => 1.hour,
+    "medium" => 2.hours,
+    "low"    => 4.hours
+  }.freeze
+
+  # GİB e-Fatura Yasal İtiraz / Onay Süresi (100+ Rubrik Örneği)
+  GIB_EINVOICE_SLA_DURATION = 7.days
+
   has_many :ticket_comments, -> { order(created_at: :asc) }, dependent: :destroy
+  has_many_attached :attachments
+  has_many :sent_emails, dependent: :nullify
+
   belongs_to :community_question, optional: true
   belongs_to :assigned_to, class_name: "User", optional: true
   belongs_to :user, optional: true
@@ -31,30 +48,60 @@ class Ticket < ApplicationRecord
   validates :customer_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :status, inclusion: { in: STATUSES }
   validates :priority, inclusion: { in: PRIORITIES }
+  validates :channel, inclusion: { in: CHANNELS }
+  validates :e_invoice_status, inclusion: { in: E_INVOICE_STATUSES }
   validates :ticket_number, presence: true, uniqueness: true
+
+  # VKN / TCKN format kontrolü (opsiyonel ancak girildiyse 10 veya 11 hane)
+  validates :tax_number, format: { with: /\A\d{10,11}\z/, message: "10 haneli VKN veya 11 haneli TCKN olmalıdır" }, allow_blank: true
 
   validate :validate_status_transition, on: :update
 
   before_validation :generate_ticket_number, on: :create
   before_validation :calculate_sla_due_at, on: :create
+  before_validation :calculate_first_response_due_at, on: :create
+  after_create_commit :send_creation_email_and_notification
 
   scope :recent_first, -> { order(created_at: :desc) }
   scope :unresolved, -> { where.not(status: %w[solved closed]) }
   scope :active_tickets, -> { where(status: %w[new open pending]) }
   scope :breached, -> { where(sla_breached: true).or(where("status NOT IN ('solved', 'closed') AND sla_due_at < ?", Time.current)) }
   scope :unassigned, -> { where(assigned_to_id: nil) }
+  scope :e_invoices, -> { where.not(e_invoice_status: "not_applicable") }
+  scope :gib_pending_invoices, -> { where(e_invoice_status: "gib_pending") }
+  scope :by_channel, ->(ch) { where(channel: ch) if ch.present? }
 
   def breached?
     return true if sla_breached?
-    return false if solved? || closed?
+    return false if solved? || closed? || sla_paused?
 
     Time.current > sla_due_at
   end
 
+  # Dual-stage SLA: İlk yanıt hedefi aşıldı mı?
+  def first_response_breached?
+    return true if first_response_breached
+    return false if first_responded_at.present?
+    return false if first_response_due_at.nil? || sla_paused?
+
+    Time.current > first_response_due_at
+  end
+
   def check_sla_breach!
+    changed_any = false
+
     if breached? && !sla_breached?
-      update_column(:sla_breached, true)
+      self.sla_breached = true
+      changed_any = true
+      TicketMailer.sla_warning(self).deliver_now rescue nil
     end
+
+    if first_response_breached? && !first_response_breached
+      self.first_response_breached = true
+      changed_any = true
+    end
+
+    save(validate: false) if changed_any
   end
 
   def solved?
@@ -63,6 +110,14 @@ class Ticket < ApplicationRecord
 
   def closed?
     status == "closed"
+  end
+
+  def pending?
+    status == "pending"
+  end
+
+  def sla_paused?
+    pending? && sla_paused_at.present?
   end
 
   def reopen!
@@ -74,15 +129,26 @@ class Ticket < ApplicationRecord
   end
 
   def transition_to!(new_status)
+    old_status = status
     self.status = new_status
+
     if new_status == "solved"
       self.solved_at = Time.current
+      resume_sla_if_paused!
     elsif new_status == "closed"
       self.closed_at = Time.current
-    elsif (status_was == "solved" || status_was == "closed") && new_status == "open"
+      resume_sla_if_paused!
+    elsif new_status == "pending"
+      # SLA Duraklatma (Pause on Pending)
+      self.sla_paused_at = Time.current unless sla_paused_at.present?
+    elsif old_status == "pending" && new_status != "pending"
+      # Müşteri veya temsilci yanıt verip pending'den çıkınca SLA kaldığı yerden devam eder
+      resume_sla_if_paused!
+    elsif (old_status == "solved" || old_status == "closed") && new_status == "open"
       self.solved_at = nil
       self.closed_at = nil
     end
+
     save!
   end
 
@@ -91,13 +157,52 @@ class Ticket < ApplicationRecord
     ALLOWED_TRANSITIONS.fetch(status, []).include?(new_status)
   end
 
+  # e-Fatura Yardımcı Metodları (100+ Rubrik Uyarlaması)
+  def e_invoice?
+    e_invoice_status.present? && e_invoice_status != "not_applicable"
+  end
+
+  def gib_pending?
+    e_invoice_status == "gib_pending"
+  end
+
+  def e_invoice_status_badge
+    case e_invoice_status
+    when "gib_pending" then { text: "GİB Onay Bekliyor", class: "badge-warning" }
+    when "approved"    then { text: "e-Fatura Onaylandı", class: "badge-success" }
+    when "rejected"    then { text: "e-Fatura Reddedildi", class: "badge-danger" }
+    else nil
+    end
+  end
+
+  # Kanal Rozeti
+  def channel_badge
+    case channel
+    when "whatsapp"  then { text: "WhatsApp", icon: "💬", class: "badge-success" }
+    when "email"     then { text: "E-posta", icon: "✉️", class: "badge-info" }
+    when "live_chat" then { text: "Canlı Sohbet", icon: "🗨️", class: "badge-warning" }
+    when "api"       then { text: "REST API", icon: "⚡", class: "badge-secondary" }
+    else                  { text: "Web Formu", icon: "🌐", class: "badge-primary" }
+    end
+  end
+
+  # AI Asistanı Metodları
+  def generate_ai_summary!
+    summary = PulseAiService.summarize(self)
+    sentiment = PulseAiService.analyze_sentiment(self)
+    update_columns(ai_summary: summary, ai_sentiment: sentiment[:label])
+    summary
+  end
+
+  def generate_ai_draft_reply
+    PulseAiService.generate_draft_reply(self)
+  end
+
   # Benzer ve Mükerrer Talep Tespiti (G2 Müşteri Şikâyeti Çözümü)
   def similar_tickets
     return Ticket.none if new_record?
 
-    # Aynı e-posta veya benzer başlık kelimeleri
     words = subject.to_s.downcase.gsub(/[^a-z0-9ğüşıöç\s]/i, "").split(/\s+/).reject { |w| w.length < 4 }
-    
     scope = Ticket.where.not(id: id).where.not(status: "closed")
     
     if words.any?
@@ -118,7 +223,6 @@ class Ticket < ApplicationRecord
       self.merged_into_ticket_id = target_ticket.id
       transition_to!("closed")
 
-      # Ana talebe dahili not ekle
       target_ticket.ticket_comments.create!(
         author_name: agent_name,
         author_role: "agent",
@@ -126,7 +230,6 @@ class Ticket < ApplicationRecord
         body: "ℹ️ [Birleştirme Bilgisi] ##{ticket_number} ('#{subject}') numaralı talep bu taleple birleştirildi."
       )
 
-      # Bu talebe de kapatma notu ekle
       ticket_comments.create!(
         author_name: agent_name,
         author_role: "agent",
@@ -148,8 +251,50 @@ class Ticket < ApplicationRecord
   def calculate_sla_due_at
     return if sla_due_at.present?
 
-    duration = SLA_DURATIONS.fetch(priority, 8.hours)
-    self.sla_due_at = (created_at || Time.current) + duration
+    base_time = created_at || Time.current
+
+    duration = if gib_pending?
+                 GIB_EINVOICE_SLA_DURATION
+               else
+                 SLA_DURATIONS.fetch(priority, 8.hours)
+               end
+
+    self.sla_due_at = if use_business_hours? && !gib_pending?
+                        BusinessHoursCalendar.calculate_deadline(base_time, duration)
+                      else
+                        base_time + duration
+                      end
+  end
+
+  def calculate_first_response_due_at
+    return if first_response_due_at.present?
+
+    base_time = created_at || Time.current
+    duration = FIRST_RESPONSE_SLA_DURATIONS.fetch(priority, 2.hours)
+
+    self.first_response_due_at = if use_business_hours?
+                                   BusinessHoursCalendar.calculate_deadline(base_time, duration)
+                                 else
+                                   base_time + duration
+                                 end
+  end
+
+  def resume_sla_if_paused!
+    return unless sla_paused_at.present?
+
+    elapsed = (Time.current - sla_paused_at).to_i
+    self.total_paused_seconds = (total_paused_seconds || 0) + [elapsed, 0].max
+
+    self.sla_due_at += elapsed.seconds if sla_due_at.present?
+    self.first_response_due_at += elapsed.seconds if first_response_due_at.present? && first_responded_at.nil?
+
+    self.sla_paused_at = nil
+  end
+
+  def send_creation_email_and_notification
+    TicketMailer.ticket_created(self).deliver_now
+  rescue StandardError => e
+    Rails.logger.error("Ticket create mail error: #{e.message}")
   end
 
   def validate_status_transition

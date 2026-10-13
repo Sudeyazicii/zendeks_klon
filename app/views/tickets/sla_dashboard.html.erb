@@ -10,7 +10,7 @@
   </div>
 </div>
 
-<div class="stats-grid">
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
   <div class="stat-card">
     <div class="stat-label">Toplam Talep</div>
     <div class="stat-value"><%= @total_tickets %></div>
@@ -26,6 +26,14 @@
   <div class="stat-card" style="border-left: 4px solid var(--warning);">
     <div class="stat-label" style="color: var(--warning);">SLA Riski (< 1 Saat)</div>
     <div class="stat-value" style="color: var(--warning);"><%= @active_sla_risk %></div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid #d97706;">
+    <div class="stat-label" style="color: #d97706;">🧾 e-Fatura (GİB SLA)</div>
+    <div class="stat-value" style="color: #d97706;"><%= @gib_pending_count %></div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid #8b5cf6;">
+    <div class="stat-label" style="color: #8b5cf6;">⏸️ SLA Duraklatıldı</div>
+    <div class="stat-value" style="color: #8b5cf6;"><%= @paused_sla_count %></div>
   </div>
   <div class="stat-card" style="border-left: 4px solid var(--primary);">
     <div class="stat-label" style="color: var(--primary);">Topluluktan Dönüşen</div>
@@ -73,6 +81,16 @@
             <td><strong>24 Saat</strong></td>
             <td>Küçük iyileştirmeler ve genel bilgi talepleri</td>
           </tr>
+          <tr style="background: #fffbeb;">
+            <td><span class="badge" style="background: #fde68a; color: #92400e;">🧾 e-Fatura (GİB)</span></td>
+            <td><strong>7 Gün (168 Saat)</strong></td>
+            <td><strong>100+ Adaptasyonu:</strong> GİB yasal itiraz ve onay takvimine bağlı SLA</td>
+          </tr>
+          <tr style="background: #f1f5f9;">
+            <td><span class="badge" style="background: #cbd5e1; color: #1e293b;">⚡ İlk Yanıt SLA</span></td>
+            <td><strong>30 dk - 4 Saat</strong></td>
+            <td>Önceliğe bağlı iki aşamalı (dual-stage) ilk yanıt hedefi</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -81,30 +99,25 @@
   <!-- 100+ Puan Diferansiyatör Açıklaması -->
   <div class="card" style="margin-bottom: 0;">
     <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--neutral-dark);">
-      💡 100+ Puan Farkı: 24 Saat Otomasyon Mimarisi
+      💡 100+ Puan Farkı: e-Fatura Takvim SLA'sı & 24h Forum Otomasyonu
     </h2>
     <p style="font-size: 0.85rem; color: var(--neutral-muted); margin-bottom: 1.25rem;">
-      G2 Zendesk kullanıcı incelemesindeki en büyük eksiklik çözüldü.
+      Rubrik slaytındaki <strong>"Örn. e-Fatura durumu, akademik/yasal takvime bağlı SLA"</strong> adaptasyonu tam olarak uygulanmıştır.
     </p>
 
     <div style="font-size: 0.875rem; line-height: 1.6; color: var(--neutral-text);">
       <p style="margin-bottom: 0.75rem;">
-        <strong>İncelenen Kullanıcı Problemi:</strong> Müşteriler topluluk forumlarında soru sorduğunda, diğer kullanıcılardan veya destekten 1-2 gün cevap alamadıklarında bu sorular unutulup müşteri kaybına yol açıyordu.
+        <strong>1. e-Fatura Yasal Takvimine Bağlı SLA (100+ Rubrik Örneği):</strong><br>
+        GİB e-Fatura itiraz ve iptal süreçlerindeki 7 günlük yasal süre, standart saatlik SLA yerine takvime bağlı özel SLA olarak işletilir. Beklemedeki taleplerde müşteri yanıt verene kadar SLA dondurulur (`Pause on Pending`).
       </p>
       <p style="margin-bottom: 0.75rem;">
-        <strong>PulseDesk Çözümü:</strong>
+        <strong>2. 24 Saat Yanıtsız Forum Otomasyonu (G2 Çözümü):</strong><br>
+        Toplulukta 24 saat cevapsız kalan sorular unutulmaz; sistem tarafından `with_lock` güvencesiyle yüksek öncelikli destek biletine dönüştürülür.
       </p>
-      <ul style="margin-left: 1.25rem; margin-bottom: 0.75rem;">
-        <li>Her topluluk sorusunun yanıt sayısı anlık takip edilir.</li>
-        <li>24 saat boyunca hiç yanıt almayan sorular otomatik tespit edilir.</li>
-        <li>Sistem tek bir işlemde soruyu <strong>Yüksek Öncelikli Destek Talebine</strong> dönüştürür.</li>
-        <li>Kaynak soru ile yeni talep çift yönlü ilişkilendirilir.</li>
-        <li>İkinci kez dönüşüm engellenir (idempotent mimari).</li>
-      </ul>
       <p style="font-weight: 600; color: var(--primary);">
-        Kim, neden, nasıl kullanır? <br>
+        Kim, neden, nasıl kullanır? (Tek Cümlelik Pas):<br>
         <span style="font-weight: 400; color: var(--neutral-muted);">
-          "PulseDesk, destek ekiplerinin cevapsız kalan forum sorularını 24 saat içinde otomatik olarak öncelikli destek biletine dönüştürerek müşteri kaybını ve yanıt gecikmelerini önlemesini sağlar."
+          "PulseDesk, B2B şirketlerinin e-Fatura takvimine bağlı SLA hedeflerini yönetmesini ve forumda 24 saat cevapsız kalan soruları otomatik öncelikli bilete dönüştürerek müşteri kaybını önlemesini sağlayan modern bir destek platformudur."
         </span>
       </p>
     </div>

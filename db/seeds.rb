@@ -140,22 +140,26 @@ open_ticket.ticket_comments.create!(
   created_at: 1.hour.ago
 )
 
-# 6. Beklemede Talep (pending)
+# 6. Beklemede Talep & 100+ Puan Adaptasyonu: e-Fatura (pending & GİB 7 Günlük SLA)
 pending_ticket = Ticket.create!(
-  subject: "e-Fatura entegrasyonu için ek alan talebi",
-  description: "GİB uyumlu e-Fatura kesebilmek için vergi numarası ve vergi dairesi alanlarını profilde zorunlu kılmak istiyoruz.",
+  subject: "e-Fatura GİB sisteminde onay bekliyor (İtiraz Süreci)",
+  description: "Müşterimize kesilen faturada vergi dairesi kodu uyuşmazlığı nedeniyle GİB entegratöründe bekliyor. 7 günlük yasal itiraz süresi dolmadan düzeltilmesi gerekiyor.",
   customer_name: "Deniz Arslan",
   customer_email: "deniz@muhasebe.org",
-  priority: "medium",
+  priority: "high",
   status: "pending",
   category: "Fatura & Ödeme",
-  tags: "efatura, gib",
+  e_invoice_status: "gib_pending",
+  tax_number: "9876543210",
+  invoice_number: "GIB2026000004521",
+  tags: "efatura, gib, muhasebe",
+  sla_paused_at: 2.hours.ago,
   created_at: 1.day.ago
 )
 pending_ticket.ticket_comments.create!(
   author_name: "Mert Demir (Destek Ekibi)",
   author_role: "agent",
-  body: "GİB XML şemanızı tarafımıza iletebilir misiniz? İnceleyip entegrasyona ekleyelim.",
+  body: "GİB XML şemanızı ve VKN kayıtlarınızı kontrol ettik. Entegratör yanıtı beklenirken SLA duraklatıldı.",
   created_at: 20.hours.ago
 )
 
@@ -215,8 +219,11 @@ answered_q = CommunityQuestion.create!(
 )
 answered_q.community_answers.create!(
   author_name: "Topluluk Gönüllüsü",
-  body: "CNAME kaydınızı dns.pulsedesk.io adresine yönlendirip SSL sertifikasının oluşturulmasını bekleyebilirsiniz."
+  body: "CNAME kaydınızı dns.pulsedesk.io adresine yönlendirip SSL sertifikasının oluşturulmasını bekleyebilirsiniz.",
+  is_solution: true,
+  upvotes_count: 8
 )
+answered_q.update!(solved: true)
 
 # 11. Topluluk Sorusu 3: Yeni soru (< 24 saat, yanıt bekliyor)
 recent_q = CommunityQuestion.create!(

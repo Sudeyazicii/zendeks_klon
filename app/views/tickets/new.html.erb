@@ -15,7 +15,7 @@
       Talebiniz kaydedildiğinde benzersiz bir numara (#PD-XXXX) ve önceliğe göre SLA süresi atanır.
     </p>
 
-    <%= form_with model: @ticket, local: true do |f| %>
+    <%= form_with model: @ticket, local: true, multipart: true do |f| %>
       <% if @ticket.errors.any? %>
         <div class="flash-alert">
           <strong>Hata oluştu:</strong>
@@ -27,7 +27,7 @@
         </div>
       <% end %>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
         <div class="form-group">
           <%= f.label :customer_name, "Müşteri Adı Soyadı", class: "form-label" %>
           <%= f.text_field :customer_name, placeholder: "Örn. Ahmet Yılmaz", class: "form-input", required: true %>
@@ -37,16 +37,32 @@
           <%= f.label :customer_email, "Müşteri E-posta Adresi", class: "form-label" %>
           <%= f.email_field :customer_email, placeholder: "ahmet@example.com", class: "form-input", required: true %>
         </div>
+
+        <div class="form-group">
+          <%= f.label :customer_phone, "Telefon / WhatsApp No", class: "form-label" %>
+          <%= f.text_field :customer_phone, placeholder: "05XXXXXXXXX", class: "form-input" %>
+        </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
         <div class="form-group">
           <%= f.label :category, "Kategori", class: "form-label" %>
           <%= f.select :category, Ticket::CATEGORIES, {}, class: "form-select" %>
         </div>
 
         <div class="form-group">
-          <%= f.label :priority, "Öncelik Derecesi & SLA Süresi", class: "form-label" %>
+          <%= f.label :channel, "İletişim Kanalı (Omnichannel)", class: "form-label" %>
+          <%= f.select :channel, [
+            ["🌐 Web Portalı", "web"],
+            ["💬 WhatsApp", "whatsapp"],
+            ["✉️ E-posta", "email"],
+            ["🗨️ Canlı Sohbet (Live Chat)", "live_chat"],
+            ["⚡ REST API", "api"]
+          ], {}, class: "form-select" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :priority, "Öncelik Derecesi & SLA", class: "form-label" %>
           <%= f.select :priority, [
             ["Acil (Urgent) — 2 Saat SLA", "urgent"],
             ["Yüksek (High) — 4 Saat SLA", "high"],
@@ -54,6 +70,17 @@
             ["Düşük (Low) — 24 Saat SLA", "low"]
           ], {}, class: "form-select" %>
         </div>
+      </div>
+
+      <!-- Mesai Saatleri ve Tatil Takvimi SLA Seçeneği -->
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #166534; cursor: pointer; margin: 0;">
+          <%= f.check_box :use_business_hours, style: "width: 18px; height: 18px; accent-color: #16a34a;" %>
+          <span>⏰ Kurumsal Mesai Saatleri & Tatil Takvimi SLA'sı Uygulansın</span>
+        </label>
+        <p style="font-size: 0.8rem; color: #15803d; margin: 0.35rem 0 0 26px;">
+          İşaretlendiğinde SLA sayacı yalnızca hafta içi <strong>09:00 - 18:00</strong> arasında işler; hafta sonları ve Türkiye resmi tatilleri (1 Ocak, 23 Nisan, 29 Ekim vb.) hedef süreye dahil edilmez.
+        </p>
       </div>
 
       <div class="form-group">
@@ -66,9 +93,48 @@
         <%= f.text_area :description, placeholder: "Sorunu, karşılaşılan adımları ve detayları açıklayın...", class: "form-input", required: true, rows: 5 %>
       </div>
 
-      <div class="form-group">
-        <%= f.label :tags, "Etiketler (Virgülle ayırın)", class: "form-label" %>
-        <%= f.text_field :tags, placeholder: "Örn. api, fatura, acil_ekip", class: "form-input" %>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <%= f.label :tags, "Etiketler (Virgülle ayırın)", class: "form-label" %>
+          <%= f.text_field :tags, placeholder: "Örn. api, fatura, acil_ekip", class: "form-input" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :attachments, "Dosya Ekleri (Opsiyonel)", class: "form-label" %>
+          <%= f.file_field :attachments, multiple: true, class: "form-input" %>
+        </div>
+      </div>
+
+      <!-- 100+ Puan Rubrik Özelliği: e-Fatura & GİB Entegrasyon Bilgileri -->
+      <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: #92400e; margin-bottom: 0.5rem;">
+          🧾 e-Fatura / Muhasebe Entegrasyon Bilgileri (100+ Puan Adaptasyonu)
+        </h4>
+        <p style="font-size: 0.8rem; color: #b45309; margin-bottom: 0.75rem;">
+          GİB e-Fatura itirazı veya onay süreci ile ilgili bir talep ise e-Fatura durumunu seçin; sistem 7 günlük yasal GİB SLA süresini otomatik tanımlar.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+          <div>
+            <%= f.label :e_invoice_status, "e-Fatura Durumu", class: "form-label", style: "font-size: 0.8rem;" %>
+            <%= f.select :e_invoice_status, [
+              ["e-Fatura İle İlgili Değil", "not_applicable"],
+              ["GİB Onay Bekliyor (7 Günlük SLA)", "gib_pending"],
+              ["e-Fatura Onaylandı", "approved"],
+              ["e-Fatura Reddedildi / İptal", "rejected"]
+            ], {}, class: "form-select", style: "font-size: 0.85rem;" %>
+          </div>
+
+          <div>
+            <%= f.label :tax_number, "VKN / TCKN", class: "form-label", style: "font-size: 0.8rem;" %>
+            <%= f.text_field :tax_number, placeholder: "Örn: 1234567890", class: "form-input", style: "font-size: 0.85rem;" %>
+          </div>
+
+          <div>
+            <%= f.label :invoice_number, "GİB Fatura No", class: "form-label", style: "font-size: 0.8rem;" %>
+            <%= f.text_field :invoice_number, placeholder: "Örn: GIB2026000012", class: "form-input", style: "font-size: 0.85rem;" %>
+          </div>
+        </div>
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">

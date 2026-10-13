@@ -1,0 +1,14 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
+  <div style="background: #10b981; color: white; padding: 16px; border-radius: 6px; text-align: center;">
+    <h2 style="margin: 0;">⚡ Yeni Yanıt Bildirimi</h2>
+  </div>
+  <div style="padding: 20px 0;">
+    <p>Merhaba,</p>
+    <p><strong>#<%= @ticket.ticket_number %></strong> nolu destek talebinize yeni bir yanıt geldi:</p>
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; margin: 16px 0;">
+      <p style="margin: 0 0 8px 0; color: #64748b; font-size: 13px;"><strong><%= @comment.author_name %></strong> yazdı:</p>
+      <div style="color: #1e293b; line-height: 1.5;"><%= simple_format(@comment.body) %></div>
+    </div>
+    <p>Detayları görmek veya cevap vermek için destek portalını ziyaret edebilirsiniz.</p>
+  </div>
+</div>

@@ -1,6 +1,7 @@
 class CommunityAnswersController < ApplicationController
+  before_action :set_question
+
   def create
-    @question = CommunityQuestion.find(params[:community_question_id])
     @answer = @question.community_answers.build(answer_params)
 
     if @answer.save
@@ -10,7 +11,23 @@ class CommunityAnswersController < ApplicationController
     end
   end
 
+  def mark_solution
+    @answer = @question.community_answers.find(params[:id])
+    @answer.mark_as_solution!
+    redirect_to @question, notice: "Bu yanıt 'Kabul Edilen Çözüm' olarak işaretlendi."
+  end
+
+  def upvote
+    @answer = @question.community_answers.find(params[:id])
+    @answer.upvote!
+    redirect_to @question, notice: "Yanıt faydalı bulundu (+1 oy)."
+  end
+
   private
+
+  def set_question
+    @question = CommunityQuestion.find(params[:community_question_id])
+  end
 
   def answer_params
     params.require(:community_answer).permit(:author_name, :body)

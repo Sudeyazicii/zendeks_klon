@@ -49,8 +49,22 @@
         <span class="table-badge badge-<%= @ticket.priority == 'urgent' || @ticket.priority == 'high' ? 'danger' : 'info' %>">
           <%= priority_tr[@ticket.priority] %>
         </span>
+        <% ch = @ticket.channel_badge %>
+        <span class="table-badge <%= ch[:class] %>">
+          <%= ch[:icon] %> <%= ch[:text] %>
+        </span>
+        <% if @ticket.use_business_hours? %>
+          <span class="table-badge badge-success">
+            ⏰ Mesai & Tatil Takvimi SLA
+          </span>
+        <% end %>
         <% if @ticket.breached? %>
           <span class="table-badge badge-danger">⚠️ SLA İHLALİ</span>
+        <% end %>
+        <% if @ticket.e_invoice? %>
+          <span class="table-badge <%= @ticket.e_invoice_status_badge ? @ticket.e_invoice_status_badge[:class] : 'badge-warning' %>">
+            🧾 <%= @ticket.e_invoice_status_badge ? @ticket.e_invoice_status_badge[:text] : 'e-Fatura' %>
+          </span>
         <% end %>
         <% if @ticket.merged_into_ticket_id.present? %>
           <span class="table-badge" style="background: #fef3c7; color: #92400e;">
@@ -62,8 +76,11 @@
         <%= @ticket.subject %>
       </h1>
       <p style="font-size: 0.85rem; color: var(--neutral-muted); margin-top: 0.25rem;">
-        Müşteri: <strong><%= @ticket.customer_name %></strong> (<%= @ticket.customer_email %>) • 
-        Oluşturulma: <%= @ticket.created_at.strftime("%d.%m.%Y %H:%M") %>
+        Müşteri: <strong><%= @ticket.customer_name %></strong> (<%= @ticket.customer_email %>)
+        <% if @ticket.customer_phone.present? %>
+          • Tel/WhatsApp: <strong><%= @ticket.customer_phone %></strong>
+        <% end %>
+        • Oluşturulma: <%= @ticket.created_at.strftime("%d.%m.%Y %H:%M") %>
       </p>
     </div>
 
@@ -83,13 +100,13 @@
 
       <% if @ticket.status == "new" %>
         <%= button_to "İncelemeye Al (Açık Yap)", update_status_ticket_path(@ticket, status: "open"), method: :patch, class: "btn btn-primary btn-sm" %>
-        <%= button_to "Müşteri Bekleniyor", update_status_ticket_path(@ticket, status: "pending"), method: :patch, class: "btn btn-secondary btn-sm" %>
+        <%= button_to "Müşteri Bekleniyor (SLA Duraklat)", update_status_ticket_path(@ticket, status: "pending"), method: :patch, class: "btn btn-secondary btn-sm" %>
       <% elsif @ticket.status == "open" %>
-        <%= button_to "Beklemeye Al", update_status_ticket_path(@ticket, status: "pending"), method: :patch, class: "btn btn-secondary btn-sm" %>
+        <%= button_to "Beklemeye Al (SLA Duraklat)", update_status_ticket_path(@ticket, status: "pending"), method: :patch, class: "btn btn-secondary btn-sm" %>
         <%= button_to "✓ Talebi Çöz", update_status_ticket_path(@ticket, status: "solved"), method: :patch, class: "btn btn-success btn-sm" %>
         <%= button_to "Kapat", close_ticket_path(@ticket), method: :patch, class: "btn btn-secondary btn-sm" %>
       <% elsif @ticket.status == "pending" %>
-        <%= button_to "Talebi Aç", update_status_ticket_path(@ticket, status: "open"), method: :patch, class: "btn btn-primary btn-sm" %>
+        <%= button_to "Talebi Aç (SLA Devam Et)", update_status_ticket_path(@ticket, status: "open"), method: :patch, class: "btn btn-primary btn-sm" %>
         <%= button_to "✓ Talebi Çöz", update_status_ticket_path(@ticket, status: "solved"), method: :patch, class: "btn btn-success btn-sm" %>
       <% elsif @ticket.status == "solved" %>
         <%= button_to "↺ Yeniden Aç", reopen_ticket_path(@ticket), method: :post, class: "btn btn-secondary btn-sm" %>
@@ -97,8 +114,76 @@
       <% elsif @ticket.status == "closed" %>
         <%= button_to "↺ Yeniden Aç", reopen_ticket_path(@ticket), method: :post, class: "btn btn-secondary btn-sm" %>
       <% end %>
+
+      <% if current_user.admin? %>
+        <%= button_to "Sil", ticket_path(@ticket), method: :delete, data: { turbo_confirm: "##{@ticket.ticket_number} talebini tamamen silmek istediğinize emin misiniz?" }, class: "btn btn-sm", style: "background: var(--danger); color: white;" %>
+      <% end %>
     </div>
   </div>
+
+  <!-- 🤖 PulseAI Asistanı & Analiz Kartı -->
+  <div style="margin-top: 1.25rem; padding: 1rem; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 1px solid #c4b5fd; border-radius: var(--radius-sm);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 1.25rem;">🤖</span>
+        <strong style="color: #5b21b6; font-size: 0.95rem;">PulseAI Destek Asistanı & Doğal Dil Analizi</strong>
+        <% if @ticket.ai_sentiment.present? %>
+          <span class="table-badge" style="background: #e0e7ff; color: #3730a3; font-size: 0.75rem;">
+            Duygu: <%= @ticket.ai_sentiment %>
+          </span>
+        <% end %>
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <%= button_to "🤖 Talebi Özetle", ai_summarize_ticket_path(@ticket), method: :post, class: "btn btn-sm", style: "background: #7c3aed; color: white; padding: 0.35rem 0.75rem; font-size: 0.8rem;" %>
+        <%= button_to "✍️ AI Yanıt Taslağı Üret", ai_draft_reply_ticket_path(@ticket), method: :post, class: "btn btn-sm", style: "background: #4f46e5; color: white; padding: 0.35rem 0.75rem; font-size: 0.8rem;" %>
+      </div>
+    </div>
+
+    <% if @ticket.ai_summary.present? %>
+      <div style="margin-top: 0.75rem; background: white; border: 1px solid #ddd6fe; border-radius: 6px; padding: 0.75rem 1rem;">
+        <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; font-size: 0.825rem; color: #334155; line-height: 1.5;"><%= @ticket.ai_summary %></pre>
+      </div>
+    <% end %>
+
+    <% if @ai_draft.present? %>
+      <div style="margin-top: 0.75rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 0.75rem 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+          <strong style="color: #065f46; font-size: 0.85rem;">✨ Üretilen AI Yanıt Taslağı:</strong>
+          <button type="button" onclick="insertCannedResponse(<%= @ai_draft.to_json %>)" class="btn btn-sm" style="background: #10b981; color: white; font-size: 0.75rem; padding: 0.2rem 0.5rem;">
+            Yanıt Kutusuna Kopyala
+          </button>
+        </div>
+        <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; font-size: 0.825rem; color: #047857; line-height: 1.5;"><%= @ai_draft %></pre>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @ticket.e_invoice? %>
+    <!-- 100+ Puan Adaptasyonu: e-Fatura / GİB Entegrasyon Kartı -->
+    <div style="margin-top: 1rem; padding: 0.85rem 1rem; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); font-size: 0.85rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <strong style="color: #92400e;">🧾 e-Fatura Bilgileri:</strong>
+          <% if @ticket.tax_number.present? %>
+            • VKN/TCKN: <strong><%= @ticket.tax_number %></strong>
+          <% end %>
+          <% if @ticket.invoice_number.present? %>
+            • GİB Fatura No: <strong><%= @ticket.invoice_number %></strong>
+          <% end %>
+        </div>
+        <div>
+          <span class="table-badge <%= @ticket.e_invoice_status_badge ? @ticket.e_invoice_status_badge[:class] : 'badge-warning' %>">
+            <%= @ticket.e_invoice_status_badge ? @ticket.e_invoice_status_badge[:text] : 'e-Fatura' %>
+          </span>
+        </div>
+      </div>
+      <% if @ticket.gib_pending? %>
+        <div style="margin-top: 0.35rem; font-size: 0.775rem; color: #b45309;">
+          ℹ️ GİB e-Fatura itiraz/onay yasal süreci kapsamında bu bilet için <strong>7 günlük (168 saat)</strong> özel SLA takvimi işletilmektedir.
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <% if @ticket.community_question.present? %>
     <div style="margin-top: 1rem; padding: 0.75rem 1rem; background-color: #f5f3ff; border: 1px solid #ddd6fe; border-radius: var(--radius-sm); font-size: 0.85rem;">
@@ -111,19 +196,26 @@
     </div>
   <% end %>
 
-  <!-- SLA Göstergesi Bilgi Çubuğu -->
+  <!-- SLA Göstergesi Bilgi Çubuğu (Dual-stage & Pause on Pending) -->
   <div style="margin-top: 1.25rem; padding: 0.85rem 1rem; background-color: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <div style="font-size: 0.85rem;">
-      <strong>SLA Bitiş Süresi:</strong> <%= @ticket.sla_due_at.strftime("%d.%m.%Y %H:%M") %>
-      <% if @ticket.first_responded_at.present? %>
-        • <strong>İlk Yanıt:</strong> <%= @ticket.first_responded_at.strftime("%d.%m.%Y %H:%M") %>
+      <strong>Çözüm SLA Hedefi:</strong> <%= @ticket.sla_due_at.strftime("%d.%m.%Y %H:%M") %>
+      <% if @ticket.first_response_due_at.present? %>
+        • <strong>İlk Yanıt Hedefi:</strong> <%= @ticket.first_response_due_at.strftime("%H:%M") %>
       <% end %>
-      <% if @ticket.assigned_to.present? %>
-        • <strong>Atanan:</strong> <%= @ticket.assigned_to.name %>
+      <% if @ticket.first_responded_at.present? %>
+        • <strong>İlk Yanıt Verildi:</strong> <%= @ticket.first_responded_at.strftime("%d.%m.%Y %H:%M") %>
+      <% end %>
+      <% if @ticket.total_paused_seconds > 0 %>
+        • <strong>Duraklatma:</strong> <%= sprintf("%.1f", @ticket.total_paused_seconds / 3600.0) %> sa
       <% end %>
     </div>
     <div>
-      <% if @ticket.breached? %>
+      <% if @ticket.sla_paused? %>
+        <span class="table-badge badge-warning" style="font-size: 0.85rem;">
+          ⏸️ MÜŞTERİ BEKLENİYOR (SLA DURAKLATILDI)
+        </span>
+      <% elsif @ticket.breached? %>
         <span class="table-badge badge-danger">SLA HEDEFİ AŞILDI (İHLAL)</span>
       <% elsif @ticket.solved? || @ticket.closed? %>
         <span class="table-badge badge-success">TAMAMLANDI</span>
@@ -135,21 +227,6 @@
     </div>
   </div>
 </div>
-
-<!-- Bilgi Bankası Öneri Kutusu (AI / Anahtar Kelime Eşleşmesi) -->
-<% if @relevant_articles.any? && current_user.staff? %>
-  <div class="kb-suggestions">
-    <h4>💡 İlgili Bilgi Bankası Makaleleri</h4>
-    <ul class="kb-list">
-      <% @relevant_articles.each do |art| %>
-        <li>
-          • <strong><%= art.title %></strong> (<%= art.category %>)
-          <div style="font-size: 0.8rem; color: #166534;"><%= truncate(art.body, length: 100) %></div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-<% end %>
 
 <!-- Talep Açıklaması & Konuşma Geçmişi -->
 <div class="card">
@@ -166,6 +243,20 @@
     <div style="font-size: 0.925rem; white-space: pre-wrap; color: var(--neutral-text);">
       <%= @ticket.description %>
     </div>
+
+    <!-- Bilet Dosya Ekleri -->
+    <% if @ticket.attachments.attached? %>
+      <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed #cbd5e1;">
+        <strong style="font-size: 0.8rem; color: #64748b;">📎 Ekli Dosyalar:</strong>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.35rem;">
+          <% @ticket.attachments.each do |att| %>
+            <a href="<%= rails_blob_path(att, disposition: 'attachment') %>" target="_blank" class="table-badge badge-info" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+              📄 <%= att.filename %> (<%= number_to_human_size(att.byte_size) %>)
+            </a>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <!-- Yanıtlar ve Dahili Notlar -->
@@ -193,6 +284,20 @@
         <div style="font-size: 0.925rem; white-space: pre-wrap; color: var(--neutral-text);">
           <%= comment.body %>
         </div>
+
+        <!-- Yorum Dosya Ekleri -->
+        <% if comment.attachments.attached? %>
+          <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #cbd5e1;">
+            <strong style="font-size: 0.75rem; color: #64748b;">📎 Ekli Dosyalar:</strong>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.25rem;">
+              <% comment.attachments.each do |att| %>
+                <a href="<%= rails_blob_path(att, disposition: 'attachment') %>" target="_blank" class="table-badge badge-info" style="text-decoration: none;">
+                  📄 <%= att.filename %> (<%= number_to_human_size(att.byte_size) %>)
+                </a>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </div>
@@ -219,7 +324,7 @@
         <% end %>
       </div>
 
-      <%= form_with model: [@ticket, @new_comment], local: true do |f| %>
+      <%= form_with model: [@ticket, @new_comment], local: true, multipart: true do |f| %>
         <%= f.hidden_field :author_name, value: current_user.name %>
         <%= f.hidden_field :author_role, value: current_user.staff? ? "agent" : "customer" %>
 
@@ -240,7 +345,11 @@
           <%= f.text_area :body, id: "comment-textarea", placeholder: current_user.staff? ? "Yanıtınızı veya dahili notunuzu buraya yazın..." : "Destek ekibine iletilecek mesajınızı yazın...", class: "form-input", required: true, rows: 4 %>
         </div>
 
-        <div style="display: flex; justify-content: flex-end;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <%= f.label :attachments, "📎 Dosya Ekle:", style: "font-size: 0.8rem; color: #64748b; margin: 0;" %>
+            <%= f.file_field :attachments, multiple: true, style: "font-size: 0.8rem;" %>
+          </div>
           <%= f.submit "Mesajı Kaydet ve Gönder", class: "btn btn-primary" %>
         </div>
       <% end %>

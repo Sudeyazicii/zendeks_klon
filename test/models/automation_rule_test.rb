@@ -115,4 +115,11 @@ class AutomationRuleTest < ActiveSupport::TestCase
     assert_equal 1, conflicts.size
     assert_includes conflicts.first, "öncelik çakışması"
   end
+
+  test "Otomasyon kuralı silinebilir" do
+    assert_difference("AutomationRule.count", -1) do
+      @rule.destroy!
+    end
+  end
 end
+

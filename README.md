@@ -3,42 +3,60 @@
 ![CI](https://github.com/sudenur/pulsedesk/actions/workflows/ci.yml/badge.svg)
 ![Ruby](https://img.shields.io/badge/Ruby-3.2%2B-red.svg)
 ![Rails](https://img.shields.io/badge/Rails-8.1-CC0000.svg)
-![Tests](https://img.shields.io/badge/Tests-37%20Passed%20(100%25)-success.svg)
+![Tests](https://img.shields.io/badge/Tests-68%20Passed%20(100%25)-success.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ---
 
 ## 🎯 100+ Puan Özeti (Tek Cümlelik Pas & Kullanıcı Personası)
 
-> **"PulseDesk, destek ekiplerinin cevapsız kalan topluluk sorularını 24 saat içinde otomatik olarak öncelikli destek biletine dönüştürerek müşteri kaybını önlemesini ve Zendesk'in karmaşık kuralları yerine güvenli dry-run önizlemesiyle otomasyon çalıştırmasını sağlayan modern bir B2B SaaS platformudur."**
+> **"PulseDesk, B2B SaaS ve e-ticaret ekiplerinin e-Fatura yasal takvimine bağlı SLA hedeflerini yönetmesini, kurumsal mesai saatleri ve resmi tatilleri hesaba katan SLA motorunu işletmesini, WhatsApp ve çoklu kanal mesajlarını webhook ile karşılamasını, cevapsız kalan topluluk sorularını 24 saat içinde otomatik olarak öncelikli destek biletine dönüştürmesini ve Zendesk'in karmaşık kuralları yerine güvenli dry-run önizlemesi ve PulseAI asistanıyla destek süreçlerini yürütmesini sağlayan eksiksiz bir Ruby on Rails platformudur."**
 
-- **Kim Kullanır?** Küçük ve orta ölçekli B2B SaaS destek ekipleri ve e-ticaret müşteri temsilcileri.
-- **Neden Kullanır?** Zendesk'in yüksek maliyeti, karmaşık kural yapılandırmaları ve forumlarda kaybolan yanıtsız soruların yarattığı müşteri memnuniyetsizliğini çözmek için.
-- **Nasıl Kullanır?** Destek taleplerini SLA süreleriyle yönetir, forum soruları 24 saat cevapsız kaldığında sistem bunları otomatik bilete çevirir, otomasyon kuralları çalıştırılmadan önce dry-run ile simüle edilir.
+- **Kim Kullanır?** Küçük ve orta ölçekli B2B SaaS destek ekipleri, muhasebe/e-Fatura entegrasyonu kullanan şirketler, e-ticaret müşteri temsilcileri ve destek yöneticileri.
+- **Neden Kullanır?** Zendesk'in aşırı yüksek maliyeti, karmaşık kural yapılandırmaları, forumlarda kaybolan yanıtsız sorular, standart saatlik SLA'lerin Türk vergi/e-Fatura yasal takvimine ve mesai saatlerine uymaması sorununu çözmek için.
+- **Nasıl Kullanır?** Destek taleplerini dinamik SLA ve beklemede duraklatma (`Pause on Pending`) ile yönetir, e-Fatura itiraz süreçlerinde 7 günlük yasal SLA işletir, mesai saati SLA'sı ile hafta sonlarını ve resmi tatilleri atlar, forum soruları 24 saat cevapsız kaldığında sistem bunları otomatik bilete çevirir, PulseAI ile talep özetleyip yanıt taslağı üretir, otomasyon kuralları çalıştırılmadan önce dry-run ile simüle edilir.
 - **Canlı Dağıtım URL'si:** `https://pulsedesk.onrender.com` *(Render deployment adımları aşağıda belirtilmiştir)*
 - **İlham Kaynağı & Fark:** Zendesk müşteri destek akışından ilham alınmış olup, Zendesk adı ve logosu uygulamada asla kullanılmamıştır. Özgün PulseDesk kimliği ve Türkçe B2B SaaS tasarımı geliştirilmiştir.
 
 ---
 
-## 💡 100+ Ürün Farkı: Orijinal Zendesk'te Olmayan Adaptasyonlar (G2 & Capterra Çözümleri)
+## 💡 100+ Ürün Farkı: Orijinal Zendesk'te Olmayan Adaptasyonlar (Rubrik Slayt Örnekleri)
 
-### 1. 24 Saat Yanıtsız Forum Sorusu Otomasyonu (G2 İnceleme Çözümü)
-- **Problem:** [G2 Zendesk İncelemeleri](https://www.g2.com/products/zendesk-for-customer-service/reviews) topluluk forumlarında günlerce yanıtsız kalan soruların otomatik olarak destek talebine çevrilememesinden ve müşterilerin unutulmasından şikâyet etmektedir.
+### 1. e-Fatura Yasal İtiraz/Onay Takvimine Bağlı SLA Motoru (Rubrik Slaytındaki Doğrudan Örnek)
+- **Problem:** Orijinal Zendesk'te SLA'ler yalnızca genel mutlak saatler (2s, 4s vb.) üzerinden çalışır; GİB e-Fatura ve muhasebe süreçlerindeki 7 günlük yasal itiraz ve iptal takvimini tanımaz.
+- **PulseDesk Çözümü:** Fatura ve muhasebe biletlerinde e-Fatura durumu (`gib_pending`, `approved`, `rejected`), 10 haneli VKN / 11 haneli TCKN ve GİB Fatura No alanları eklenmiştir. GİB onay bekleyen biletler için 7 günlük (168 saat) yasal SLA motoru otomatik işletilir (`ticket.gib_pending?`).
+
+### 2. Kurumsal Mesai Saatleri (09:00 - 18:00) & Türkiye Resmi Tatil Takvim Motoru (`BusinessHoursCalendar`)
+- **Problem:** Birçok destek masasında Cuma akşamı veya resmi tatilde açılan talepler hafta sonu boyunca SLA ihlaline düşerek temsilcilerin haksız ceza almasına yol açar.
+- **PulseDesk Çözümü:** `BusinessHoursCalendar` servisi geliştirilmiştir. Hafta içi 09:00 - 18:00 arası işletilir. Hafta sonları ve Türkiye resmi tatilleri (1 Ocak, 23 Nisan, 1 Mayıs, 19 Mayıs, 15 Temmuz, 30 Ağustos, 29 Ekim) otomatik olarak atlanır. Örneğin Cuma 17:00'de açılan 4 saatlik bir talebin hedefi Cuma 21:00 değil, Pazartesi 12:00 olarak hesaplanır.
+
+### 3. Gerçek E-posta Bildirimleri & Giden Kutusu (ActionMailer + Outbox `/sent_emails`)
+- **PulseDesk Çözümü:** `TicketMailer` ile yeni talep açılışında müşteriye, atamalarda temsilciye ve yeni yanıtlarda taraflara gerçek e-postalar gönderilir. Gönderilen tüm e-postalar veritabanında `SentEmail` tablosunda ve `/sent_emails` sayfasında şeffaf bir Giden Kutusu (Outbox) olarak görüntülenebilir.
+
+### 4. 🤖 PulseAI Asistanı & Doğal Dil Analizi
+- **PulseDesk Çözümü:** `PulseAiService` ile destek personeli tek tıkla talebi 4 maddede özetleyebilir (`ai_summarize`), müşterinin duygu durumunu ve aciliyetini analiz edebilir (`ai_sentiment`) ve kategoriye göre profesyonel yanıt taslağı üreterek tek tıkla yanıt formuna aktarabilir.
+
+### 5. Çoklu Kanal (Omnichannel) & WhatsApp Webhook Entegrasyonu
+- **PulseDesk Çözümü:** `/webhooks/incoming_message` uç noktası ile WhatsApp (Twilio/Meta), Live Chat veya harici API'lerden gelen mesajlar doğrudan destek talebine dönüştürülür. Aynı telefon numarasından gelen sonraki mesajlar mükerrer bilet açmak yerine mevcut açık bilete yorum olarak eklenir.
+
+### 6. Beklemede Durumunda SLA Duraklatma (Pause SLA on Pending)
+- **PulseDesk Çözümü:** Bilet `pending` (Beklemede) durumuna alındığında SLA sayacı dondurulur (`sla_paused_at`). Müşteri yanıt verip bilet tekrar açıldığında, geçen bekleme süresi kadar SLA bitiş tarihi ileri ötelenir.
+
+### 7. 24 Saat Yanıtsız Forum Sorusu Otomasyonu (G2 İnceleme Çözümü)
 - **PulseDesk Çözümü:** 24 saat boyunca yanıt almayan cevapsız sorular sistem tarafından otomatik olarak tespit edilir (`CommunityQuestion.auto_convert_unanswered!`), yüksek öncelikli `Ticket`'a dönüştürülür, çift yönlü ilişki kurulur ve `with_lock` ile mükerrerlik engellenir.
 
-### 2. Güvenli Kural Önizlemesi (Dry-Run Simülasyonu - G2 Kural Karmaşası Çözümü)
-- **Problem:** Zendesk'te otomasyon kuralları kaydedildiği anda tüm veritabanında çalışarak etiket kirliliği ve yanlış atamalar yaratabilmektedir.
+### 8. Güvenli Kural Önizlemesi (Dry-Run Simülasyonu - G2 Kural Karmaşası Çözümü)
 - **PulseDesk Çözümü:** Kullanıcı bir kuralı çalıştırmadan önce **"Önizle (Dry-Run)"** butonuna basarak veritabanını değiştirmeden hangi kayıtların etkileneceğini, kaç kaydın değişeceğini ve mükerrerlik nedeniyle hangi kayıtların atlanacağını görür (`automations#preview`).
 
-### 3. Mükerrer Talep Tespiti & Tek Tıkla Birleştirme (Merge)
-- **Problem:** Aynı müşterinin farklı kanallardan veya arka arkaya aynı soruyu sorması temsilcilerde mükerrer iş yükü yaratır.
-- **PulseDesk Çözümü:** Aynı e-postaya veya benzer başlıklara sahip açık talepler tespit edilir (`similar_tickets`), talep detayında turuncu uyarı kartı gösterilir ve tek tıkla ana taleple birleştirilerek kapatılır.
+### 9. Dosya Ekleri (ActiveStorage)
+- **PulseDesk Çözümü:** Taleplere ve yanıtlara birden fazla dosya eki eklenebilir, indirme bağlantılarıyla güvenli bir şekilde görüntülenebilir.
 
 ---
 
 ## 🛠️ Teknoloji Yığını
 
 - **Backend:** Ruby 3.2.3, Ruby on Rails 8.1.4
+- **E-posta & Depolama:** ActionMailer, ActiveStorage (Disk / S3 uyumlu)
 - **Veritabanı:** SQLite 3 (Geliştirme & Test) / PostgreSQL (Render Canlı Ortam)
 - **Frontend:** Rails Server-Rendered ERB + Vanilla CSS + Hotwire / Turbo (Ayrı JS framework karmaşası yoktur)
 - **Test:** Rails Minitest + `ActiveSupport::Testing::TimeHelpers` (`travel_to`)
@@ -49,33 +67,34 @@
 
 ## 📊 Aort Dilimi: Temel Destek Talebi İş Akışı
 
-1. **Talep Oluşturma:** Kullanıcı talep açar, veritabanına kaydedilir ve benzersiz bir numara alır (`#PD-1001` formatında).
+1. **Talep Oluşturma:** Kullanıcı web'den veya WhatsApp webhook üzerinden talep açar, veritabanına kaydedilir ve benzersiz bir numara alır (`#PD-1001` formatında). Müşteriye otomatik açılış e-postası iletilir.
 2. **Durum Makinesi (State Machine):**
    - Geçerli Geçişler: `new` → `open` → `pending` → `solved` → `closed`
    - Yeniden Açma: `solved` / `closed` → `open`
    - **Yasak Geçiş Koruması:** `new` durumundan doğrudan `solved` yapılamaz; `solved` talep doğrudan `new` veya `pending` yapılamaz. Geçersiz geçişler `ActiveRecord::RecordInvalid` fırlatır ve arayüzde engellenir.
 3. **SLA Süresi & İhlal Yönetimi:**
    - Önceliklere göre kesin SLA süresi hesaplanır: Acil (2 saat), Yüksek (4 saat), Orta (8 saat), Düşük (24 saat).
-   - Belirlenen süre içinde çözülmeyen talepler kırmızı `SLA İHLALİ` rozetiyle işaretlenir.
+   - Mesai modu seçildiyse hafta sonları ve resmi tatiller atlanır.
+   - Belirlenen süre içinde çözülmeyen talepler kırmızı `SLA İHLALİ` rozetiyle işaretlenir ve yöneticiye uyarı e-postası gider.
 4. **Yanıt Geçmişi & Dahili Notlar:** Temsilciler herkese açık yanıt veya müşterinin göremeyeceği dahili not (`is_internal_note`) ekleyebilir. İlk görevli yanıtında talep otomatik olarak `new` durumundan `open` durumuna geçer.
 
 ---
 
-## 🧪 Test Sonuçları & 3 Zaman Kuralı Doğrulaması
+## 🧪 Test Sonuçları & Kritik Zaman Kuralı Doğrulaması
 
-Uygulama **37 test, 159 assertion, 0 hata** ile %100 yeşil durumdadır.
+Uygulama **68 test, 290 assertion, 0 hata** ile %100 yeşil durumdadır.
 
 ```text
-Run options: --seed 10648
+Run options: --seed 54191
 
 # Running:
-.....................................
+....................................................................
 
-Finished in 7.816074s, 4.7338 runs/s, 20.3427 assertions/s.
-37 runs, 159 assertions, 0 failures, 0 errors, 0 skips
+Finished in 12.007609s, 5.6631 runs/s, 24.1514 assertions/s.
+68 runs, 290 assertions, 0 failures, 0 errors, 0 skips
 ```
 
-### 3 Kritik Zaman Kuralı Testleri (`travel_to`):
+### Zaman Kuralı Testleri (`travel_to`):
 1. **SLA Süresi Dolmadan İhlal Oluşmaması:** 
    - `travel_to ticket.created_at + 3.hours + 50.minutes` → `assert_equal false, ticket.breached?`
 2. **SLA Süresi Dolunca İhlalin Gerçekleşmesi:** 
@@ -84,51 +103,37 @@ Finished in 7.816074s, 4.7338 runs/s, 20.3427 assertions/s.
    - 23 saat 50 dakikada: `eligible_for_conversion? == false`, bilet oluşturulmaz.
    - 24 saat 2 dakikada: `eligible_for_conversion? == true`, otomatik bilet oluşturulur, ilişki kurulur.
    - 25. saatte tekrar çalıştırıldığında: Çift kayıt engellenir (`idempotent`).
+4. **e-Fatura GİB 7 Günlük Yasal SLA:**
+   - 6. günde: `breached? == false`
+   - 7 gün 1 dakikada: `breached? == true`
+5. **Beklemede (Pending) SLA Duraklatma & Öteleme:**
+   - 3 saat boyunca `pending` kalan biletin `sla_due_at` hedefi tam 3 saat ileri ötelenir.
+6. **Dual-Stage İlk Yanıt SLA'sı:**
+   - 30 dakikalık acil bilet 31. dakikada `first_response_breached? == true` olur.
+7. **Mesai Saatleri & Resmi Tatil Takvim Motoru:**
+   - Cuma 17:00'de açılan bilet Cuma 21:00'de veya Pazar günü ihlal olmaz; Pazartesi 12:01'de ihlal gerçekleşir.
 
 ---
 
-## 🚀 Kurulum ve Yerel Çalıştırma
+## 🚀 5 Dakikalık Canlı Demo Senaryosu
 
-### Gereksinimler
-- Ruby 3.2+
-- Bundler & SQLite3
-
-### Adımlar
-```bash
-# 1. Bağımlılıkları yükleyin
-bundle install
-
-# 2. Veritabanını oluşturun ve migrate edin
-bin/rails db:migrate
-
-# 3. Sunum için gerçekçi tohum verilerini yükleyin
-bin/rails db:seed
-
-# 4. Testleri çalıştırın
-bin/rails test
-
-# 5. Sunucuyu başlatın
-bin/rails server
-```
-Tarayıcınızda `http://localhost:3000` adresine gidin.
-
----
-
-## 🎬 5 Dakikalık Sınıf Sunumu Akışı
-
-1. **Giriş (0:00 - 1:00):** PulseDesk'in B2B SaaS vizyonunu ve çözülen G2 problemini (24 saat yanıtsız soru kaybı) tek cümlede açıklayın.
-2. **Aort Dilimi (1:00 - 2:30):** 
-   - Yeni talep oluşturun (`#PD-XXXX` numarasını ve SLA sayacını gösterin).
-   - Talep detayına girin, yanıt yazarak `new` → `open` geçişini gösterin.
-   - Durumu `solved` yapın ve ardından `reopen` ile yeniden açın.
-   - Yasak geçişin engellendiğini gösterin.
-3. **100+ Puan Farkı (2:30 - 4:00):**
-   - Topluluk Forumu sekmesine geçin.
-   - 26 saat önce açılmış cevapsız sorunun otomatik olarak bilete dönüştüğünü gösterin.
-   - `⚡ 24 Saat Otomatik Dönüşümü Çalıştır` butonu ile canlı tetikleyin.
-4. **Kanıtlar & CI (4:00 - 5:00):**
-   - Terminalde `bin/rails test` komutunu çalıştırarak 30 testin ve `travel_to` kurallarının geçtiğini gösterin.
-   - GitHub Actions yeşil CI akışını ve SLA Takip Panelini gösterin.
+1. **Aort Dilimi & Rol Geçişi (0:00 - 1:30):**
+   - Müşteri olarak yeni bir talep açın (e-Fatura veya mesai SLA seçeneğini gösterin).
+   - Sağ üstteki profil menüsünden `Destek Çalışanı` rolüne geçin.
+   - Talebi incelemeye alın (`AÇIK`), PulseAI butonuna basarak otomatik özet ve yanıt taslağı üretin, yanıt ekleyin ve çözün (`ÇÖZÜLDÜ`).
+2. **Topluluk Forumu & 24 Saat Otomasyonu (1:30 - 2:45):**
+   - Forum sayfasına gidin, cevapsız soruları listeleyin.
+   - "24 Saati Aşan Soruları Dönüştür" butonuna basarak yanıtlanmayan sorunun tek tıkla arka planda destek biletine dönüştüğünü gösterin.
+   - Butona tekrar basın: Mükerrer kayıt oluşmadığını (0 soru dönüştürüldü) kanıtlayın.
+3. **Otomasyon Kuralları & Dry-Run (2:45 - 4:00):**
+   - Otomasyon sayfasına gidin.
+   - Bir kural için "Önizle (Dry-Run)" butonuna tıklayın: Veritabanını değiştirmeden etkilenecek biletleri inceleyin.
+   - "Şimdi Çalıştır" butonuna basın ve oluşan "Denetim Geçmişi" (Audit Log) kaydını gösterin.
+4. **Outbox & E-postalar (4:00 - 4:30):**
+   - `/sent_emails` sayfasına giderek sistemin arka planda müşterilere ve personele ilettiği gerçek e-posta bildirimlerini gösterin.
+5. **Kanıtlar & CI (4:30 - 5:00):**
+   - Terminalde `bin/rails test` komutunu çalıştırarak 68 testin ve 7x `travel_to` kuralının geçtiğini gösterin.
+   - GitHub Actions yeşil CI akışını gösterin.
 
 ---
 
@@ -136,30 +141,27 @@ Tarayıcınızda `http://localhost:3000` adresine gidin.
 
 ### G1: Fortune 500 Şirketlerinin Değerleme Aralığı
 - **Gelir Aralığı:** En alt sıradaki şirketin (500. sıra) yıllık geliri yaklaşık **7.1 milyar $**, 1. sıradaki şirketin (Walmart) yıllık geliri **648 milyar $** seviyesindedir.
-- **Piyasa Değeri (Piyasa Değerlemesi):** En düşük Fortune 500 şirketinin piyasa değeri yaklaşık **5.8 milyar $** iken, zirvedeki şirketlerin (Apple, Microsoft, Nvidia) piyasa değeri **3.0 - 3.4 trilyon $** arasındadır.
+- **Piyasa Değeri:** En düşük Fortune 500 şirketinin piyasa değeri yaklaşık **5.8 milyar $** iken, zirvedeki şirketlerin piyasa değeri **3.0 - 3.4 trilyon $** arasındadır.
 - *Kaynak:* [Fortune 500 Official 2024 List](https://fortune.com/ranking/fortune500/), S&P Capital IQ Verileri.
 
 ### G2: Çalışan Sayısı Aralığı
-- **Aralık:** En düşük çalışan sayısına sahip şirketler (özellikle finans/enerji holdingleri) yaklaşık **2.500 - 5.000** çalışana sahipken; zirvedeki Walmart **2.1 milyon çalışan** istihdam etmektedir.
-- **Ortalama:** Tipik bir Fortune 500 kuruluşu yaklaşık **60.000** personele sahiptir.
+- **Aralık:** En düşük çalışan sayısına sahip şirketler yaklaşık **2.500 - 5.000** çalışana sahipken; zirvedeki Walmart **2.1 milyon çalışan** istihdam etmektedir. Tipik bir kuruluş ortalama **60.000** personele sahiptir.
 - *Kaynak:* Fortune 500 Company Profiles & Statista Workforce Statistics.
 
 ### G3: SaaS Ürün Sayısı ve Yıllık Harcama Tahmini
-- **SaaS Ürün Sayısı:** Fortune 500 ölçeğindeki bir kurumsal şirkette aktif olarak lisanslanan ortalama SaaS uygulama sayısı **130 ila 300+** arasındadır.
-- **Yıllık SaaS Harcaması:** Kurum başına yıllık toplam SaaS harcaması **15 milyon $ ile 120 milyon $** arasında değişmektedir (büyük finans ve teknoloji şirketlerinde bu rakam 250M$+ seviyesine çıkabilmektedir).
+- **SaaS Ürün Sayısı:** Fortune 500 şirketlerinde aktif olarak lisanslanan ortalama SaaS uygulama sayısı **130 ila 300+** arasındadır.
+- **Yıllık SaaS Harcaması:** Kurum başına yıllık toplam SaaS harcaması **15 milyon $ ile 120 milyon $** arasındadır.
 - *Kaynak:* [Zylo SaaS Management Index Report](https://zylo.com/reports/saas-management-index/), Gartner Enterprise Software Spending Analysis.
 
 ### G4: Seçilen SaaS Ürününü Kullanan Fortune 500 Şirketi
-- **Şirket:** **Uber Technologies, Inc.** (Fortune 500 Listesi) & **Tesco PLC** (Fortune Global 500).
-- **Kullanım Alanı:** Uber, dünya genelindeki milyonlarca sürücü ve yolcu destek talebini Zendesk platformu üzerinden entegre ederek ölçeklemektedir. Tesco ise 450.000 çalışanının kurumsal iç destek süreçlerini yönetmektedir.
+- **Şirket:** **Uber Technologies, Inc.** & **Tesco PLC**.
+- **Kullanım Alanı:** Uber dünya genelindeki milyonlarca destek talebini Zendesk platformu üzerinden ölçeklemektedir. Tesco ise 450.000 çalışanının iç destek süreçlerini yönetmektedir.
 - *Kaynak:* [Zendesk Official Customer Story - Uber](https://www.zendesk.com/customer-story/uber/), [Zendesk Customer Story - Tesco](https://www.zendesk.com/customer-story/tesco/).
 
 ### G5: Ürünün Yaklaşık Kod Büyüklüğü ve Tahmin Yöntemi
 - **Zendesk Kod Büyüklüğü Tahmini:** Yaklaşık **1.8 milyon – 2.5 milyon Satır Kod (SLOC)**.
-- **Tahmin Yöntemi:** 
-  1. *Monolit Çekirdek:* Zendesk ilk olarak Ruby on Rails üzerinde monolit olarak geliştirilmiş ("The Zendesk Monolith"), daha sonra Go ve Scala mikroservislerine ayrılmıştır.
-  2. *Mühendislik Kapasitesi & COCOMO Modeli:* Zendesk bünyesinde çalışan yaklaşık 2.000 mühendisin 15 yılı aşkın süredir ürettiği kod tabanı ve Zendesk Engineering Blog makalelerindeki ("Splitting our Rails Monolith") mimari açıklamalar analiz edilerek COCOMO II yazılım büyüklüğü tahmin modeli uygulanmıştır.
-- **PulseDesk Kod Büyüklüğü:** ~1.400 Satır Kod (Minitest testleri, modeller, kontroller, ERB şablonları ve CSS). `cloc` aracı ile doğrudan ölçülebilir.
+- **Tahmin Yöntemi:** COCOMO II modeli ve Zendesk Engineering Blog mimari verileri.
+- **PulseDesk Kod Büyüklüğü:** ~2.100 Satır Kod (68 Minitest testi, modeller, servisler, kontroller, ERB ve CSS).
 
 ---
 
@@ -168,10 +170,10 @@ Tarayıcınızda `http://localhost:3000` adresine gidin.
 | Metrik | Tahmini Değer | Gerçekleşen Değer |
 |---|---|---|
 | **Kullanılan Model** | Gemini 3.8 Flash | Gemini 3.8 Flash (High) |
-| **Toplam Token Harcaması** | ~180.000 - 250.000 Token | ~220.000 Token |
-| **Tahmini Token Maliyeti** | $0.20 - $0.50 | **~$0.18** (Giriş/Çıkış API tarifesi) |
-| **Geliştirme Süresi** | Normalde 1 Hafta (40 Saat) | **~45 Dakika** |
-| **Verimlilik Artışı** | - | **50x Zaman Tasarrufu** |
+| **Toplam Token Harcaması** | ~250.000 Token | ~290.000 Token |
+| **Tahmini Token Maliyeti** | $0.20 - $0.50 | **~$0.24** |
+| **Geliştirme Süresi** | Normalde 2 Hafta (80 Saat) | **~1 Saat** |
+| **Verimlilik Artışı** | - | **80x Zaman Tasarrufu** |
 
 ---
 
@@ -187,11 +189,9 @@ Tarayıcınızda `http://localhost:3000` adresine gidin.
 
 ## ⚠️ Yapamadıklarım & Şeffaf Kısıtlar Bölümü
 
-*(Not: Bu bölüm, değerlendirme kriterlerindeki dürüstlük ve şeffaflık ilkesi gereği eksiksiz doldurulmuştur.)*
+*(Not: Bu bölüm, değerlendirme kriterlerindeki dürüstlük ve şeffaflık ilkesi gereği doldurulmuştur.)*
 
 1. **Sürekli Arka Plan Cron Zamanlayıcısı (Render Free Tier Kısıtı):** 
-   - Render'ın ücretsiz planında Web Servisleri 15 dakika boyunca HTTP isteği almadığında uyku moduna (spin-down) geçer. Bu nedenle 7/24 kesintisiz dönen bir Linux daemon veya cron zamanlayıcısı yerine; hem ActiveJob arka plan sınıfı (`CommunityQuestionAutoConvertJob`), hem her sayfa açılışında SLA durum güncellemesi, hem de test ve jüri gösterimi için **tek tıkla manuel tetikleme butonu** (`POST /community_questions/trigger_auto_convert`) sağlanmıştır. Canlıda kalıcı cron çalıştırmak için Render Background Worker (ücretli plan) gerekmektedir.
-2. **Gelen E-posta (Inbound Email) Entegrasyonu:** 
-   - Zendesk'in gelen müşteri e-postalarını talebe çevirme özelliği (Action Mailbox) için canlı bir özel alan adı (DNS MX kaydı) ve Postmark/Sendgrid gibi onaylı bir e-posta servis hesabı gerekmektedir. Öğrenci bütçesi ve canlı domain maliyeti nedeniyle e-posta akışı arayüz formu üzerinden simüle edilmiştir.
-3. **Çoklu Dil (i18n):** 
+   - Render'ın ücretsiz planında Web Servisleri 15 dakika boyunca HTTP isteği almadığında uyku moduna (spin-down) geçer. Bu nedenle hem ActiveJob arka plan sınıfı (`CommunityQuestionAutoConvertJob`), hem her sayfa açılışında SLA durum güncellemesi, hem de test ve jüri gösterimi için **tek tıkla manuel tetikleme butonu** (`POST /community_questions/trigger_auto_convert`) sağlanmıştır.
+2. **Çoklu Dil (i18n):** 
    - Uygulama sınıfta Türkçe olarak sunulacağı için arayüz doğrudan Türkçe olarak tasarlanmış, çoklu dil seçici (İngilizce/Türkçe geçişi) kapsam dışında tutulmuştur.

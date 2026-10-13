@@ -72,13 +72,31 @@
   <div class="timeline">
     <% if @answers.any? %>
       <% @answers.each do |ans| %>
-        <div class="timeline-item">
-          <div class="timeline-meta">
-            <span class="timeline-author">💬 <%= ans.author_name %></span>
+        <div class="timeline-item <%= 'internal-note' if ans.is_solution? %>" style="<%= 'background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.75rem;' if ans.is_solution? %>">
+          <div class="timeline-meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="timeline-author">💬 <%= ans.author_name %></span>
+              <% if ans.is_solution? %>
+                <span class="table-badge badge-success" style="font-size: 0.75rem;">
+                  ✓ Kabul Edilen Doğru Çözüm
+                </span>
+              <% end %>
+            </div>
             <span><%= ans.created_at.strftime("%d.%m.%Y %H:%M") %></span>
           </div>
-          <div style="font-size: 0.925rem; white-space: pre-wrap;">
+
+          <div style="font-size: 0.925rem; white-space: pre-wrap; margin-bottom: 0.75rem;">
             <%= ans.body %>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+            <!-- Faydalı Oy (Upvote) Butonu -->
+            <%= button_to "👍 Faydalı Buldum (#{ans.upvotes_count})", upvote_community_question_community_answer_path(@question, ans), method: :post, class: "btn btn-sm btn-secondary", style: "font-size: 0.75rem; padding: 0.2rem 0.5rem;" %>
+
+            <!-- Doğru Çözüm Olarak İşaretleme Butonu -->
+            <% if current_user.staff? && !ans.is_solution? %>
+              <%= button_to "✓ Çözüm Olarak İşaretle", mark_solution_community_question_community_answer_path(@question, ans), method: :post, class: "btn btn-sm btn-success", style: "font-size: 0.75rem; padding: 0.2rem 0.5rem;" %>
+            <% end %>
           </div>
         </div>
       <% end %>
