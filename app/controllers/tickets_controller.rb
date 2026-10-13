@@ -1,12 +1,13 @@
 class TicketsController < ApplicationController
-  before_action :set_ticket, only: [:show, :update_status, :reopen, :close, :merge, :assign, :destroy, :ai_summarize, :ai_draft_reply]
+  before_action :set_ticket, only: [:show, :edit, :update, :update_status, :reopen, :close, :merge, :assign, :destroy, :ai_summarize, :ai_draft_reply]
 
   def index
-    @status_filter    = params[:status].presence || "all"
-    @priority_filter  = params[:priority].presence
-    @category_filter  = params[:category].presence
-    @e_invoice_filter = params[:e_invoice].presence
-    @channel_filter   = params[:channel].presence
+    @status_filter     = params[:status].presence || "all"
+    @priority_filter   = params[:priority].presence
+    @category_filter   = params[:category].presence
+    @e_invoice_filter  = params[:e_invoice].presence
+    @channel_filter    = params[:channel].presence
+    @department_filter = params[:department].presence
 
     @tickets = Ticket.all.recent_first
 
@@ -33,6 +34,11 @@ class TicketsController < ApplicationController
       @tickets = @tickets.where(channel: @channel_filter)
     end
 
+    # Departman / Ekip Filtresi
+    if @department_filter.present?
+      @tickets = @tickets.joins(:assigned_to).where(users: { department: @department_filter })
+    end
+
     # 100+ Rubrik Örneği: e-Fatura Filtresi
     if @e_invoice_filter == "gib_pending"
       @tickets = @tickets.gib_pending_invoices
@@ -46,10 +52,24 @@ class TicketsController < ApplicationController
     end
 
     @total_count       = Ticket.count
+    @new_count         = Ticket.where(status: "new").count
     @open_count        = Ticket.where(status: %w[new open pending]).count
+    @pending_count     = Ticket.where(status: "pending").count
+    @solved_count      = Ticket.where(status: "solved").count
+    @closed_count      = Ticket.where(status: "closed").count
+    @unassigned_count  = Ticket.unassigned.count
     @breached_count    = Ticket.breached.count
     @gib_pending_count = Ticket.gib_pending_invoices.count
     @paused_count      = Ticket.where.not(sla_paused_at: nil).count
+    @paused_sla_count  = @paused_count
+
+    # Hafif Yerel Sayfalama (Pagination)
+    @page = [params[:page].to_i, 1].max
+    @per_page = 15
+    @total_filtered_count = @tickets.count
+    @total_pages = (@total_filtered_count / @per_page.to_f).ceil
+    @total_pages = 1 if @total_pages.zero?
+    @tickets = @tickets.offset((@page - 1) * @per_page).limit(@per_page)
 
     respond_to do |format|
       format.html
@@ -89,6 +109,19 @@ class TicketsController < ApplicationController
       redirect_to @ticket, notice: "##{@ticket.ticket_number} nolu destek talebiniz başarıyla oluşturuldu."
     else
       render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+    @agents = User.agents
+  end
+
+  def update
+    if @ticket.update(ticket_params)
+      redirect_to @ticket, notice: "##{@ticket.ticket_number} talebi başarıyla güncellendi."
+    else
+      @agents = User.agents
+      render :edit, status: :unprocessable_entity
     end
   end
 

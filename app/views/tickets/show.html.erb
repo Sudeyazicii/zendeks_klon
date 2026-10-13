@@ -98,6 +98,8 @@
         <% end %>
       <% end %>
 
+      <%= link_to "✏️ Düzenle", edit_ticket_path(@ticket), class: "btn btn-secondary btn-sm" %>
+
       <% if @ticket.status == "new" %>
         <%= button_to "İncelemeye Al (Açık Yap)", update_status_ticket_path(@ticket, status: "open"), method: :patch, class: "btn btn-primary btn-sm" %>
         <%= button_to "Müşteri Bekleniyor (SLA Duraklat)", update_status_ticket_path(@ticket, status: "pending"), method: :patch, class: "btn btn-secondary btn-sm" %>

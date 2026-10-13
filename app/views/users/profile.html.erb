@@ -1,0 +1,58 @@
+<% content_for :title, "Kullanıcı Profili & Bildirim Tercihleri" %>
+
+<div style="max-width: 640px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Profil & Bildirim Ayarları</h1>
+      <p class="page-subtitle">Kullanıcı bilgilerinizi, departmanınızı ve bildirim tercihlerinizi yönetin.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border);">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800;">
+        <%= @user.name.first.upcase %>
+      </div>
+      <div>
+        <div style="font-size: 1.15rem; font-weight: 800; color: var(--neutral-dark);"><%= @user.name %></div>
+        <div style="font-size: 0.85rem; color: var(--neutral-muted);"><%= @user.email %> • Rol: <strong><%= @user.role.upcase %></strong></div>
+      </div>
+    </div>
+
+    <%= form_with model: @user, url: update_preferences_path, method: :patch, local: true do |f| %>
+      <div class="form-group">
+        <%= f.label :name, "Ad Soyad", class: "form-label" %>
+        <%= f.text_field :name, class: "form-input", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :department, "Ekip / Departman", class: "form-label" %>
+        <%= f.select :department, [
+          ["👥 Destek Ekibi", "Destek Ekibi"],
+          ["🧾 Fatura & Muhasebe", "Fatura & Muhasebe"],
+          ["💻 Teknik & Altyapı", "Teknik & Altyapı"],
+          ["⚡ Yönetim", "Yönetim"]
+        ], {}, class: "form-select" %>
+      </div>
+
+      <!-- Bildirim Tercihleri (Capterra / Zendesk Şikâyet Çözümü) -->
+      <div style="margin-top: 1.25rem; padding: 1rem; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm);">
+        <strong style="color: var(--neutral-dark); font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">
+          🔔 Bildirim Kanalları & Tercihler
+        </strong>
+        <p style="font-size: 0.825rem; color: var(--neutral-muted); margin-bottom: 0.75rem;">
+          Capterra incelemelerindeki e-posta bildirim karmaşasına karşı, bildirim tercihlerinizi buradan dilediğiniz gibi açıp kapatabilirsiniz:
+        </p>
+
+        <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.875rem; font-weight: 600; color: var(--neutral-dark);">
+          <%= f.check_box :email_notifications_enabled, style: "width: 18px; height: 18px; accent-color: var(--primary);" %>
+          <span>Yeni bilet atamalarında ve müşteri yanıtlarında e-posta bildirimleri gönderilsin</span>
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+        <%= f.submit "Tercihleri Kaydet", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

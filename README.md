@@ -3,7 +3,7 @@
 ![CI](https://github.com/sudenur/pulsedesk/actions/workflows/ci.yml/badge.svg)
 ![Ruby](https://img.shields.io/badge/Ruby-3.2%2B-red.svg)
 ![Rails](https://img.shields.io/badge/Rails-8.1-CC0000.svg)
-![Tests](https://img.shields.io/badge/Tests-68%20Passed%20(100%25)-success.svg)
+![Tests](https://img.shields.io/badge/Tests-78%20Passed%20(100%25)-success.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ---
@@ -51,6 +51,18 @@
 ### 9. Dosya Ekleri (ActiveStorage)
 - **PulseDesk Çözümü:** Taleplere ve yanıtlara birden fazla dosya eki eklenebilir, indirme bağlantılarıyla güvenli bir şekilde görüntülenebilir.
 
+### 10. Hazır Yanıtlar & Makrolar Yönetimi (`/canned_responses`)
+- **PulseDesk Çözümü:** Destek temsilcileri bilet yanıtlarken sık kullanılan kurumsal şablonları seçebilir; yöneticiler yeni hazır yanıtlar ekleyip düzenleyebilir.
+
+### 11. Kullanıcı Profili ve Bildirim Tercihleri (`/profile`)
+- **PulseDesk Çözümü:** Kullanıcılar kendi adlarını, departmanlarını güncelleyebilir ve e-posta bildirim tercihlerini (Capterra spam şikâyeti çözümü) dilediği gibi yönetebilir.
+
+### 12. Ekip/Departman Filtrelemesi ve Yerel Sayfalama (Pagination)
+- **PulseDesk Çözümü:** Destek, Muhasebe, Teknik ekiplerine göre filtreleme yapılır; yüzlerce bilet için hafif sunucu taraflı sayfalama (`page=X`) uygulanır.
+
+### 13. CLI / Cron Otomasyon Rake Görevi (`rake automations:run_all`)
+- **PulseDesk Çözümü:** Sunucu zamanlayıcıları ve CLI için `rake automations:run_all` komutuyla 24h forum dönüşümü, SLA ihlal kontrolü ve zamanlı kurallar tek komutla işletilebilir.
+
 ---
 
 ## 🛠️ Teknoloji Yığını
@@ -82,16 +94,16 @@
 
 ## 🧪 Test Sonuçları & Kritik Zaman Kuralı Doğrulaması
 
-Uygulama **68 test, 290 assertion, 0 hata** ile %100 yeşil durumdadır.
+Uygulama **78 test, 327 assertion, 0 hata** ile %100 yeşil durumdadır.
 
 ```text
-Run options: --seed 54191
+Run options: --seed 20104
 
 # Running:
-....................................................................
+..............................................................................
 
-Finished in 12.007609s, 5.6631 runs/s, 24.1514 assertions/s.
-68 runs, 290 assertions, 0 failures, 0 errors, 0 skips
+Finished in 12.509093s, 6.2355 runs/s, 26.1410 assertions/s.
+78 runs, 327 assertions, 0 failures, 0 errors, 0 skips
 ```
 
 ### Zaman Kuralı Testleri (`travel_to`):

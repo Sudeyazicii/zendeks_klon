@@ -1,0 +1,63 @@
+<% content_for :title, "Hazır Yanıtlar (Makrolar)" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Hazır Yanıtlar (Makrolar & Canned Responses)</h1>
+    <p class="page-subtitle">Destek temsilcilerinin bilet yanıtlarken tek tıkla uygulayabileceği hazır şablonlar</p>
+  </div>
+  <div>
+    <%= link_to "+ Yeni Hazır Yanıt Ekle", new_canned_response_path, class: "btn btn-primary" %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Başlık</th>
+          <th>Kategori</th>
+          <th>İçerik Şablonu</th>
+          <th>Oluşturan</th>
+          <th>Tarih</th>
+          <th style="text-align: right;">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @canned_responses.empty? %>
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--neutral-muted);">
+              Henüz tanımlı bir hazır yanıt şablonu bulunmuyor. Yeni bir tane ekleyerek temsilcilerin hızını artırabilirsiniz.
+            </td>
+          </tr>
+        <% else %>
+          <% @canned_responses.each do |cr| %>
+            <tr>
+              <td>
+                <strong><%= cr.title %></strong>
+              </td>
+              <td>
+                <span class="table-badge badge-info"><%= cr.category %></span>
+              </td>
+              <td style="max-width: 400px; font-size: 0.85rem; color: #475569;">
+                <%= truncate(cr.content, length: 120) %>
+              </td>
+              <td style="font-size: 0.825rem; color: var(--neutral-muted);">
+                <%= cr.created_by&.name || "Sistem" %>
+              </td>
+              <td style="font-size: 0.8rem; color: var(--neutral-muted);">
+                <%= cr.created_at.strftime("%d.%m.%Y") %>
+              </td>
+              <td style="text-align: right;">
+                <div style="display: flex; gap: 0.35rem; justify-content: flex-end;">
+                  <%= link_to "Düzenle", edit_canned_response_path(cr), class: "btn btn-secondary btn-sm" %>
+                  <%= button_to "Sil", canned_response_path(cr), method: :delete, data: { turbo_confirm: "'#{cr.title}' hazır yanıtını silmek istediğinize emin misiniz?" }, class: "btn btn-sm", style: "background: var(--danger); color: white; padding: 0.25rem 0.5rem; font-size: 0.75rem;" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

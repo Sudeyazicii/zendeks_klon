@@ -309,6 +309,29 @@ class TicketTest < ActiveSupport::TestCase
     assert @ticket.attachments.attached?
     assert_equal "hata_raporu.txt", @ticket.attachments.first.filename.to_s
   end
+
+  test "Temsilciye atama yapıldığında ticket.assignee çalışır ve atama e-postası gönderilir" do
+    agent = User.create!(
+      name: "Gizem Destek",
+      email: "gizem@pulsedesk.test",
+      password: "password123",
+      role: "agent"
+    )
+
+    @ticket.assignee = agent
+    @ticket.save!
+    assert_equal agent, @ticket.reload.assignee
+    assert_equal agent.id, @ticket.assigned_to_id
+
+    assert_difference("SentEmail.count", 1) do
+      TicketMailer.ticket_assigned(@ticket).deliver_now
+    end
+
+    last_mail = SentEmail.last
+    assert_equal "gizem@pulsedesk.test", last_mail.to_email
+    assert_equal "ticket_assigned", last_mail.mail_type
+  end
 end
+
 
 

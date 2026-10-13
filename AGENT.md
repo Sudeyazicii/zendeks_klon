@@ -58,13 +58,14 @@ Tüm test paketini çalıştırma:
 bin/rails test
 ```
 
-Doğrulanan 6 Temel Zaman Kuralı (`travel_to`):
+Doğrulanan 7 Temel Zaman Kuralı (`travel_to`):
 1. `SLA süresi dolmadan ihlal oluşmaz` (`travel_to created_at + 3.hours + 50.minutes`)
 2. `SLA süresi dolunca ihlal oluşur` (`travel_to created_at + 4.hours + 1.minute`)
 3. `24 saat dolmadan dönüştürülmez, 24 saat dolunca otomatik dönüştürülür` (`travel_to created_at + 24.hours + 2.minutes`)
 4. `e-Fatura GİB onay bekleyen bilet için 7 günlük yasal SLA takvimi işletilir` (`travel_to created_at + 6.days` false, `+ 7.days + 1.minute` true)
 5. `Beklemede (pending) durumunda SLA duraklatılır ve çıkılınca ötelenir` (`total_paused_seconds` doğrulaması)
 6. `Dual-stage SLA: ilk yanıt süresi (30 dk) aşıldığında first_response_breached işaretlenir`
+7. `Mesai saatleri ve resmi tatil takvim motoru: Cuma açılan bilet hafta sonu ve 29 Ekim'i atlar, Pazartesi mesaiyle işler`
 
 ---
 

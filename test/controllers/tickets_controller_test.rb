@@ -158,5 +158,48 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert_includes json["draft"], "Merhaba"
   end
+
+  test "talep düzenleme formu açılır ve talep başarıyla güncellenir" do
+    post switch_role_url, params: { role: "agent" }
+
+    get edit_ticket_url(@ticket)
+    assert_response :success
+    assert_select "h1", /Talebi Düzenle/
+
+    patch ticket_url(@ticket), params: {
+      ticket: {
+        subject: "Güncellenmiş Konu Başlığı",
+        priority: "urgent"
+      }
+    }
+
+    assert_redirected_to ticket_url(@ticket)
+    @ticket.reload
+    assert_equal "Güncellenmiş Konu Başlığı", @ticket.subject
+    assert_equal "urgent", @ticket.priority
+  end
+
+  test "destek talepleri sayfalama parametreleri doğru çalışır" do
+    get tickets_url, params: { page: 1 }
+    assert_response :success
+    assert_select "h1", "Destek Talepleri"
+    assert_includes response.body, "Toplam"
+  end
+
+  test "temsilci ataması yapıldığında veritabanı güncellenir ve e-posta tetiklenir" do
+    agent = User.create!(
+      name: "Burak Uzman",
+      email: "burak@pulsedesk.test",
+      password: "password123",
+      role: "agent"
+    )
+
+    post switch_role_url, params: { role: "agent" }
+
+    patch assign_ticket_url(@ticket), params: { agent_id: agent.id }
+    assert_redirected_to ticket_url(@ticket)
+    assert_equal agent.id, @ticket.reload.assigned_to_id
+  end
 end
+
 

@@ -38,6 +38,15 @@ class Ticket < ApplicationRecord
 
   belongs_to :community_question, optional: true
   belongs_to :assigned_to, class_name: "User", optional: true
+  alias_attribute :assignee_id, :assigned_to_id
+
+  def assignee
+    assigned_to
+  end
+
+  def assignee=(user)
+    self.assigned_to = user
+  end
   belongs_to :user, optional: true
   belongs_to :merged_into_ticket, class_name: "Ticket", optional: true
   has_many :merged_tickets, class_name: "Ticket", foreign_key: "merged_into_ticket_id", dependent: :nullify

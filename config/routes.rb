@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root "tickets#index"
 
-  resources :tickets, only: [:index, :show, :new, :create, :destroy] do
+  resources :tickets do
     member do
       patch :update_status
       post :reopen
@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     end
     resources :ticket_comments, only: [:create]
   end
+
+  resources :canned_responses
 
   resources :community_questions, only: [:index, :show, :new, :create] do
     member do
@@ -64,6 +66,9 @@ Rails.application.routes.draw do
 
   get "sla_dashboard", to: "tickets#sla_dashboard", as: :sla_dashboard
   post "switch_role", to: "application#switch_role", as: :switch_role
+
+  get "profile", to: "users#profile", as: :profile
+  patch "profile", to: "users#update_preferences", as: :update_preferences
 
   get "up" => "rails/health#show", as: :rails_health_check
 end

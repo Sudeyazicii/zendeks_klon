@@ -61,10 +61,22 @@
                 ✉️ E-postalar
               </a>
             </li>
+            <% if current_user&.staff? %>
+              <li>
+                <a href="<%= canned_responses_path %>" class="nav-link <%= 'active' if controller_name == 'canned_responses' %>">
+                  📋 Makrolar
+                </a>
+              </li>
+            <% end %>
           </ul>
         </nav>
 
         <div class="nav-actions">
+          <!-- Profil & Ayarlar -->
+          <a href="<%= profile_path %>" class="nav-link <%= 'active' if controller_name == 'users' %>" style="font-size: 0.825rem; font-weight: 600; padding: 0.35rem 0.6rem;" title="Profil ve Bildirim Ayarları">
+            ⚙️ Profil
+          </a>
+
           <!-- Bildirim Merkezi -->
           <a href="<%= notifications_path %>" class="notif-btn" title="Bildirim Merkezi">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

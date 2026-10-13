@@ -87,9 +87,16 @@
           <option value="<%= cat %>" <%= 'selected' if params[:category] == cat %>><%= cat %></option>
         <% end %>
       </select>
+      <select name="department" class="form-select" onchange="this.form.submit()" style="font-size: 0.825rem; padding: 0.35rem 0.65rem;">
+        <option value="">Tüm Ekipler (Departman)</option>
+        <option value="Destek Ekibi" <%= 'selected' if params[:department] == 'Destek Ekibi' %>>👥 Destek Ekibi</option>
+        <option value="Fatura & Muhasebe" <%= 'selected' if params[:department] == 'Fatura & Muhasebe' %>>🧾 Fatura & Muhasebe</option>
+        <option value="Teknik & Altyapı" <%= 'selected' if params[:department] == 'Teknik & Altyapı' %>>💻 Teknik & Altyapı</option>
+        <option value="Yönetim" <%= 'selected' if params[:department] == 'Yönetim' %>>⚡ Yönetim</option>
+      </select>
       <%= text_field_tag :query, params[:query], placeholder: "No, konu veya müşteri...", class: "form-input", style: "padding: 0.35rem 0.65rem; font-size: 0.85rem; width: 180px;" %>
       <%= submit_tag "Filtrele", class: "btn btn-secondary btn-sm" %>
-      <% if params[:query].present? || params[:status].present? || params[:category].present? || params[:channel].present? %>
+      <% if params[:query].present? || params[:status].present? || params[:category].present? || params[:channel].present? || params[:department].present? %>
         <a href="<%= tickets_path %>" class="btn btn-secondary btn-sm">Temizle</a>
       <% end %>
     <% end %>
@@ -236,4 +243,21 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Sayfalama (Pagination) -->
+  <% if @total_pages > 1 %>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.25rem; background: #f8fafc; border-top: 1px solid var(--border); font-size: 0.85rem; border-radius: 0 0 var(--radius-md) var(--radius-md);">
+      <span style="color: var(--neutral-muted);">
+        Toplam <strong><%= @total_filtered_count %></strong> talepten sayfa <strong><%= @page %> / <%= @total_pages %></strong>
+      </span>
+      <div style="display: flex; gap: 0.5rem;">
+        <% if @page > 1 %>
+          <%= link_to "← Önceki Sayfa", tickets_path(request.query_parameters.merge(page: @page - 1)), class: "btn btn-secondary btn-sm" %>
+        <% end %>
+        <% if @page < @total_pages %>
+          <%= link_to "Sonraki Sayfa →", tickets_path(request.query_parameters.merge(page: @page + 1)), class: "btn btn-secondary btn-sm" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 </div>
