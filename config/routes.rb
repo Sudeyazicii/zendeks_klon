@@ -64,11 +64,20 @@ Rails.application.routes.draw do
   # Omnichannel Webhooks (WhatsApp, Live Chat, External API)
   post "webhooks/incoming_message", to: "webhooks#incoming_message"
 
-  get "sla_dashboard", to: "tickets#sla_dashboard", as: :sla_dashboard
-  post "switch_role", to: "application#switch_role", as: :switch_role
+  get  "sla_dashboard", to: "tickets#sla_dashboard", as: :sla_dashboard
+  post "switch_role",   to: "application#switch_role", as: :switch_role
 
-  get "profile", to: "users#profile", as: :profile
-  patch "profile", to: "users#update_preferences", as: :update_preferences
+  get   "profile",  to: "users#profile",            as: :profile
+  patch "profile",  to: "users#update_preferences", as: :update_preferences
+
+  # Admin: Kullanıcı Yönetim Paneli
+  get   "admin/users",          to: "users#index",       as: :admin_users
+  patch "admin/users/:id/role", to: "users#update_role", as: :admin_update_user_role
+
+  # Gerçek Kimlik Doğrulama (Login / Logout)
+  get  "login",  to: "users#login",        as: :login
+  post "login",  to: "users#authenticate"
+  delete "logout", to: "users#logout",     as: :logout
 
   get "up" => "rails/health#show", as: :rails_health_check
 end

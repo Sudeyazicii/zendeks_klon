@@ -1,0 +1,52 @@
+<% content_for :title, "Giriş Yap — PulseDesk" %>
+
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+  <div style="width: 100%; max-width: 420px;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: 0 8px 24px rgba(99,102,241,0.3);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+      </div>
+      <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--neutral-dark); margin-bottom: 0.25rem;">PulseDesk</h1>
+      <p style="color: var(--neutral-muted); font-size: 0.9rem;">Müşteri Destek & Otomasyon Platformu</p>
+    </div>
+
+    <div class="card" style="padding: 2rem;">
+      <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--neutral-dark); margin-bottom: 1.5rem; text-align: center;">Hesabınıza Giriş Yapın</h2>
+
+      <%= form_with url: login_path, method: :post, local: true do %>
+        <div class="form-group">
+          <label class="form-label" for="email">E-posta Adresi</label>
+          <input type="email" name="email" id="email" class="form-input" placeholder="ornek@sirket.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Parola</label>
+          <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; font-size: 1rem; padding: 0.65rem;">
+          Giriş Yap →
+        </button>
+      <% end %>
+
+      <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--neutral-muted);">
+        <p style="font-weight: 600; margin-bottom: 0.5rem; color: var(--neutral-dark);">🔑 Demo Hesapları:</p>
+        <div style="display: grid; gap: 0.35rem;">
+          <div>👨‍💼 <strong>Temsilci:</strong> mert@pulsedesk.io / password123</div>
+          <div>⚡ <strong>Yönetici:</strong> admin@pulsedesk.io / password123</div>
+          <div>👤 <strong>Müşteri:</strong> ahmet@example.com / password123</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align: center; font-size: 0.8rem; color: var(--neutral-muted); margin-top: 1rem;">
+      Demo modunda test için:
+      <%= form_with url: switch_role_path, method: :post, local: true, style: "display:inline;" do |f| %>
+        <input type="hidden" name="role" value="agent">
+        <button type="submit" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: underline; padding: 0;">Temsilci olarak devam et</button>
+      <% end %>
+    </p>
+  </div>
+</div>

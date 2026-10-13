@@ -68,7 +68,7 @@
 </div>
 
 <div class="card">
-  <div class="filter-bar">
+  <div class="filter-bar" style="flex-wrap: wrap; gap: 1rem; justify-content: space-between;">
     <div class="filter-tabs">
       <a href="<%= community_questions_path %>" class="filter-tab <%= 'active' if @filter.blank? %>">
         Tüm Sorular (<%= @total_count %>)
@@ -83,6 +83,15 @@
         Destek Talebine Dönüştürülenler (<%= @converted_count %>)
       </a>
     </div>
+
+    <%= form_with url: community_questions_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do %>
+      <%= hidden_field_tag :filter, @filter if @filter.present? %>
+      <%= text_field_tag :query, params[:query], placeholder: "Sorularda ara...", class: "form-input", style: "padding: 0.35rem 0.65rem; font-size: 0.85rem; width: 180px;" %>
+      <%= submit_tag "Ara", class: "btn btn-secondary btn-sm" %>
+      <% if params[:query].present? %>
+        <%= link_to "Temizle", community_questions_path(filter: @filter), class: "btn btn-secondary btn-sm" %>
+      <% end %>
+    <% end %>
   </div>
 
   <div style="display: flex; flex-direction: column; gap: 1rem;">

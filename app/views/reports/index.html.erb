@@ -1,3 +1,5 @@
+<% content_for :title, "Raporlar & Performans Analizi" %>
+
 <div class="page-header">
   <div>
     <h1 class="page-title">Raporlar & Performans Analizi</h1>
@@ -8,6 +10,27 @@
   <div>
     <%= link_to "📥 CSV Olarak İndir", export_csv_reports_path, class: "btn btn-secondary" %>
   </div>
+</div>
+
+<!-- Tarih Aralığı Filtresi -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <%= form_with url: reports_path, method: :get, local: true, style: "display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap;" do %>
+    <div class="form-group" style="margin-bottom: 0;">
+      <label class="form-label" style="font-size: 0.8rem;">📅 Başlangıç Tarihi</label>
+      <input type="date" name="start_date" value="<%= @start_date %>" class="form-input" style="font-size: 0.875rem; padding: 0.4rem 0.65rem;">
+    </div>
+    <div class="form-group" style="margin-bottom: 0;">
+      <label class="form-label" style="font-size: 0.8rem;">📅 Bitiş Tarihi</label>
+      <input type="date" name="end_date" value="<%= @end_date %>" class="form-input" style="font-size: 0.875rem; padding: 0.4rem 0.65rem;">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Filtrele</button>
+    <% if @date_filter_active %>
+      <%= link_to "✕ Temizle", reports_path, class: "btn btn-secondary btn-sm" %>
+      <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600; align-self: center;">
+        📊 Filtreli görünüm: <%= @start_date&.strftime("%d.%m.%Y") || "Başlangıç" %> – <%= @end_date&.strftime("%d.%m.%Y") || "Bitiş" %>
+      </span>
+    <% end %>
+  <% end %>
 </div>
 
 <!-- 6 Anahtar Metrik Kartı -->

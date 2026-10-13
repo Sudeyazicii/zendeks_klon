@@ -68,14 +68,23 @@
                 </a>
               </li>
             <% end %>
+            <% if current_user&.admin? %>
+              <li>
+                <a href="<%= admin_users_path %>" class="nav-link <%= 'active' if action_name == 'index' && controller_name == 'users' %>">
+                  👥 Kullanıcılar
+                </a>
+              </li>
+            <% end %>
           </ul>
         </nav>
 
         <div class="nav-actions">
           <!-- Profil & Ayarlar -->
-          <a href="<%= profile_path %>" class="nav-link <%= 'active' if controller_name == 'users' %>" style="font-size: 0.825rem; font-weight: 600; padding: 0.35rem 0.6rem;" title="Profil ve Bildirim Ayarları">
-            ⚙️ Profil
+          <a href="<%= profile_path %>" class="nav-link <%= 'active' if action_name == 'profile' %>" style="font-size: 0.825rem; font-weight: 600; padding: 0.35rem 0.6rem;" title="Profil ve Bildirim Ayarları">
+            ⚙️ <%= current_user&.name&.split&.first || 'Profil' %>
           </a>
+          <!-- Çıkış Butonu -->
+          <%= button_to "🚪 Çıkış", logout_path, method: :delete, class: "btn btn-secondary btn-sm", style: "font-size: 0.775rem; padding: 0.3rem 0.55rem;", form: { style: "display:inline;" } %>
 
           <!-- Bildirim Merkezi -->
           <a href="<%= notifications_path %>" class="notif-btn" title="Bildirim Merkezi">

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_030000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -47,6 +47,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000000) do
     t.boolean "published", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "helpful_count", default: 0, null: false
+    t.integer "unhelpful_count", default: 0, null: false
     t.index ["category"], name: "index_articles_on_category"
     t.index ["published"], name: "index_articles_on_published"
   end
@@ -199,6 +201,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000000) do
     t.boolean "use_business_hours", default: false, null: false
     t.text "ai_summary"
     t.string "ai_sentiment", default: "neutral"
+    t.integer "solved_by_id"
     t.index ["assigned_to_id"], name: "index_tickets_on_assigned_to_id"
     t.index ["category"], name: "index_tickets_on_category"
     t.index ["channel"], name: "index_tickets_on_channel"
@@ -209,6 +212,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000000) do
     t.index ["merged_into_ticket_id"], name: "index_tickets_on_merged_into_ticket_id"
     t.index ["priority"], name: "index_tickets_on_priority"
     t.index ["sla_due_at"], name: "index_tickets_on_sla_due_at"
+    t.index ["solved_by_id"], name: "index_tickets_on_solved_by_id"
     t.index ["status"], name: "index_tickets_on_status"
     t.index ["ticket_number"], name: "index_tickets_on_ticket_number", unique: true
     t.index ["use_business_hours"], name: "index_tickets_on_use_business_hours"

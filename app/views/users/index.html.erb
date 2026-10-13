@@ -1,0 +1,80 @@
+<% content_for :title, "Kullanıcı Yönetimi — Admin" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">⚙️ Kullanıcı Yönetimi</h1>
+    <p class="page-subtitle">Sisteme kayıtlı tüm kullanıcıları görüntüleyin ve rollerini yönetin.</p>
+  </div>
+  <div style="font-size: 0.85rem; color: var(--neutral-muted); align-self: center;">
+    <strong><%= @users.count %></strong> kullanıcı kayıtlı
+  </div>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Kullanıcı</th>
+        <th>E-posta</th>
+        <th>Mevcut Rol</th>
+        <th>Departman</th>
+        <th>Bildirim</th>
+        <th>Kayıt Tarihi</th>
+        <th>Rol Değiştir</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <div style="width: 34px; height: 34px; border-radius: 50%; background: <%= user.admin? ? '#fef3c7' : user.agent? ? '#e0e7ff' : '#f0fdf4' %>; color: <%= user.admin? ? '#92400e' : user.agent? ? '#4338ca' : '#166534' %>; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">
+                <%= user.name.first.upcase %>
+              </div>
+              <div>
+                <div style="font-weight: 600; font-size: 0.875rem;"><%= user.name %></div>
+                <% if user.id == current_user.id %>
+                  <span style="font-size: 0.7rem; color: var(--primary);">(siz)</span>
+                <% end %>
+              </div>
+            </div>
+          </td>
+          <td style="font-size: 0.825rem; color: var(--neutral-muted);"><%= user.email %></td>
+          <td>
+            <% role_cfg = { "admin" => ["⚡ Yönetici", "badge-danger"], "agent" => ["👨‍💼 Temsilci", "badge-info"], "customer" => ["👤 Müşteri", "badge-success"] } %>
+            <span class="table-badge <%= role_cfg[user.role]&.last %>">
+              <%= role_cfg[user.role]&.first || user.role.upcase %>
+            </span>
+          </td>
+          <td style="font-size: 0.825rem;"><%= user.department || "—" %></td>
+          <td>
+            <span style="font-size: 0.8rem;">
+              <%= user.email_notifications_enabled? ? "✅ Açık" : "🔕 Kapalı" %>
+            </span>
+          </td>
+          <td style="font-size: 0.775rem; color: var(--neutral-muted);">
+            <%= user.created_at.strftime("%d.%m.%Y") %>
+          </td>
+          <td>
+            <% if user.id != current_user.id %>
+              <%= form_with url: admin_update_user_role_path(user), method: :patch, local: true, style: "display: flex; gap: 0.4rem; align-items: center;" do %>
+                <select name="role" class="form-select" style="font-size: 0.8rem; padding: 0.3rem 0.5rem; min-width: 110px;">
+                  <% User::ROLES.each do |role| %>
+                    <option value="<%= role %>" <%= 'selected' if user.role == role %>>
+                      <%= { "admin" => "⚡ Yönetici", "agent" => "👨‍💼 Temsilci", "customer" => "👤 Müşteri" }[role] %>
+                    </option>
+                  <% end %>
+                </select>
+                <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.3rem 0.55rem;">
+                  Kaydet
+                </button>
+              <% end %>
+            <% else %>
+              <span style="font-size: 0.8rem; color: var(--neutral-muted); font-style: italic;">Kendi rolünüzü değiştiremezsiniz</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -215,6 +215,79 @@ class AutomationRule < ApplicationRecord
     }
   end
 
+  def matches_ticket?(ticket)
+    conds = parsed_conditions
+    return false if conds.blank?
+
+    if conds["status"].present?
+      if conds["status"] == "breached"
+        return false unless ticket.breached?
+      elsif ticket.status != conds["status"]
+        return false
+      end
+    end
+
+    if conds["priority"].present? && ticket.priority != conds["priority"]
+      return false
+    end
+
+    if conds["unassigned"].present? && (conds["unassigned"] == true || conds["unassigned"] == "true")
+      return false unless ticket.assigned_to_id.nil?
+    end
+
+    if conds["older_than_hours"].present?
+      threshold = conds["older_than_hours"].to_i.hours.ago
+      return false unless ticket.created_at <= threshold
+    end
+
+    true
+  end
+
+  def apply_to_ticket!(ticket, executed_by: "Olay Tetikleyicisi (Otomatik)")
+    return false unless matches_ticket?(ticket)
+
+    acts = parsed_actions
+    changes_made = []
+
+    if acts["set_priority"].present? && ticket.priority != acts["set_priority"]
+      ticket.priority = acts["set_priority"]
+      changes_made << "Öncelik -> #{acts['set_priority']}"
+    end
+
+    if acts["assign_to_user_id"].present? && ticket.assigned_to_id != acts["assign_to_user_id"].to_i
+      ticket.assigned_to_id = acts["assign_to_user_id"].to_i
+      user = User.find_by(id: acts["assign_to_user_id"])
+      changes_made << "Atandı -> #{user&.name || acts['assign_to_user_id']}"
+    end
+
+    if acts["add_tag"].present?
+      tag = acts["add_tag"].to_s.strip
+      existing = ticket.tags.to_s.split(",").map(&:strip).reject(&:blank?)
+      unless existing.include?(tag)
+        existing << tag
+        ticket.tags = existing.join(", ")
+        changes_made << "Etiket eklendi -> #{tag}"
+      end
+    end
+
+    return false if changes_made.empty?
+
+    ticket.save(validate: false)
+
+    automation_audit_logs.create!(
+      rule_name: name,
+      trigger_type: trigger_type,
+      executed_by: executed_by,
+      records_scanned: 1,
+      records_modified: 1,
+      records_skipped: 0,
+      status: "success",
+      summary: "#{ticket.ticket_number} talebinde kural otomatik tetiklendi: #{changes_made.join(', ')}",
+      details: { ticket_id: ticket.id, ticket_number: ticket.ticket_number, changes: changes_made }.to_json
+    )
+    true
+  end
+
   # Kural çakışması tespiti: Diğer aktif kurallarla zıt eylemler var mı?
   def detect_conflicts
     conflicts = []

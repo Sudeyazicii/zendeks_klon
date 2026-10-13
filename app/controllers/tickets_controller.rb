@@ -113,11 +113,29 @@ class TicketsController < ApplicationController
   end
 
   def edit
+    unless current_user.staff? || @ticket.user_id == current_user.id || @ticket.customer_email == current_user.email
+      redirect_to @ticket, alert: "Bu destek talebini düzenleme yetkiniz bulunmamaktadır."
+      return
+    end
     @agents = User.agents
   end
 
   def update
-    if @ticket.update(ticket_params)
+    unless current_user.staff? || @ticket.user_id == current_user.id || @ticket.customer_email == current_user.email
+      redirect_to @ticket, alert: "Bu destek talebini düzenleme yetkiniz bulunmamaktadır."
+      return
+    end
+
+    params_to_use = current_user.staff? ? ticket_params : ticket_params.slice(:subject, :description)
+
+    if @ticket.update(params_to_use)
+      @ticket.ticket_comments.create(
+        author_name: current_user.name,
+        author_role: current_user.role,
+        is_internal_note: true,
+        body: "ℹ️ [İşlem Kaydı] Talep ayrıntıları güncellendi. (İşlemi Yapan: #{current_user.name})"
+      ) rescue nil
+
       redirect_to @ticket, notice: "##{@ticket.ticket_number} talebi başarıyla güncellendi."
     else
       @agents = User.agents
@@ -129,7 +147,13 @@ class TicketsController < ApplicationController
     target_status = params[:status].to_s
 
     if @ticket.can_transition_to?(target_status)
-      @ticket.transition_to!(target_status)
+      @ticket.transition_to!(target_status, actor: current_user)
+      @ticket.ticket_comments.create(
+        author_name: current_user.name,
+        author_role: current_user.role,
+        is_internal_note: true,
+        body: "ℹ️ [Durum Değişikliği] Talep durumu '#{target_status.upcase}' olarak güncellendi. (İşlemi Yapan: #{current_user.name})"
+      ) rescue nil
       redirect_to @ticket, notice: "Talep durumu '#{target_status.upcase}' olarak güncellendi."
     else
       redirect_to @ticket, alert: "Geçersiz durum geçişi: '#{@ticket.status.upcase}' durumundan '#{target_status.upcase}' durumuna doğrudan geçilemez."
@@ -169,6 +193,12 @@ class TicketsController < ApplicationController
   def assign
     agent = User.find(params[:agent_id])
     @ticket.update!(assigned_to: agent)
+    @ticket.ticket_comments.create(
+      author_name: current_user.name,
+      author_role: current_user.role,
+      is_internal_note: true,
+      body: "ℹ️ [Atama Kaydı] Talep #{agent.name} personeline atandı. (İşlemi Yapan: #{current_user.name})"
+    ) rescue nil
     TicketMailer.ticket_assigned(@ticket).deliver_now rescue nil
     agent.notifications.create(
       title: "Talep Size Atandı",

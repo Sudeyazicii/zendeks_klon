@@ -48,6 +48,7 @@ class Ticket < ApplicationRecord
     self.assigned_to = user
   end
   belongs_to :user, optional: true
+  belongs_to :solved_by, class_name: "User", optional: true
   belongs_to :merged_into_ticket, class_name: "Ticket", optional: true
   has_many :merged_tickets, class_name: "Ticket", foreign_key: "merged_into_ticket_id", dependent: :nullify
 
@@ -70,6 +71,7 @@ class Ticket < ApplicationRecord
   before_validation :calculate_sla_due_at, on: :create
   before_validation :calculate_first_response_due_at, on: :create
   after_create_commit :send_creation_email_and_notification
+  after_create_commit :run_event_automations
 
   scope :recent_first, -> { order(created_at: :desc) }
   scope :unresolved, -> { where.not(status: %w[solved closed]) }
@@ -137,12 +139,14 @@ class Ticket < ApplicationRecord
     transition_to!("closed")
   end
 
-  def transition_to!(new_status)
+  def transition_to!(new_status, actor: nil)
     old_status = status
     self.status = new_status
 
     if new_status == "solved"
       self.solved_at = Time.current
+      self.solved_by = actor if actor.present?
+      self.solved_by ||= assigned_to
       resume_sla_if_paused!
     elsif new_status == "closed"
       self.closed_at = Time.current
@@ -314,6 +318,19 @@ class Ticket < ApplicationRecord
 
     unless ALLOWED_TRANSITIONS.fetch(old_status, []).include?(new_status)
       errors.add(:status, "Geçersiz durum geçişi: '#{old_status}' durumundan '#{new_status}' durumuna doğrudan geçilemez.")
+    end
+  end
+
+  def run_event_automations
+    return if Thread.current[:skip_automations]
+
+    Thread.current[:skip_automations] = true
+    begin
+      AutomationRule.active.where(trigger_type: "event").find_each do |rule|
+        rule.apply_to_ticket!(self, executed_by: "Olay Tetikleyicisi (Otomatik)")
+      end
+    ensure
+      Thread.current[:skip_automations] = false
     end
   end
 end

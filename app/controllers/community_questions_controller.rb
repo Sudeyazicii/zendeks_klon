@@ -14,6 +14,11 @@ class CommunityQuestionsController < ApplicationController
       @questions = @questions.where(converted_to_ticket: true)
     end
 
+    if params[:query].present?
+      q = "%#{params[:query]}%"
+      @questions = @questions.where("title LIKE ? OR body LIKE ? OR author_name LIKE ?", q, q, q)
+    end
+
     @total_count      = CommunityQuestion.count
     @unanswered_count = CommunityQuestion.unanswered.count
     @converted_count  = CommunityQuestion.where(converted_to_ticket: true).count
