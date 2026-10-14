@@ -10,7 +10,7 @@
 
 ## 📌 Hızlı Bağlantılar ve Proje Bilgileri
 
-- **Canlı Dağıtım URL'si:** `https://pulsedesk.onrender.com` *(Render Dağıtım Kılavuzu Bölüm 10'dadır)*
+- **Canlı Dağıtım URL'si:** `https://zendeks-klon.onrender.com`
 - **GitHub Deposu:** `https://github.com/Sudeyazicii/zendeks_klon`
 - **İlham Kaynağı Olan Ürün:** Zendesk *(Zendesk adı ve logosu uygulama arayüzünde kesinlikle yer almaz; yalnızca bu dokümanda akademik referans olarak geçmektedir).*
 - **Geliştirilen Ürün Kimliği:** **PulseDesk** (Özgün logo, modern SaaS tasarımı ve %100 Türkçe arayüz).
