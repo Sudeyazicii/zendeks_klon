@@ -24,96 +24,104 @@
           <span>Pulse<span class="pulse">Desk</span></span>
         </a>
 
-        <nav>
-          <ul class="nav-links">
-            <li>
-              <a href="<%= tickets_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && action_name != 'sla_dashboard' %>">
-                🎫 Talepler
-              </a>
-            </li>
-            <li>
-              <a href="<%= community_questions_path %>" class="nav-link <%= 'active' if controller_name == 'community_questions' %>">
-                💬 Forum
-              </a>
-            </li>
-            <li>
-              <a href="<%= automations_path %>" class="nav-link <%= 'active' if controller_name == 'automations' %>">
-                ⚡ Otomasyon
-              </a>
-            </li>
-            <li>
-              <a href="<%= articles_path %>" class="nav-link <%= 'active' if controller_name == 'articles' %>">
-                📚 Bilgi Bankası
-              </a>
-            </li>
-            <li>
-              <a href="<%= reports_path %>" class="nav-link <%= 'active' if controller_name == 'reports' %>">
-                📈 Raporlar
-              </a>
-            </li>
-            <li>
-              <a href="<%= sla_dashboard_path %>" class="nav-link <%= 'active' if action_name == 'sla_dashboard' %>">
-                ⏱️ SLA
-              </a>
-            </li>
-            <li>
-              <a href="<%= sent_emails_path %>" class="nav-link <%= 'active' if controller_name == 'sent_emails' %>">
-                ✉️ E-postalar
-              </a>
-            </li>
-            <% if current_user&.staff? %>
+        <% if current_user.present? %>
+          <nav>
+            <ul class="nav-links">
               <li>
-                <a href="<%= canned_responses_path %>" class="nav-link <%= 'active' if controller_name == 'canned_responses' %>">
-                  📋 Makrolar
+                <a href="<%= tickets_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && action_name != 'sla_dashboard' %>">
+                  🎫 Talepler
                 </a>
               </li>
-            <% end %>
-            <% if current_user&.admin? %>
               <li>
-                <a href="<%= admin_users_path %>" class="nav-link <%= 'active' if action_name == 'index' && controller_name == 'users' %>">
-                  👥 Kullanıcılar
+                <a href="<%= community_questions_path %>" class="nav-link <%= 'active' if controller_name == 'community_questions' %>">
+                  💬 Forum
                 </a>
               </li>
-            <% end %>
-          </ul>
-        </nav>
+              <li>
+                <a href="<%= automations_path %>" class="nav-link <%= 'active' if controller_name == 'automations' %>">
+                  ⚡ Otomasyon
+                </a>
+              </li>
+              <li>
+                <a href="<%= articles_path %>" class="nav-link <%= 'active' if controller_name == 'articles' %>">
+                  📚 Bilgi Bankası
+                </a>
+              </li>
+              <li>
+                <a href="<%= reports_path %>" class="nav-link <%= 'active' if controller_name == 'reports' %>">
+                  📈 Raporlar
+                </a>
+              </li>
+              <li>
+                <a href="<%= sla_dashboard_path %>" class="nav-link <%= 'active' if action_name == 'sla_dashboard' %>">
+                  ⏱️ SLA
+                </a>
+              </li>
+              <li>
+                <a href="<%= sent_emails_path %>" class="nav-link <%= 'active' if controller_name == 'sent_emails' %>">
+                  ✉️ E-postalar
+                </a>
+              </li>
+              <% if current_user.staff? %>
+                <li>
+                  <a href="<%= canned_responses_path %>" class="nav-link <%= 'active' if controller_name == 'canned_responses' %>">
+                    📋 Makrolar
+                  </a>
+                </li>
+              <% end %>
+              <% if current_user.admin? %>
+                <li>
+                  <a href="<%= admin_users_path %>" class="nav-link <%= 'active' if action_name == 'index' && controller_name == 'users' %>">
+                    👥 Kullanıcılar
+                  </a>
+                </li>
+              <% end %>
+            </ul>
+          </nav>
 
-        <div class="nav-actions">
-          <!-- Profil & Ayarlar -->
-          <a href="<%= profile_path %>" class="nav-link <%= 'active' if action_name == 'profile' %>" style="font-size: 0.825rem; font-weight: 600; padding: 0.35rem 0.6rem;" title="Profil ve Bildirim Ayarları">
-            ⚙️ <%= current_user&.name&.split&.first || 'Profil' %>
-          </a>
-          <!-- Çıkış Butonu -->
-          <%= button_to "🚪 Çıkış", logout_path, method: :delete, class: "btn btn-secondary btn-sm", style: "font-size: 0.775rem; padding: 0.3rem 0.55rem;", form: { style: "display:inline;" } %>
+          <div class="nav-actions">
+            <!-- Profil & Ayarlar -->
+            <a href="<%= profile_path %>" class="nav-link <%= 'active' if action_name == 'profile' %>" style="font-size: 0.825rem; font-weight: 600; padding: 0.35rem 0.6rem;" title="Profil ve Bildirim Ayarları">
+              ⚙️ <%= current_user.name.split.first %>
+            </a>
+            <!-- Çıkış Butonu -->
+            <%= button_to "🚪 Çıkış", logout_path, method: :delete, class: "btn btn-secondary btn-sm", style: "font-size: 0.775rem; padding: 0.3rem 0.55rem;", form: { style: "display:inline;" } %>
 
-          <!-- Bildirim Merkezi -->
-          <a href="<%= notifications_path %>" class="notif-btn" title="Bildirim Merkezi">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <% unread_count = current_user&.unread_notifications_count || 0 %>
-            <% if unread_count > 0 %>
-              <span class="notif-badge"><%= unread_count %></span>
-            <% end %>
-          </a>
+            <!-- Bildirim Merkezi -->
+            <a href="<%= notifications_path %>" class="notif-btn" title="Bildirim Merkezi">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <% unread_count = current_user.unread_notifications_count || 0 %>
+              <% if unread_count > 0 %>
+                <span class="notif-badge"><%= unread_count %></span>
+              <% end %>
+            </a>
 
-          <!-- Canlı Rol Seçici (Hoca / Demo için anında geçiş) -->
-          <div class="role-switcher">
-            <%= form_with url: switch_role_path, method: :post, local: true, class: "role-form" do |f| %>
-              <span class="role-label">Rol:</span>
-              <select name="role" onchange="this.form.submit()" class="role-select">
-                <option value="agent" <%= 'selected' if current_role == 'agent' %>>👨‍💼 Temsilci (<%= current_user.name.split.first %>)</option>
-                <option value="customer" <%= 'selected' if current_role == 'customer' %>>👤 Müşteri (Ahmet)</option>
-                <option value="admin" <%= 'selected' if current_role == 'admin' %>>⚡ Yönetici (Ali)</option>
-              </select>
-            <% end %>
+            <!-- Canlı Rol Seçici (Hoca / Demo için anında geçiş) -->
+            <div class="role-switcher">
+              <%= form_with url: switch_role_path, method: :post, local: true, class: "role-form" do |f| %>
+                <span class="role-label">Rol:</span>
+                <select name="role" onchange="this.form.submit()" class="role-select">
+                  <option value="agent" <%= 'selected' if current_role == 'agent' %>>👨‍💼 Temsilci (<%= current_user.name.split.first %>)</option>
+                  <option value="customer" <%= 'selected' if current_role == 'customer' %>>👤 Müşteri (Ahmet)</option>
+                  <option value="admin" <%= 'selected' if current_role == 'admin' %>>⚡ Yönetici (Ali)</option>
+                </select>
+              <% end %>
+            </div>
+
+            <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">
+              + Talep Aç
+            </a>
           </div>
-
-          <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">
-            + Talep Aç
-          </a>
-        </div>
+        <% else %>
+          <div class="nav-actions">
+            <a href="<%= login_path %>" class="btn btn-primary btn-sm">
+              🔑 Giriş Yap
+            </a>
+          </div>
+        <% end %>
       </div>
     </header>
 

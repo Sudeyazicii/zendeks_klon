@@ -3,21 +3,31 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   stale_when_importmap_changes
 
+  before_action :check_authentication!
+
   helper_method :current_user, :current_role
 
   def current_user
+    return nil if session[:logged_out]
     @current_user ||= find_or_initialize_demo_user
   end
 
   def current_role
-    current_user&.role || "agent"
+    current_user&.role || "guest"
   end
 
   def switch_role
+    session.delete(:logged_out)
     role = params[:role].presence_in(%w[agent customer admin]) || "agent"
     user = User.find_by(role: role) || create_demo_user_for_role(role)
     session[:user_id] = user.id
-    redirect_back fallback_location: root_path, notice: "Aktif rol '#{role.upcase}' (#{user.name}) olarak değiştirildi."
+    session[:real_login] = true
+
+    if request.referer.blank? || request.referer.include?("/login")
+      redirect_to root_path, notice: "Hoş geldiniz, #{user.name}! (#{role.upcase})"
+    else
+      redirect_back fallback_location: root_path, notice: "Aktif rol '#{role.upcase}' (#{user.name}) olarak değiştirildi."
+    end
   end
 
   protected
@@ -36,7 +46,19 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def check_authentication!
+    if session[:logged_out] && !public_controller_action?
+      redirect_to login_path, alert: "Oturumunuz sonlandırılmıştır. Lütfen tekrar giriş yapın."
+    end
+  end
+
+  def public_controller_action?
+    (controller_name == "users" && action_name.in?(%w[login authenticate])) || action_name == "switch_role"
+  end
+
   def find_or_initialize_demo_user
+    return nil if session[:logged_out]
+
     if session[:user_id].present?
       user = User.find_by(id: session[:user_id])
       return user if user.present?

@@ -1,24 +1,30 @@
 <% content_for :title, "Giriş Yap — PulseDesk" %>
 
-<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
-  <div style="width: 100%; max-width: 420px;">
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+  <div style="width: 100%; max-width: 440px;">
+    <!-- Brand Logo & Header -->
     <div style="text-align: center; margin-bottom: 2rem;">
-      <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: 0 8px 24px rgba(99,102,241,0.3);">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <div style="width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
         </svg>
       </div>
-      <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--neutral-dark); margin-bottom: 0.25rem;">PulseDesk</h1>
-      <p style="color: var(--neutral-muted); font-size: 0.9rem;">Müşteri Destek & Otomasyon Platformu</p>
+      <h1 style="font-size: 2rem; font-weight: 800; color: var(--neutral-dark); letter-spacing: -0.03em; margin-bottom: 0.35rem;">
+        Pulse<span style="color: var(--primary);">Desk</span>
+      </h1>
+      <p style="color: var(--neutral-muted); font-size: 0.95rem;">B2B Müşteri Destek & Otomasyon Platformu</p>
     </div>
 
-    <div class="card" style="padding: 2rem;">
-      <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--neutral-dark); margin-bottom: 1.5rem; text-align: center;">Hesabınıza Giriş Yapın</h2>
+    <!-- Login Card -->
+    <div class="card" style="padding: 2.25rem; box-shadow: var(--shadow-lg); border-radius: var(--radius-lg); border: 1px solid rgba(226, 232, 240, 0.8);">
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--neutral-dark); margin-bottom: 1.5rem; text-align: center;">
+        Hesabınıza Giriş Yapın
+      </h2>
 
-      <%= form_with url: login_path, method: :post, local: true do %>
+      <%= form_with url: login_path, method: :post, local: true, data: { turbo: false } do %>
         <div class="form-group">
           <label class="form-label" for="email">E-posta Adresi</label>
-          <input type="email" name="email" id="email" class="form-input" placeholder="ornek@sirket.com" required autocomplete="email">
+          <input type="email" name="email" id="email" class="form-input" placeholder="mert@pulsedesk.io" required autocomplete="email">
         </div>
 
         <div class="form-group">
@@ -26,27 +32,33 @@
           <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; font-size: 1rem; padding: 0.65rem;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.75rem; font-size: 1rem; padding: 0.75rem; border-radius: var(--radius-sm); font-weight: 700; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
           Giriş Yap →
         </button>
       <% end %>
 
-      <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--neutral-muted);">
-        <p style="font-weight: 600; margin-bottom: 0.5rem; color: var(--neutral-dark);">🔑 Demo Hesapları:</p>
-        <div style="display: grid; gap: 0.35rem;">
-          <div>👨‍💼 <strong>Temsilci:</strong> mert@pulsedesk.io / password123</div>
-          <div>⚡ <strong>Yönetici:</strong> admin@pulsedesk.io / password123</div>
-          <div>👤 <strong>Müşteri:</strong> ahmet@example.com / password123</div>
+      <!-- Hızlı Tek Tıkla Demo Giriş Butonları -->
+      <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px dashed var(--border);">
+        <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--neutral-muted); margin-bottom: 0.75rem; text-align: center;">
+          ⚡ Hızlı Demo Girişi (Tek Tıkla Geçiş)
+        </p>
+        <div style="display: grid; gap: 0.65rem;">
+          <a href="<%= switch_role_path(role: 'agent') %>" class="btn btn-secondary" style="width: 100%; justify-content: space-between; font-size: 0.875rem; padding: 0.65rem 1rem; background: #eef2ff; border-color: #c7d2fe; color: #4338ca; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600;">
+            <span>👨‍💼 <strong>Mert Demir</strong> (Destek Temsilcisi)</span>
+            <span style="font-size: 0.775rem;">Giriş →</span>
+          </a>
+
+          <a href="<%= switch_role_path(role: 'admin') %>" class="btn btn-secondary" style="width: 100%; justify-content: space-between; font-size: 0.875rem; padding: 0.65rem 1rem; background: #fef2f2; border-color: #fecaca; color: #991b1b; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600;">
+            <span>⚡ <strong>Ali Yönetici</strong> (Sistem Yöneticisi)</span>
+            <span style="font-size: 0.775rem;">Giriş →</span>
+          </a>
+
+          <a href="<%= switch_role_path(role: 'customer') %>" class="btn btn-secondary" style="width: 100%; justify-content: space-between; font-size: 0.875rem; padding: 0.65rem 1rem; background: #ecfdf5; border-color: #a7f3d0; color: #065f46; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600;">
+            <span>👤 <strong>Ahmet Yılmaz</strong> (B2B Müşteri)</span>
+            <span style="font-size: 0.775rem;">Giriş →</span>
+          </a>
         </div>
       </div>
     </div>
-
-    <p style="text-align: center; font-size: 0.8rem; color: var(--neutral-muted); margin-top: 1rem;">
-      Demo modunda test için:
-      <%= form_with url: switch_role_path, method: :post, local: true, style: "display:inline;" do |f| %>
-        <input type="hidden" name="role" value="agent">
-        <button type="submit" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: underline; padding: 0;">Temsilci olarak devam et</button>
-      <% end %>
-    </p>
   </div>
 </div>

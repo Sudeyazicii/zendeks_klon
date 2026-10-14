@@ -1,55 +1,65 @@
-<div class="header-actions">
+<% content_for :title, "Giden E-postalar (Outbox)" %>
+
+<div class="page-header">
   <div>
-    <h1 style="font-size: 26px; font-weight: 800; color: #1e293b; margin: 0 0 6px 0;">✉️ Giden E-posta Kutusu (Outbox & Email Logs)</h1>
-    <p style="color: #64748b; margin: 0; font-size: 14px;">
-      Sistem tarafından müşterilere ve destek personeline gönderilen gerçek e-posta bildirimleri ve teslimat kayıtları.
+    <h1 class="page-title">✉️ Giden E-posta Kutusu (Outbox & Email Logs)</h1>
+    <p class="page-subtitle">
+      ActionMailer tarafından müşterilere ve destek personeline gönderilen şeffaf e-posta ve teslimat kayıtları.
     </p>
+  </div>
+  <div style="font-size: 0.85rem; color: var(--neutral-muted); align-self: center;">
+    Toplam <strong><%= @sent_emails.count %></strong> giden e-posta kaydı
   </div>
 </div>
 
-<div class="card" style="margin-top: 20px;">
+<div class="card">
   <% if @sent_emails.empty? %>
-    <div style="text-align: center; padding: 48px; color: #64748b;">
-      <div style="font-size: 40px; margin-bottom: 12px;">📭</div>
-      <h3 style="margin: 0 0 6px 0; color: #1e293b;">Henüz Gönderilmiş E-posta Yok</h3>
-      <p style="margin: 0;">Yeni bir destek talebi açıldığında veya yanıt verildiğinde otomatik e-postalar burada listelenecektir.</p>
+    <div style="text-align: center; padding: 3.5rem 1rem; color: var(--neutral-muted);">
+      <div style="font-size: 2.75rem; margin-bottom: 0.75rem;">📭</div>
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--neutral-dark); margin-bottom: 0.35rem;">Henüz Gönderilmiş E-posta Bulunmuyor</h3>
+      <p style="font-size: 0.875rem; max-width: 480px; margin: 0 auto;">Yeni bir destek talebi açıldığında, personele atama yapıldığında veya yanıt eklendiğinde sistemin ilettiği e-postalar burada listelenecektir.</p>
     </div>
   <% else %>
-    <table class="table" style="width: 100%;">
-      <thead>
-        <tr>
-          <th>Tarih</th>
-          <th>Alıcı E-posta</th>
-          <th>Konu</th>
-          <th>Tür</th>
-          <th>Durum</th>
-          <th>İşlem</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @sent_emails.each do |mail| %>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
           <tr>
-            <td style="font-size: 13px; color: #64748b; white-space: nowrap;">
-              <%= mail.created_at.strftime("%d.%m.%Y %H:%M") %>
-            </td>
-            <td style="font-weight: 600; color: #1e293b;">
-              <%= mail.to_email %>
-            </td>
-            <td>
-              <%= mail.subject %>
-            </td>
-            <td>
-              <span class="badge badge-info"><%= mail.mail_type %></span>
-            </td>
-            <td>
-              <span class="badge badge-success">✓ <%= mail.status.upcase %></span>
-            </td>
-            <td>
-              <%= link_to "Görüntüle", sent_email_path(mail), class: "btn btn-secondary", style: "padding: 4px 10px; font-size: 12px;" %>
-            </td>
+            <th>Tarih</th>
+            <th>Alıcı E-posta</th>
+            <th>Konu</th>
+            <th>Bildirim Türü</th>
+            <th>Durum</th>
+            <th style="text-align: right;">Detay</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% @sent_emails.each do |mail| %>
+            <tr>
+              <td style="font-size: 0.825rem; color: var(--neutral-muted); white-space: nowrap;">
+                <%= mail.created_at.strftime("%d.%m.%Y %H:%M") %>
+              </td>
+              <td style="font-weight: 600; font-size: 0.875rem; color: var(--neutral-dark);">
+                <%= mail.to_email %>
+              </td>
+              <td style="font-size: 0.875rem;">
+                <%= mail.subject %>
+              </td>
+              <td>
+                <% type_labels = { "ticket_created" => ["Talep Açılışı", "badge-primary"], "ticket_assigned" => ["Atama", "badge-info"], "new_reply" => ["Yeni Yanıt", "badge-success"], "sla_warning" => ["SLA Uyarısı", "badge-danger"] } %>
+                <span class="table-badge <%= type_labels[mail.mail_type]&.last || 'badge-secondary' %>">
+                  <%= type_labels[mail.mail_type]&.first || mail.mail_type %>
+                </span>
+              </td>
+              <td>
+                <span class="table-badge badge-success">✓ <%= mail.status.upcase %></span>
+              </td>
+              <td style="text-align: right;">
+                <%= link_to "İçeriği Gör →", sent_email_path(mail), class: "btn btn-secondary btn-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   <% end %>
 </div>

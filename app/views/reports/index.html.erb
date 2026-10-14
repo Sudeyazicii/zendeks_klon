@@ -13,78 +13,106 @@
 </div>
 
 <!-- Tarih Aralığı Filtresi -->
-<div class="card" style="margin-bottom: 1.5rem;">
-  <%= form_with url: reports_path, method: :get, local: true, style: "display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap;" do %>
-    <div class="form-group" style="margin-bottom: 0;">
-      <label class="form-label" style="font-size: 0.8rem;">📅 Başlangıç Tarihi</label>
-      <input type="date" name="start_date" value="<%= @start_date %>" class="form-input" style="font-size: 0.875rem; padding: 0.4rem 0.65rem;">
+<div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem; background: #ffffff; border: 1px solid var(--border);">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.6rem;">
+      <span style="font-size: 1.25rem;">📅</span>
+      <div>
+        <strong style="color: var(--neutral-dark); font-size: 0.925rem;">Tarih Aralığı Filtresi</strong>
+        <p style="font-size: 0.775rem; color: var(--neutral-muted); margin: 0;">Özel tarih aralığındaki bilet performansını inceleyin</p>
+      </div>
     </div>
-    <div class="form-group" style="margin-bottom: 0;">
-      <label class="form-label" style="font-size: 0.8rem;">📅 Bitiş Tarihi</label>
-      <input type="date" name="end_date" value="<%= @end_date %>" class="form-input" style="font-size: 0.875rem; padding: 0.4rem 0.65rem;">
-    </div>
-    <button type="submit" class="btn btn-primary btn-sm">Filtrele</button>
-    <% if @date_filter_active %>
-      <%= link_to "✕ Temizle", reports_path, class: "btn btn-secondary btn-sm" %>
-      <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600; align-self: center;">
-        📊 Filtreli görünüm: <%= @start_date&.strftime("%d.%m.%Y") || "Başlangıç" %> – <%= @end_date&.strftime("%d.%m.%Y") || "Bitiş" %>
-      </span>
+
+    <%= form_with url: reports_path, method: :get, local: true, html: { style: "display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;" } do %>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <label style="font-size: 0.8rem; font-weight: 600; color: var(--neutral-muted); margin: 0;">Başlangıç:</label>
+        <input type="date" name="start_date" value="<%= @start_date %>" class="form-input" style="width: auto; min-width: 140px; padding: 0.35rem 0.6rem; font-size: 0.825rem; background: white;">
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <label style="font-size: 0.8rem; font-weight: 600; color: var(--neutral-muted); margin: 0;">Bitiş:</label>
+        <input type="date" name="end_date" value="<%= @end_date %>" class="form-input" style="width: auto; min-width: 140px; padding: 0.35rem 0.6rem; font-size: 0.825rem; background: white;">
+      </div>
+
+      <div style="display: flex; gap: 0.35rem; align-items: center;">
+        <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.42rem 0.85rem;">Filtrele</button>
+        <% if @date_filter_active %>
+          <%= link_to "✕ Temizle", reports_path, class: "btn btn-secondary btn-sm" %>
+        <% end %>
+      </div>
     <% end %>
+  </div>
+  <% if @date_filter_active %>
+    <div style="margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px dashed var(--border); font-size: 0.8rem; color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 0.4rem;">
+      <span>📊</span> Aktif Filtreli Dönem: <strong><%= @start_date&.strftime("%d.%m.%Y") || "İlk Kayıt" %></strong> – <strong><%= @end_date&.strftime("%d.%m.%Y") || "Bugün" %></strong>
+    </div>
   <% end %>
 </div>
 
 <!-- 6 Anahtar Metrik Kartı -->
-<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
-  <div class="stat-card">
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 2rem;">
+  <div class="stat-card" style="border-top: 3px solid var(--neutral-dark);">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">🎫</div>
     <div class="stat-value"><%= @total_tickets %></div>
-    <div class="stat-label">Toplam Talep</div>
+    <div class="stat-label">Toplam Destek Talebi</div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="border-top: 3px solid var(--success);">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">✅</div>
     <div class="stat-value" style="color: var(--success);"><%= @solved_tickets %></div>
     <div class="stat-label">Çözülen / Kapatılan</div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="border-top: 3px solid <%= @compliance_rate >= 80 ? 'var(--success)' : 'var(--danger)' %>;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">⏱️</div>
     <div class="stat-value" style="color: <%= @compliance_rate >= 80 ? 'var(--success)' : 'var(--danger)' %>;">
       %<%= @compliance_rate %>
     </div>
     <div class="stat-label">SLA Karşılama Oranı</div>
+    <div style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 8px; overflow: hidden;">
+      <div style="background: <%= @compliance_rate >= 80 ? '#10b981' : '#ef4444' %>; width: <%= [@compliance_rate, 100].min %>%; height: 100%; border-radius: 3px;"></div>
+    </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="border-top: 3px solid var(--primary);">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">⚡</div>
     <div class="stat-value" style="color: var(--primary);">
       <%= @avg_first_response_minutes ? "#{@avg_first_response_minutes} dk" : "Ölçüm Yok" %>
     </div>
     <div class="stat-label">
       Ortalama İlk Yanıt Süresi
-      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500;">
-        (Yalnızca yanıtlanmış <%= @responded_count %> talep üzerinden; yanıtsızlar 0 sayılmaz)
+      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500; margin-top: 2px;">
+        (Yalnızca yanıtlanmış <%= @responded_count %> talep)
       </div>
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="border-top: 3px solid #6366f1;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">🎯</div>
     <div class="stat-value" style="color: #6366f1;">
       <%= @avg_resolution_hours ? "#{@avg_resolution_hours} saat" : "Ölçüm Yok" %>
     </div>
     <div class="stat-label">
       Ortalama Çözüm Süresi
-      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500;">
-        (Yalnızca çözülen <%= @solved_count %> talep üzerinden)
+      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500; margin-top: 2px;">
+        (Yalnızca çözülen <%= @solved_count %> talep)
       </div>
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="border-top: 3px solid #06b6d4;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">💬</div>
     <div class="stat-value" style="color: #06b6d4;">
       %<%= @conversion_rate %>
     </div>
     <div class="stat-label">
       Forum 24h Dönüşüm Oranı
-      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500;">
+      <div style="font-size: 0.725rem; color: var(--neutral-muted); font-weight: 500; margin-top: 2px;">
         (<%= @converted_questions %> / <%= @total_forum_questions %> soru bilete dönüştü)
       </div>
+    </div>
+    <div style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 8px; overflow: hidden;">
+      <div style="background: #06b6d4; width: <%= [@conversion_rate, 100].min %>%; height: 100%; border-radius: 3px;"></div>
     </div>
   </div>
 </div>

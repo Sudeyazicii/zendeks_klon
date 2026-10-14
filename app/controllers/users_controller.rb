@@ -43,13 +43,14 @@ class UsersController < ApplicationController
 
   # ---- Gerçek Login / Logout ----
   def login
-    redirect_to root_path if current_user.present? && session[:real_login]
+    redirect_to root_path if current_user.present? && session[:real_login] && !session[:logged_out]
   end
 
   def authenticate
     user = User.find_by(email: params[:email]&.downcase&.strip)
 
     if user && user.authenticate(params[:password])
+      session.delete(:logged_out)
       session[:user_id]    = user.id
       session[:real_login] = true
       redirect_to root_path, notice: "Hoş geldiniz, #{user.name}! (#{user.role.upcase})"
@@ -62,6 +63,7 @@ class UsersController < ApplicationController
   def logout
     session.delete(:user_id)
     session.delete(:real_login)
+    session[:logged_out] = true
     redirect_to login_path, notice: "Başarıyla çıkış yaptınız."
   end
 end

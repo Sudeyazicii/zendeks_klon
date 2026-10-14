@@ -109,12 +109,12 @@
               <td style="font-size: 0.8rem; color: var(--neutral-muted);">
                 <%= rule.last_run_at ? rule.last_run_at.strftime("%d.%m %H:%M") : "Hiç çalışmadı" %>
               </td>
-              <td style="text-align: right;">
-                <div style="display: inline-flex; gap: 0.4rem; align-items: center;">
-                  <%= link_to "🔍 Önizle (Dry-Run)", preview_automation_path(rule), class: "btn btn-secondary btn-sm" %>
-                  <%= button_to "Durum Değiştir", toggle_automation_path(rule), method: :patch, class: "btn btn-sm", style: "border: 1px solid var(--border);" %>
-                  <%= link_to "Düzenle", edit_automation_path(rule), class: "btn btn-sm btn-secondary" %>
-                  <%= button_to "Sil", automation_path(rule), method: :delete, data: { turbo_confirm: "Bu otomasyon kuralını silmek istediğinize emin misiniz?" }, class: "btn btn-sm", style: "background: var(--danger); color: white;" %>
+              <td style="text-align: right; white-space: nowrap;">
+                <div style="display: inline-flex; gap: 0.35rem; align-items: center; justify-content: flex-end;">
+                  <%= link_to "🔍 Önizle (Dry-Run)", preview_automation_path(rule), class: "btn btn-secondary btn-sm", style: "font-size: 0.775rem;" %>
+                  <%= button_to "Durum Değiştir", toggle_automation_path(rule), method: :patch, class: "btn btn-secondary btn-sm", style: "font-size: 0.775rem;" %>
+                  <%= link_to "Düzenle", edit_automation_path(rule), class: "btn btn-secondary btn-sm", style: "font-size: 0.775rem;" %>
+                  <%= button_to "Sil", automation_path(rule), method: :delete, data: { turbo_confirm: "Bu otomasyon kuralını silmek istediğinize emin misiniz?" }, class: "btn btn-danger btn-sm", style: "font-size: 0.775rem; padding: 0.35rem 0.55rem;" %>
                 </div>
               </td>
 

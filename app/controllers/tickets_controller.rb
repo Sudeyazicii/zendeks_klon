@@ -91,6 +91,7 @@ class TicketsController < ApplicationController
     @agents = User.where(role: %w[agent admin])
     @canned_responses = CannedResponse.all
     @similar_tickets = @ticket.similar_tickets
+    @suggested_articles = Article.search_relevant("#{@ticket.subject} #{@ticket.category}")
     @ai_draft = params[:ai_draft]
   end
 

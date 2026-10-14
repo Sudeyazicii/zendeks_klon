@@ -10,37 +10,44 @@
   </div>
 </div>
 
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-label">Toplam Talep</div>
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+  <div class="stat-card" style="border-top: 3px solid var(--neutral-dark);">
+    <div style="font-size: 1.15rem; margin-bottom: 0.25rem;">🎫</div>
     <div class="stat-value"><%= @total_count %></div>
+    <div class="stat-label">Toplam Talep</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Yeni</div>
+  <div class="stat-card" style="border-top: 3px solid #2563eb;">
+    <div style="font-size: 1.15rem; margin-bottom: 0.25rem;">🆕</div>
     <div class="stat-value" style="color: #2563eb;"><%= @new_count %></div>
+    <div class="stat-label">Yeni</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Açık (İnceleniyor)</div>
+  <div class="stat-card" style="border-top: 3px solid #d97706;">
+    <div style="font-size: 1.15rem; margin-bottom: 0.25rem;">🔍</div>
     <div class="stat-value" style="color: #d97706;"><%= @open_count %></div>
+    <div class="stat-label">Açık (İnceleniyor)</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Beklemede</div>
+  <div class="stat-card" style="border-top: 3px solid #7c3aed;">
+    <div style="font-size: 1.15rem; margin-bottom: 0.25rem;">⏸️</div>
     <div class="stat-value" style="color: #7c3aed;"><%= @pending_count %></div>
+    <div class="stat-label">Beklemede</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Çözüldü</div>
+  <div class="stat-card" style="border-top: 3px solid #059669;">
+    <div style="font-size: 1.15rem; margin-bottom: 0.25rem;">✅</div>
     <div class="stat-value" style="color: #059669;"><%= @solved_count %></div>
+    <div class="stat-label">Çözüldü</div>
   </div>
-  <div class="stat-card" style="border-left: 4px solid var(--danger);">
-    <div class="stat-label" style="color: var(--danger);">SLA İhlali</div>
+  <div class="stat-card" style="border-top: 3px solid var(--danger);">
+    <div style="font-size: 1.15rem; margin-bottom: 0.25rem;">⚠️</div>
     <div class="stat-value" style="color: var(--danger);"><%= @breached_count %></div>
+    <div class="stat-label" style="color: var(--danger);">SLA İhlali</div>
   </div>
 </div>
 
 <div class="card">
-  <div class="filter-bar" style="flex-wrap: wrap; gap: 1rem;">
-    <div class="filter-tabs" style="flex-wrap: wrap;">
-      <a href="<%= tickets_path %>" class="filter-tab <%= 'active' if @status_filter.blank? %>">
+  <!-- 1. Aşama: Durum Sekmeleri (Tabs) -->
+  <div style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.85rem;">
+    <div class="filter-tabs" style="display: flex; flex-wrap: wrap; gap: 0.35rem; background: transparent; padding: 0;">
+      <a href="<%= tickets_path %>" class="filter-tab <%= 'active' if @status_filter.blank? && @e_invoice_filter.blank? %>">
         Tümü (<%= @total_count %>)
       </a>
       <a href="<%= tickets_path(status: 'new') %>" class="filter-tab <%= 'active' if @status_filter == 'new' %>">
@@ -61,44 +68,58 @@
       <a href="<%= tickets_path(status: 'unassigned') %>" class="filter-tab <%= 'active' if @status_filter == 'unassigned' %>">
         Atanmamış (<%= @unassigned_count %>)
       </a>
-      <a href="<%= tickets_path(status: 'breached') %>" class="filter-tab <%= 'active' if @status_filter == 'breached' %>" style="color: var(--danger);">
+      <a href="<%= tickets_path(status: 'breached') %>" class="filter-tab <%= 'active' if @status_filter == 'breached' %>" style="color: var(--danger); font-weight: 700;">
         ⚠️ SLA İhlali (<%= @breached_count %>)
       </a>
       <a href="<%= tickets_path(e_invoice: 'gib_pending') %>" class="filter-tab <%= 'active' if @e_invoice_filter == 'gib_pending' %>" style="color: #d97706; font-weight: 700;">
         🧾 e-Fatura (GİB) (<%= @gib_pending_count %>)
       </a>
-      <a href="<%= tickets_path(status: 'pending') %>" class="filter-tab <%= 'active' if @status_filter == 'pending' %>">
-        ⏸️ SLA Duraklatıldı (<%= @paused_sla_count %>)
-      </a>
     </div>
+  </div>
 
-    <%= form_with url: tickets_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;" do %>
-      <select name="channel" class="form-select" onchange="this.form.submit()" style="font-size: 0.825rem; padding: 0.35rem 0.65rem;">
-        <option value="">Tüm Kanallar (Omnichannel)</option>
-        <option value="web" <%= 'selected' if params[:channel] == 'web' %>>🌐 Web Portalı</option>
-        <option value="whatsapp" <%= 'selected' if params[:channel] == 'whatsapp' %>>💬 WhatsApp</option>
-        <option value="email" <%= 'selected' if params[:channel] == 'email' %>>✉️ E-posta</option>
-        <option value="live_chat" <%= 'selected' if params[:channel] == 'live_chat' %>>🗨️ Canlı Sohbet</option>
-        <option value="api" <%= 'selected' if params[:channel] == 'api' %>>⚡ REST API</option>
-      </select>
-      <select name="category" class="form-select" onchange="this.form.submit()" style="font-size: 0.825rem; padding: 0.35rem 0.65rem;">
-        <option value="">Tüm Kategoriler</option>
-        <% Ticket::CATEGORIES.each do |cat| %>
-          <option value="<%= cat %>" <%= 'selected' if params[:category] == cat %>><%= cat %></option>
+  <!-- 2. Aşama: Gelişmiş Arama ve Açılır Filtre Çubuğu (Toolbar) -->
+  <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; margin-bottom: 1.25rem;">
+    <%= form_with url: tickets_path, method: :get, local: true, html: { style: "display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;" } do %>
+      <div style="flex: 1; min-width: 200px; max-width: 280px;">
+        <%= text_field_tag :query, params[:query], placeholder: "🔍 No, konu veya müşteri...", class: "form-input", style: "width: 100%; font-size: 0.825rem; padding: 0.4rem 0.65rem; background: white;" %>
+      </div>
+
+      <div style="width: auto; min-width: 155px;">
+        <select name="channel" class="form-select" onchange="this.form.submit()" style="width: 100%; font-size: 0.825rem; padding: 0.4rem 0.65rem; background-color: white;">
+          <option value="">🌐 Tüm Kanallar</option>
+          <option value="web" <%= 'selected' if params[:channel] == 'web' %>>Web Portalı</option>
+          <option value="whatsapp" <%= 'selected' if params[:channel] == 'whatsapp' %>>💬 WhatsApp</option>
+          <option value="email" <%= 'selected' if params[:channel] == 'email' %>>✉️ E-posta</option>
+          <option value="live_chat" <%= 'selected' if params[:channel] == 'live_chat' %>>🗨️ Canlı Sohbet</option>
+          <option value="api" <%= 'selected' if params[:channel] == 'api' %>>⚡ REST API</option>
+        </select>
+      </div>
+
+      <div style="width: auto; min-width: 150px;">
+        <select name="category" class="form-select" onchange="this.form.submit()" style="width: 100%; font-size: 0.825rem; padding: 0.4rem 0.65rem; background-color: white;">
+          <option value="">📁 Tüm Kategoriler</option>
+          <% Ticket::CATEGORIES.each do |cat| %>
+            <option value="<%= cat %>" <%= 'selected' if params[:category] == cat %>><%= cat %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div style="width: auto; min-width: 160px;">
+        <select name="department" class="form-select" onchange="this.form.submit()" style="width: 100%; font-size: 0.825rem; padding: 0.4rem 0.65rem; background-color: white;">
+          <option value="">👥 Tüm Departmanlar</option>
+          <option value="Destek Ekibi" <%= 'selected' if params[:department] == 'Destek Ekibi' %>>Destek Ekibi</option>
+          <option value="Fatura & Muhasebe" <%= 'selected' if params[:department] == 'Fatura & Muhasebe' %>>Fatura & Muhasebe</option>
+          <option value="Teknik & Altyapı" <%= 'selected' if params[:department] == 'Teknik & Altyapı' %>>Teknik & Altyapı</option>
+          <option value="Yönetim" <%= 'selected' if params[:department] == 'Yönetim' %>>Yönetim</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.35rem; align-items: center;">
+        <%= submit_tag "Filtrele", class: "btn btn-primary btn-sm", style: "padding: 0.42rem 0.85rem;" %>
+        <% if params[:query].present? || params[:status].present? || params[:category].present? || params[:channel].present? || params[:department].present? || params[:e_invoice].present? %>
+          <a href="<%= tickets_path %>" class="btn btn-secondary btn-sm" style="padding: 0.42rem 0.65rem;">✕ Sıfırla</a>
         <% end %>
-      </select>
-      <select name="department" class="form-select" onchange="this.form.submit()" style="font-size: 0.825rem; padding: 0.35rem 0.65rem;">
-        <option value="">Tüm Ekipler (Departman)</option>
-        <option value="Destek Ekibi" <%= 'selected' if params[:department] == 'Destek Ekibi' %>>👥 Destek Ekibi</option>
-        <option value="Fatura & Muhasebe" <%= 'selected' if params[:department] == 'Fatura & Muhasebe' %>>🧾 Fatura & Muhasebe</option>
-        <option value="Teknik & Altyapı" <%= 'selected' if params[:department] == 'Teknik & Altyapı' %>>💻 Teknik & Altyapı</option>
-        <option value="Yönetim" <%= 'selected' if params[:department] == 'Yönetim' %>>⚡ Yönetim</option>
-      </select>
-      <%= text_field_tag :query, params[:query], placeholder: "No, konu veya müşteri...", class: "form-input", style: "padding: 0.35rem 0.65rem; font-size: 0.85rem; width: 180px;" %>
-      <%= submit_tag "Filtrele", class: "btn btn-secondary btn-sm" %>
-      <% if params[:query].present? || params[:status].present? || params[:category].present? || params[:channel].present? || params[:department].present? %>
-        <a href="<%= tickets_path %>" class="btn btn-secondary btn-sm">Temizle</a>
-      <% end %>
+      </div>
     <% end %>
   </div>
 
@@ -121,31 +142,31 @@
         <% if @tickets.any? %>
           <% @tickets.each do |ticket| %>
             <tr>
-              <td>
-                <strong style="color: var(--primary);">#<%= ticket.ticket_number %></strong>
-                <% ch = ticket.channel_badge %>
-                <br>
-                <span class="table-badge <%= ch[:class] %>" style="font-size: 0.65rem; margin-top: 0.2rem;">
-                  <%= ch[:icon] %> <%= ch[:text] %>
-                </span>
-                <% if ticket.use_business_hours? %>
-                  <br>
-                  <span class="table-badge badge-success" style="font-size: 0.65rem; margin-top: 0.15rem;">
-                    ⏰ Mesai SLA
+              <td style="white-space: nowrap;">
+                <div style="font-weight: 800; font-size: 0.95rem; color: var(--primary); margin-bottom: 0.35rem;">
+                  #<%= ticket.ticket_number %>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                  <% ch = ticket.channel_badge %>
+                  <span class="table-badge <%= ch[:class] %>" style="font-size: 0.7rem;">
+                    <%= ch[:icon] %> <%= ch[:text] %>
                   </span>
-                <% end %>
-                <% if ticket.community_question_id.present? %>
-                  <br>
-                  <span class="table-badge" style="background-color: #f3e8ff; color: #6b21a8; font-size: 0.65rem; margin-top: 0.15rem;">
-                    Topluluktan Aktarıldı
-                  </span>
-                <% end %>
-                <% if ticket.merged_into_ticket_id.present? %>
-                  <br>
-                  <span class="table-badge" style="background-color: #fef3c7; color: #92400e; font-size: 0.65rem; margin-top: 0.2rem;">
-                    Birleştirildi (#PD-<%= ticket.merged_into_ticket&.ticket_number %>)
-                  </span>
-                <% end %>
+                  <% if ticket.use_business_hours? %>
+                    <span class="table-badge badge-success" style="font-size: 0.65rem;">
+                      ⏰ Mesai SLA
+                    </span>
+                  <% end %>
+                  <% if ticket.community_question_id.present? %>
+                    <span class="table-badge" style="background-color: #f3e8ff; color: #6b21a8; font-size: 0.65rem;">
+                      💬 Topluluk
+                    </span>
+                  <% end %>
+                  <% if ticket.merged_into_ticket_id.present? %>
+                    <span class="table-badge" style="background-color: #fef3c7; color: #92400e; font-size: 0.65rem;">
+                      🔗 Birleştirildi
+                    </span>
+                  <% end %>
+                </div>
               </td>
               <td>
                 <div>

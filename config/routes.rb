@@ -65,7 +65,7 @@ Rails.application.routes.draw do
   post "webhooks/incoming_message", to: "webhooks#incoming_message"
 
   get  "sla_dashboard", to: "tickets#sla_dashboard", as: :sla_dashboard
-  post "switch_role",   to: "application#switch_role", as: :switch_role
+  match "switch_role", to: "application#switch_role", via: [:get, :post], as: :switch_role
 
   get   "profile",  to: "users#profile",            as: :profile
   patch "profile",  to: "users#update_preferences", as: :update_preferences
@@ -77,7 +77,7 @@ Rails.application.routes.draw do
   # Gerçek Kimlik Doğrulama (Login / Logout)
   get  "login",  to: "users#login",        as: :login
   post "login",  to: "users#authenticate"
-  delete "logout", to: "users#logout",     as: :logout
+  match "logout", to: "users#logout", via: [:get, :delete, :post], as: :logout
 
   get "up" => "rails/health#show", as: :rails_health_check
 end
