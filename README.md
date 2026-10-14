@@ -205,3 +205,5 @@ Finished in 18.515362s, 4.5908 runs/s, 18.4711 assertions/s.
    - Render'ın ücretsiz planında Web Servisleri 15 dakika boyunca HTTP isteği almadığında uyku moduna (spin-down) geçer. Bu nedenle hem ActiveJob arka plan sınıfı (`CommunityQuestionAutoConvertJob`), hem her sayfa açılışında SLA durum güncellemesi, hem de test ve jüri gösterimi için **tek tıkla manuel tetikleme butonu** (`POST /community_questions/trigger_auto_convert`) sağlanmıştır.
 2. **Çoklu Dil (i18n):** 
    - Uygulama sınıfta Türkçe olarak sunulacağı için arayüz doğrudan Türkçe olarak tasarlanmış, çoklu dil seçici (İngilizce/Türkçe geçişi) kapsam dışında tutulmuştur.
+#   z e n d e k s _ k l o n  
+ 
