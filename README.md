@@ -12,6 +12,13 @@
 
 - **Canlı Dağıtım URL'si:** `https://zendeks-klon.onrender.com`
 - **GitHub Deposu:** `https://github.com/Sudeyazicii/zendeks_klon`
+- **Ajan & Mimari Kılavuzu:** [`AGENT.md`](AGENT.md)
+- **Slayt Teslim Dokümantasyonu (docs/ G1–G5):**
+  - [G1: DSL, Niyet ≈ Kod, Token Ölçümü & Zaman Kuralları Tablosu](docs/G1_dsl_ve_zaman_kurallari.md)
+  - [G2: Fortune 500 SaaS Araştırması & Uber/Tesco Kanıtları](docs/G2_fortune500_ve_saas_pazari.md)
+  - [G3: Kod Büyüklüğü & Coding Agent Token Ekonomisi](docs/G3_maliyet_ve_token_ekonomisi.md)
+  - [G4: Aort Dilimi, Durum Makinesi & Yasak Geçiş Koruması](docs/G4_aort_dilimi_ve_durum_makinesi.md)
+  - [G5: 100+ Kullanıcı Acısı Çözümü, Yakalanan Uydurmalar & Yapamadıklarım](docs/G5_kullanici_acisi_ve_ajan_deneyimi.md)
 - **İlham Kaynağı Olan Ürün:** Zendesk *(Zendesk adı ve logosu uygulama arayüzünde kesinlikle yer almaz; yalnızca bu dokümanda akademik referans olarak geçmektedir).*
 - **Geliştirilen Ürün Kimliği:** **PulseDesk** (Özgün logo, modern SaaS tasarımı ve %100 Türkçe arayüz).
 
@@ -181,7 +188,7 @@ Finished in 14.231691s, 5.9726 runs/s, 24.0309 assertions/s.
 
 ## 8. ⏱️ 5 Dakikalık Canlı Sunum Kılavuzu
 
-Canlı URL (`https://pulsedesk.onrender.com`) üzerinden sınıfta yapılacak sunum planı:
+Canlı URL (`https://zendeks-klon.onrender.com`) üzerinden sınıfta yapılacak sunum planı:
 
 - **0:00 – 0:30 (Giriş & Değer Önerisi):** Hangi SaaS seçildi (Zendesk), aort dilimi nedir ve Uber/Tesco gibi kurumsal devler buna neden milyonlarca dolar ödüyor?
 - **0:30 – 2:30 (Canlı Aort Dilimi Akışı):**

@@ -24,8 +24,13 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Prepare database
-        run: bin/rails db:test:prepare
+      - name: Ensure binstubs are executable
+        run: chmod +x bin/*
+
+      - name: Prepare storage and database
+        run: |
+          mkdir -p storage
+          bundle exec rails db:test:prepare
 
       - name: Run all tests (Durum Makinesi, 3x TravelTo, Otomasyon)
-        run: bin/rails test
+        run: bundle exec rails test
