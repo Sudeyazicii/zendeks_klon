@@ -12,7 +12,7 @@ class PulseAiService
       local_nlp_summary(ticket)
     end
   end
-
+ 
   # Akıllı yanıt taslağı hazırlama
   def self.generate_draft_reply(ticket)
     customer_first_name = ticket.customer_name.split.first || "Değerli Müşterimiz"

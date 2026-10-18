@@ -29,6 +29,7 @@ Bu doküman, YZM379 dersi kapsamında Ruby & Rails'in doğal dille niyet ifade e
 
 ### Niyet: "Ekim 2026'daki Cumartesi günlerinin sayısını bul"
 - **Python:**
+
   ```python
   import calendar
   sum(1 for day in range(1, 32) if calendar.weekday(2026, 10, day) == 5)

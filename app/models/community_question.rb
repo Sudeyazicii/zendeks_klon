@@ -61,7 +61,7 @@ class CommunityQuestion < ApplicationRecord
 
     # Denetim Günlüğü Kaydet
     AutomationAuditLog.create!(
-      rule_name: "24 Saat Cevapsız Forum Sorularını Destek Talebine Dönüştür",
+      rule_name: "24 Saat Cevapsız Forum Sorularını Destek Talebine Dönüştür", 
       trigger_type: "time_based",
       executed_by: executed_by,
       records_scanned: total_unanswered,

@@ -607,7 +607,7 @@ select.form-control, select.form-select {
   border-color: var(--primary);
 }
 
-/* Internal Note Styling (Zendesk-style Yellow/Amber Warm Card) */
+/* Internal Note Styling (Yellow/Amber Warm Card) */
 .timeline-card.internal-note {
   background: #fffbeb;
   border: 1px solid #fde68a;
