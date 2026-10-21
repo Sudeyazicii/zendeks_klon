@@ -4,6 +4,7 @@ class MarketplaceController < ApplicationController
   def index
     AiAgent.seed_default_agents! if AiAgent.count == 0
 
+    @tab = params[:tab].presence || "catalog"
     @agents = AiAgent.active.order(id: :asc)
     @active_rentals = AgentRental.active_now.includes(:ai_agent)
     @bayram_pack_active = @active_rentals.count >= 5
@@ -19,14 +20,14 @@ class MarketplaceController < ApplicationController
     @pending_reviews = AgentExecutionLog.pending_review.includes(:ai_agent, :ticket).order(created_at: :desc)
 
     # Canlı Ajan İşlem Akışı (Live Audit Stream)
-    @recent_logs = AgentExecutionLog.recent_first.includes(:ai_agent, :ticket).limit(10)
+    @recent_logs = AgentExecutionLog.recent_first.includes(:ai_agent, :ticket).limit(15)
   end
 
   def hire_bayram_pack
     duration_days = (params[:duration_days] || 7).to_i
     rentals = AgentOrchestratorService.hire_bayram_pack!(current_user, duration_days: duration_days)
 
-    redirect_to marketplace_path, notice: "🌙 Bayram Yoğunluk Kalkanı başarıyla aktifleştirildi! 5 uzman destek ajanı göreve başladı."
+    redirect_to marketplace_path(tab: "my_agents"), notice: "🌙 Bayram Yoğunluk Kalkanı aktifleştirildi! 5 uzman destek ajanı kadronuza katıldı ve göreve başladı."
   end
 
   def rent_agent
@@ -35,7 +36,7 @@ class MarketplaceController < ApplicationController
     require_human_approval = params[:require_human_approval] == "1"
 
     rental = AgentOrchestratorService.rent_single_agent!(agent, current_user, duration_days: duration_days, require_human_approval: require_human_approval)
-    redirect_to marketplace_path, notice: "#{agent.name} (#{agent.role_title}) başarıyla kiralandı ve göreve başladı."
+    redirect_to marketplace_path(tab: "my_agents"), notice: "#{agent.name} (#{agent.role_title}) kiralandı ve aktif kadronuza eklendi."
   end
 
   def cancel_rental
@@ -43,7 +44,7 @@ class MarketplaceController < ApplicationController
     agent_name = rental.ai_agent.name
     AgentOrchestratorService.terminate_rental!(rental)
 
-    redirect_to marketplace_path, notice: "#{agent_name} kiralama sözleşmesi sonlandırıldı."
+    redirect_to marketplace_path(tab: "my_agents"), notice: "#{agent_name} kiralama sözleşmesi sonlandırıldı ve kadrodan çıkarıldı."
   end
 
   def simulate_surge

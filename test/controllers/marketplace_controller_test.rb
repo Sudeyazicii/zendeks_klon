@@ -15,18 +15,18 @@ class MarketplaceControllerTest < ActionDispatch::IntegrationTest
 
   test "bayram paketini 1 tıkla kiralama aksiyonu çalışır" do
     post hire_bayram_pack_marketplace_url, params: { duration_days: 7 }
-    assert_redirected_to marketplace_url
+    assert_redirected_to marketplace_url(tab: "my_agents")
     assert_equal 5, AgentRental.active_now.count
   end
 
   test "tekil ajan kiralama ve iptal etme aksiyonları çalışır" do
     post rent_agent_marketplace_url(@agent), params: { duration_days: 7 }
-    assert_redirected_to marketplace_url
+    assert_redirected_to marketplace_url(tab: "my_agents")
     assert @agent.currently_rented?
 
     rental = @agent.current_rental
     delete cancel_rental_marketplace_url(rental)
-    assert_redirected_to marketplace_url
+    assert_redirected_to marketplace_url(tab: "my_agents")
     assert_not @agent.currently_rented?
   end
 
