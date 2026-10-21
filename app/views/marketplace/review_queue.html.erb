@@ -1,0 +1,84 @@
+<% content_for :title, "Human-in-the-Loop Onay Kuyruğu" %>
+
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+      <a href="<%= marketplace_path %>" style="font-size: 0.85rem; color: var(--neutral-muted); font-weight: 600;">← Ajan Pazaryeri</a>
+    </div>
+    <h1 class="page-title">Human-in-the-Loop Onay Kuyruğu</h1>
+    <p class="page-subtitle">Yapay zeka destek ajanlarının yüksek finansal meblağ, hukuki risk veya güven eşiği altı nedeniyle insan onayına sevk ettiği biletler</p>
+  </div>
+</div>
+
+<div class="card">
+  <% if @pending_reviews.any? %>
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <% @pending_reviews.each do |log| %>
+        <div style="border: 1px solid #fde68a; background: #fffdf5; border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span class="table-badge badge-warning" style="font-weight: 700;">
+                  ⚠️ Güven Skoru: %<%= log.confidence_score %> (Eşik Altı)
+                </span>
+                <span style="font-size: 0.95rem; font-weight: 800; color: var(--primary);">
+                  #<%= log.ticket.ticket_number %>
+                </span>
+                <span style="font-size: 0.95rem; font-weight: 700; color: var(--neutral-dark);">
+                  <%= log.ticket.subject %>
+                </span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--neutral-muted); margin: 0;">
+                Müşteri: <strong><%= log.ticket.customer_name %></strong> (<%= log.ticket.customer_email %>) • Kategori: <strong><%= log.ticket.category %></strong> • Tarih: <%= log.created_at.strftime("%d.%m.%Y %H:%M") %>
+              </p>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.25rem;"><%= log.ai_agent.avatar %></span>
+              <div>
+                <strong style="color: var(--neutral-dark);"><%= log.ai_agent.name %></strong>
+                <div style="font-size: 0.75rem; color: var(--neutral-muted);"><%= log.ai_agent.role_title %></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Talep Açıklaması -->
+          <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--neutral-muted); text-transform: uppercase; margin-bottom: 0.35rem;">Müşteri Açıklaması:</div>
+            <div style="font-size: 0.9rem; color: var(--neutral-dark); line-height: 1.5;"><%= log.ticket.description %></div>
+          </div>
+
+          <!-- Ajan Karar Gerekçesi (CoT) -->
+          <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 0.35rem;">🧠 Ajanın Akıl Yürütmesi (Chain of Thought):</div>
+            <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.85rem; color: #1e293b; margin: 0; line-height: 1.5;"><%= log.reasoning %></pre>
+          </div>
+
+          <!-- Ajanın Hazırladığı Taslak Yanıt -->
+          <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #065f46; text-transform: uppercase; margin-bottom: 0.35rem;">✨ Ajanın Önerdiği Müşteri Yanıtı:</div>
+            <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.875rem; color: #047857; margin: 0; line-height: 1.55;"><%= log.suggested_reply %></pre>
+          </div>
+
+          <!-- İnsan Karar Aksiyonları -->
+          <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <a href="<%= ticket_path(log.ticket) %>" class="btn btn-secondary btn-sm">
+              Talebi Detaylı İncele
+            </a>
+
+            <%= button_to "✕ Öneriyi Reddet & Manuel Devral", reject_log_marketplace_path(log), method: :post, class: "btn btn-sm", style: "background: #ef4444; color: white;" %>
+
+            <%= button_to "✓ Ajan Yanıtını Onayla ve Müşteriye Gönder", approve_log_marketplace_path(log), method: :post, class: "btn btn-success btn-sm", style: "font-weight: 700;" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div style="text-align: center; padding: 3rem; color: var(--neutral-muted);">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎉</div>
+      <h3 style="font-size: 1.15rem; color: var(--neutral-dark); margin-bottom: 0.25rem;">Onay bekleyen hiçbir riskli bilet yok!</h3>
+      <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">Kiralık yapay zeka ajanları tüm standart biletleri otonom olarak başarıyla çözüyor.</p>
+      <a href="<%= marketplace_path %>" class="btn btn-primary btn-sm">Ajan Pazaryerine Dön</a>
+    </div>
+  <% end %>
+</div>

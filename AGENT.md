@@ -23,6 +23,9 @@ Bu belge, **PulseDesk** SaaS uygulamasının mimarisi, tasarım ilkeleri, geliş
 4. **`CommunityAnswer`**: Topluluk cevabı (`is_solution`, `upvotes_count`, `counter_cache: :answers_count`).
 5. **`Article`**: Bilgi Bankası self-servis makalesi (`Article.search_relevant` bilet başlığına göre otomatik öneri).
 6. **`AutomationRule` & `AutomationAuditLog`**: Kural motoru (`preview` dry-run simülasyonu, idempotency kontrolü, kural çakışma tespiti `detect_conflicts`).
+7. **`AiAgent`**: Özel uzmanlık alanına (e-ticaret kargo, e-fatura mevzuatı, 7/24 SLA koruma, teknik API, müşteri duygu yatıştırma) sahip yapay zeka personeli.
+8. **`AgentRental`**: Şirketlerin bayram ve tatil dönemlerinde 1 tıkla kiraladıkları otonom ajan sözleşmesi (`active`, `expired`, kurtarılan SLA ve tasarruf edilen mesai metrikleri).
+9. **`AgentExecutionLog`**: Ajanların karar gerekçeleri (Chain of Thought), güven skoru ve Human-in-the-Loop (HITL) onay kayıtları.
 
 ---
 

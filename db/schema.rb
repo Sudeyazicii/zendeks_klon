@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_030000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_200000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,72 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_030000) do
     t.integer "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "agent_execution_logs", force: :cascade do |t|
+    t.integer "agent_rental_id"
+    t.integer "ai_agent_id", null: false
+    t.integer "ticket_id", null: false
+    t.string "action_taken", null: false
+    t.integer "confidence_score", default: 95
+    t.text "reasoning"
+    t.text "suggested_reply"
+    t.boolean "human_approved"
+    t.integer "reviewed_by_id"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action_taken"], name: "index_agent_execution_logs_on_action_taken"
+    t.index ["agent_rental_id"], name: "index_agent_execution_logs_on_agent_rental_id"
+    t.index ["ai_agent_id"], name: "index_agent_execution_logs_on_ai_agent_id"
+    t.index ["human_approved"], name: "index_agent_execution_logs_on_human_approved"
+    t.index ["ticket_id"], name: "index_agent_execution_logs_on_ticket_id"
+  end
+
+  create_table "agent_rentals", force: :cascade do |t|
+    t.integer "ai_agent_id", null: false
+    t.integer "user_id"
+    t.string "package_name", default: "Standart Kiralama", null: false
+    t.integer "rental_duration_days", default: 7, null: false
+    t.string "status", default: "active", null: false
+    t.datetime "rented_at", null: false
+    t.datetime "expires_at", null: false
+    t.integer "tickets_processed_count", default: 0, null: false
+    t.integer "tickets_solved_count", default: 0, null: false
+    t.integer "sla_violations_prevented", default: 0, null: false
+    t.decimal "total_cost", precision: 10, scale: 2, default: "0.0"
+    t.boolean "auto_pilot_enabled", default: true, null: false
+    t.boolean "require_human_approval", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ai_agent_id"], name: "index_agent_rentals_on_ai_agent_id"
+    t.index ["status"], name: "index_agent_rentals_on_status"
+    t.index ["user_id"], name: "index_agent_rentals_on_user_id"
+  end
+
+  create_table "ai_agents", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "code_name", null: false
+    t.string "role_title", null: false
+    t.string "avatar", default: "🤖", null: false
+    t.string "badge_color", default: "#6366f1"
+    t.string "specialty", null: false
+    t.string "category_focus", null: false
+    t.text "bio", null: false
+    t.string "llm_model_name", default: "gpt-4o-mini"
+    t.decimal "hourly_rate", precision: 8, scale: 2, default: "45.0"
+    t.decimal "daily_rate", precision: 8, scale: 2, default: "250.0"
+    t.decimal "rating", precision: 3, scale: 2, default: "4.95"
+    t.integer "reviews_count", default: 120
+    t.integer "accuracy_rate", default: 98
+    t.integer "human_in_the_loop_threshold", default: 80
+    t.text "system_prompt"
+    t.string "skills_tags"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_focus"], name: "index_ai_agents_on_category_focus"
+    t.index ["code_name"], name: "index_ai_agents_on_code_name", unique: true
   end
 
   create_table "articles", force: :cascade do |t|
@@ -202,6 +268,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_030000) do
     t.text "ai_summary"
     t.string "ai_sentiment", default: "neutral"
     t.integer "solved_by_id"
+    t.integer "assigned_ai_agent_id"
+    t.boolean "needs_human_review", default: false, null: false
+    t.text "ai_agent_reasoning"
+    t.index ["assigned_ai_agent_id"], name: "index_tickets_on_assigned_ai_agent_id"
     t.index ["assigned_to_id"], name: "index_tickets_on_assigned_to_id"
     t.index ["category"], name: "index_tickets_on_category"
     t.index ["channel"], name: "index_tickets_on_channel"
@@ -210,6 +280,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_030000) do
     t.index ["first_response_breached"], name: "index_tickets_on_first_response_breached"
     t.index ["first_response_due_at"], name: "index_tickets_on_first_response_due_at"
     t.index ["merged_into_ticket_id"], name: "index_tickets_on_merged_into_ticket_id"
+    t.index ["needs_human_review"], name: "index_tickets_on_needs_human_review"
     t.index ["priority"], name: "index_tickets_on_priority"
     t.index ["sla_due_at"], name: "index_tickets_on_sla_due_at"
     t.index ["solved_by_id"], name: "index_tickets_on_solved_by_id"
@@ -234,6 +305,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_030000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agent_execution_logs", "agent_rentals"
+  add_foreign_key "agent_execution_logs", "ai_agents"
+  add_foreign_key "agent_execution_logs", "tickets"
+  add_foreign_key "agent_rentals", "ai_agents"
+  add_foreign_key "agent_rentals", "users"
   add_foreign_key "automation_audit_logs", "automation_rules"
   add_foreign_key "community_answers", "community_questions"
   add_foreign_key "notifications", "users"

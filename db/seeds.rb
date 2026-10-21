@@ -1,6 +1,9 @@
 # PulseDesk Demo Seeds
 puts "Tohum verileri yükleniyor..."
 
+AgentExecutionLog.destroy_all
+AgentRental.destroy_all
+AiAgent.destroy_all
 Notification.destroy_all
 AutomationAuditLog.destroy_all
 AutomationRule.destroy_all
@@ -270,5 +273,15 @@ agent_user.notifications.create!(
   notifiable: old_unanswered_q.ticket,
   read: false
 )
+
+# 14. AI Agent Marketplace & Bayram Yoğunluk Kalkanı (5 Destek Ajanı)
+puts "AI Destek Ajanları pazaryerine yükleniyor..."
+AiAgent.seed_default_agents!
+
+puts "Bayram Yoğunluk Kalkanı paketi kiralanıyor (5 Ajan)..."
+AgentOrchestratorService.hire_bayram_pack!(admin_user, duration_days: 7)
+
+puts "10 Biletlik Bayram Fırtınası simülasyonu çalıştırılıyor..."
+AgentOrchestratorService.simulate_bayram_surge!(admin_user, 10)
 
 puts "Tohum verileri eksiksiz ve başarıyla yüklendi!"

@@ -51,6 +51,8 @@ class Ticket < ApplicationRecord
   belongs_to :solved_by, class_name: "User", optional: true
   belongs_to :merged_into_ticket, class_name: "Ticket", optional: true
   has_many :merged_tickets, class_name: "Ticket", foreign_key: "merged_into_ticket_id", dependent: :nullify
+  belongs_to :assigned_ai_agent, class_name: "AiAgent", optional: true
+  has_many :agent_execution_logs, dependent: :destroy
 
   validates :subject, presence: true, length: { maximum: 255 }
   validates :description, presence: true
@@ -81,6 +83,8 @@ class Ticket < ApplicationRecord
   scope :e_invoices, -> { where.not(e_invoice_status: "not_applicable") }
   scope :gib_pending_invoices, -> { where(e_invoice_status: "gib_pending") }
   scope :by_channel, ->(ch) { where(channel: ch) if ch.present? }
+  scope :needs_human_review, -> { where(needs_human_review: true) }
+  scope :handled_by_ai, -> { where.not(assigned_ai_agent_id: nil) }
 
   def breached?
     return true if sla_breached?

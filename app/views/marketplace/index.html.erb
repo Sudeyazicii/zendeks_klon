@@ -1,0 +1,374 @@
+<% content_for :title, "PulseDesk AI Agent Marketplace" %>
+
+<!-- 1. ÜST HERO BANNER: BAYRAM YOĞUNLUK KALKANI -->
+<div class="card" style="margin-bottom: 2rem; padding: 2.25rem; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%); color: white; border: none; box-shadow: 0 20px 25px -5px rgba(30, 27, 75, 0.25); border-radius: var(--radius-lg); position: relative; overflow: hidden;">
+  <!-- Arka plan parlama efekti -->
+  <div style="position: absolute; right: -50px; top: -50px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(129, 140, 248, 0.25) 0%, rgba(30, 27, 75, 0) 70%); border-radius: 50%; pointer-events: none;"></div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; position: relative; z-index: 1;">
+    <div style="max-width: 680px;">
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.825rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <span>🌙 ÖZEL NÖBETÇİ PAKETİ</span> • <span>7/24 KESİNTİSİZ DESTEK</span>
+      </div>
+      <h1 style="font-size: 2.25rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.75rem; color: #ffffff; letter-spacing: -0.025em;">
+        Bayramda 5 Uzman Destek Ajanı Kirala
+      </h1>
+      <p style="font-size: 1.05rem; color: #e0e7ff; line-height: 1.6; margin-bottom: 1.25rem;">
+        Resmi tatil ve bayramlarda insan destek ekibiniz izindeyken biletler yığılmasın, SLA taahhütleriniz patlamasın. 
+        Kargo iadesi, e-Fatura mevzuatı, 502 Bad Gateway krizleri ve öfkeli müşteriler için <strong>5 uzman yapay zeka ajanını tek tıkla 7 günlüğüne işe alın.</strong>
+      </p>
+
+      <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <% if @bayram_pack_active %>
+          <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid #34d399; color: #a7f3d0; padding: 0.65rem 1.25rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.2rem;">✅</span> 5 Ajan Aktif Nöbette (Bayram Kalkanı Devrede)
+          </div>
+
+          <%= form_with url: simulate_surge_marketplace_path, method: :post, local: true, style: "display: inline;" do %>
+            <%= hidden_field_tag :count, 10 %>
+            <button type="submit" class="btn btn-primary" style="background: #f59e0b; border-color: #d97706; color: #78350f; font-weight: 800; padding: 0.75rem 1.5rem; box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);">
+              ⚡ 10 Biletlik Bayram Fırtınası Simülasyonu Başlat
+            </button>
+          <% end %>
+        <% else %>
+          <%= form_with url: hire_bayram_pack_marketplace_path, method: :post, local: true, style: "display: inline;" do %>
+            <%= hidden_field_tag :duration_days, 7 %>
+            <button type="submit" class="btn btn-primary" style="background: #38bdf8; border-color: #0284c7; color: #082f49; font-weight: 800; font-size: 1rem; padding: 0.85rem 1.75rem; border-radius: 8px; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);">
+              🚀 5 Ajanı 1 Tıkla Kirala (7 Gün — ₺1.400 / gün)
+            </button>
+          <% end %>
+
+          <%= form_with url: simulate_surge_marketplace_path, method: :post, local: true, style: "display: inline;" do %>
+            <%= hidden_field_tag :count, 10 %>
+            <button type="submit" class="btn" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-weight: 700; padding: 0.85rem 1.25rem; border-radius: 8px;">
+              ⚡ Canlı Bilet Dalgası Test Et
+            </button>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Hızlı Bilgi & Karşılaştırma Kutusu -->
+    <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: var(--radius-md); padding: 1.5rem; width: 320px;">
+      <h3 style="font-size: 0.95rem; font-weight: 800; color: #f8fafc; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+        📊 Slop Testi & Değer Teklifi
+      </h3>
+      <div style="font-size: 0.85rem; color: #c7d2fe; display: flex; flex-direction: column; gap: 0.65rem;">
+        <div style="display: flex; justify-content: space-between;">
+          <span>Geleneksel İnsan Mesaisi:</span>
+          <strong style="color: #f87171;">₺37.800 / hafta</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>5 AI Destek Ajanı:</span>
+          <strong style="color: #4ade80;">₺9.800 / hafta</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 0.5rem;">
+          <span>Tasarruf Oranı:</span>
+          <strong style="color: #38bdf8;">%74 Maliyet Avantajı</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>SLA İlk Yanıt Süresi:</span>
+          <strong style="color: #facc15;">&lt; 30 Saniye</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>Human-in-the-Loop:</span>
+          <strong style="color: #ffffff;">Riskli Taleplerde İnsan Onayı</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. TELEMETRİ & CANLI METRİKLER -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+  <div class="stat-card" style="border-top: 4px solid #6366f1;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">🤖</div>
+    <div class="stat-value" style="color: #4338ca;"><%= @total_rented_count %> / 5</div>
+    <div class="stat-label">Aktif Kiralık Ajan</div>
+  </div>
+
+  <div class="stat-card" style="border-top: 4px solid #059669;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">⚡</div>
+    <div class="stat-value" style="color: #059669;"><%= @total_tickets_solved %></div>
+    <div class="stat-label">Otonom Çözülen Bilet</div>
+  </div>
+
+  <div class="stat-card" style="border-top: 4px solid #dc2626;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">🛡️</div>
+    <div class="stat-value" style="color: #dc2626;"><%= @total_sla_saved %></div>
+    <div class="stat-label">Kurtarılan SLA İhlali</div>
+  </div>
+
+  <div class="stat-card" style="border-top: 4px solid #d97706;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">💰</div>
+    <div class="stat-value" style="color: #d97706;">₺<%= sprintf("%.0f", @total_cost_saved) %></div>
+    <div class="stat-label">Tasarruf Edilen İnsan Mesaisi</div>
+  </div>
+
+  <div class="stat-card" style="border-top: 4px solid #7c3aed;">
+    <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">👥</div>
+    <div class="stat-value" style="color: #7c3aed;"><%= @pending_reviews.count %></div>
+    <div class="stat-label">İnsan Onayı Bekleyen (HITL)</div>
+  </div>
+</div>
+
+<!-- 3. İNSAN ONAYI BEKLEYENLER KUYRUĞU (HUMAN-IN-THE-LOOP REVIEW QUEUE) -->
+<% if @pending_reviews.any? %>
+  <div class="card" style="margin-bottom: 2.25rem; border-left: 5px solid #d97706; background: #fffbeb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 1.35rem;">⚠️</span>
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: #92400e; margin: 0;">
+            Human-in-the-Loop: İnsan Denetimi Bekleyen Talepler (<%= @pending_reviews.count %>)
+          </h2>
+          <p style="font-size: 0.825rem; color: #b45309; margin: 0.15rem 0 0 0;">
+            Ajanlar yüksek tutarlı tazminat veya yasal risk içeren biletleri otonom çözmeyip onayınıza sundu.
+          </p>
+        </div>
+      </div>
+      <a href="<%= review_queue_marketplace_path %>" class="btn btn-secondary btn-sm" style="border-color: #f59e0b; color: #92400e;">
+        Tüm Onay Kuyruğu →
+      </a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <% @pending_reviews.first(3).each do |log| %>
+        <div style="background: white; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 1.15rem; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span class="table-badge badge-warning">Güven Skoru: %<%= log.confidence_score %></span>
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">
+                  Talep #<%= log.ticket.ticket_number %>
+                </span>
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--neutral-dark);">
+                  <%= log.ticket.subject %>
+                </span>
+              </div>
+              <div style="font-size: 0.825rem; color: #4b5563; margin-bottom: 0.5rem; line-height: 1.45;">
+                <strong style="color: #1f2937;">Ajanın Karar Gerekçesi (CoT):</strong>
+                <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.8rem; background: #f9fafb; padding: 0.5rem; border-radius: 4px; margin: 0.25rem 0 0.5rem 0; border: 1px solid #e5e7eb;"><%= log.reasoning %></pre>
+              </div>
+              <div style="font-size: 0.825rem; color: #047857; background: #ecfdf5; padding: 0.5rem; border-radius: 4px; border: 1px solid #a7f3d0;">
+                <strong>Önerilen Yanıt Taslağı:</strong>
+                <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.8rem; margin: 0.25rem 0 0 0;"><%= log.suggested_reply %></pre>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.4rem; min-width: 140px;">
+              <%= button_to "✓ Onayla & Gönder", approve_log_marketplace_path(log), method: :post, class: "btn btn-success btn-sm", style: "width: 100%;" %>
+              <%= link_to "Talebi İncele", ticket_path(log.ticket), class: "btn btn-secondary btn-sm", style: "width: 100%; text-align: center;" %>
+              <%= button_to "✕ Reddet & Devral", reject_log_marketplace_path(log), method: :post, class: "btn btn-sm", style: "width: 100%; background: #ef4444; color: white;" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<!-- 4. AJAN VİTRİNİ & PAZARYERİ KARTLARI -->
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+  <div>
+    <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--neutral-dark); margin: 0;">
+      Destek Ajanları Kataloğu
+    </h2>
+    <p style="font-size: 0.85rem; color: var(--neutral-muted); margin: 0.2rem 0 0 0;">
+      Özel modellerle eğitilmiş, RAG bilgi bankasıyla beslenen ve insan-makine iş birliğine uygun kiralık yapay zeka personeli.
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 0.5rem;">
+    <a href="<%= tickets_path %>" class="btn btn-secondary btn-sm">
+      🎫 Destek Talepleri Ekranı
+    </a>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+  <% @agents.each do |agent| %>
+    <% rental = agent.current_rental %>
+    <% is_rented = rental&.active? %>
+
+    <div class="card" style="border: 1px solid <%= is_rented ? agent.badge_color : 'var(--border)' %>; box-shadow: <%= is_rented ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'var(--shadow-sm)' %>; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <!-- Başlık & Avatar Şeridi -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="font-size: 2.25rem; width: 56px; height: 56px; background: <%= agent.badge_color %>15; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid <%= agent.badge_color %>40;">
+              <%= agent.avatar %>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: var(--neutral-dark);">
+                  <%= agent.name %>
+                </h3>
+                <span class="table-badge" style="background: <%= agent.badge_color %>20; color: <%= agent.badge_color %>; font-size: 0.7rem; font-weight: 700;">
+                  <%= agent.category_focus %>
+                </span>
+              </div>
+              <div style="font-size: 0.8rem; font-weight: 600; color: var(--neutral-muted); margin-top: 0.15rem;">
+                <%= agent.role_title %>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <% if is_rented %>
+              <span class="table-badge badge-success" style="font-weight: 700; padding: 0.35rem 0.65rem;">
+                ● AKTİF GÖREVDE
+              </span>
+            <% else %>
+              <span class="table-badge badge-secondary" style="font-weight: 600;">
+                MÜSAİT
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Açıklama / Bio -->
+        <p style="font-size: 0.85rem; color: #475569; line-height: 1.55; margin-bottom: 1rem; min-height: 52px;">
+          <%= agent.bio %>
+        </p>
+
+        <!-- Yetenek Etiketleri -->
+        <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.15rem;">
+          <% agent.skills_list.each do |skill| %>
+            <span class="table-badge" style="background: #f1f5f9; color: #334155; font-size: 0.7rem; font-weight: 600;">
+              #<%= skill %>
+            </span>
+          <% end %>
+        </div>
+
+        <!-- Performans İstatistikleri -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.65rem 0.5rem; margin-bottom: 1.25rem; text-align: center;">
+          <div>
+            <div style="font-size: 0.7rem; color: var(--neutral-muted);">Doğruluk</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: #059669;">%<%= agent.accuracy_rate %></div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: var(--neutral-muted);">Değerlendirme</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: #d97706;">★ <%= agent.rating %></div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: var(--neutral-muted);">HITL Eşiği</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: var(--primary);">%<%= agent.human_in_the_loop_threshold %></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alt Aksiyon Şeridi & Kiralama Butonları -->
+      <div style="border-top: 1px solid var(--border); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+        <div>
+          <div style="font-size: 1.1rem; font-weight: 900; color: var(--neutral-dark);">
+            ₺<%= sprintf("%.0f", agent.daily_rate) %> <span style="font-size: 0.75rem; font-weight: 500; color: var(--neutral-muted);">/ gün</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--neutral-muted);">
+            ₺<%= sprintf("%.0f", agent.hourly_rate) %> / saat
+          </div>
+        </div>
+
+        <div>
+          <% if is_rented %>
+            <div style="display: flex; gap: 0.35rem; align-items: center;">
+              <span style="font-size: 0.775rem; color: #059669; font-weight: 700;">
+                <%= rental.remaining_days %> gün kaldı
+              </span>
+              <%= button_to "İptal Et", cancel_rental_marketplace_path(rental), method: :delete, data: { turbo_confirm: "#{agent.name} görevini sonlandırmak istediğinize emin misiniz?" }, class: "btn btn-secondary btn-sm", style: "font-size: 0.75rem; padding: 0.3rem 0.55rem;" %>
+            </div>
+          <% else %>
+            <%= form_with url: rent_agent_marketplace_path(agent), method: :post, local: true, style: "display: inline;" do %>
+              <%= hidden_field_tag :duration_days, 7 %>
+              <button type="submit" class="btn btn-primary btn-sm" style="background: <%= agent.badge_color %>; border-color: <%= agent.badge_color %>; font-weight: 700;">
+                + 7 Günlük Kirala
+              </button>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- 5. CANLI AKSIYON AKIŞI (LIVE AUDIT STREAM) -->
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--neutral-dark); display: flex; align-items: center; gap: 0.5rem;">
+        <span>📡</span> Canlı Ajan Karar ve İşlem Akışı (CoT Audit Log)
+      </h3>
+      <p style="font-size: 0.8rem; color: var(--neutral-muted); margin: 0.15rem 0 0 0;">
+        Ajanların biletleri incelerken ürettikleri düşünce adımları, RAG eşleşmeleri ve güven skorları
+      </p>
+    </div>
+    <span class="table-badge badge-info">Gerçek Zamanlı</span>
+  </div>
+
+  <% if @recent_logs.any? %>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Zaman</th>
+            <th>Ajan</th>
+            <th>Talep</th>
+            <th>İşlem & Güven</th>
+            <th>Akıl Yürütme (Chain of Thought)</th>
+            <th>Durum</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_logs.each do |log| %>
+            <tr>
+              <td style="font-size: 0.75rem; color: var(--neutral-muted); white-space: nowrap;">
+                <%= log.created_at.strftime("%H:%M:%S") %>
+              </td>
+              <td style="white-space: nowrap;">
+                <span style="font-weight: 700; color: var(--neutral-dark);">
+                  <%= log.ai_agent.avatar %> <%= log.ai_agent.name %>
+                </span>
+                <div style="font-size: 0.7rem; color: var(--neutral-muted);"><%= log.ai_agent.role_title.truncate(22) %></div>
+              </td>
+              <td>
+                <a href="<%= ticket_path(log.ticket) %>" style="font-weight: 600; color: var(--primary);">
+                  #<%= log.ticket.ticket_number %>
+                </a>
+                <div style="font-size: 0.75rem; color: var(--neutral-dark);"><%= truncate(log.ticket.subject, length: 40) %></div>
+              </td>
+              <td>
+                <% action_labels = { "resolved" => "✓ Çözüldü", "replied_pending" => "💬 Yanıtlandı", "escalated_human" => "⚠️ HITL Onayına Sevk", "sla_triaged" => "⚡ Triyaj" } %>
+                <span class="table-badge badge-<%= log.action_taken == 'resolved' ? 'success' : (log.action_taken == 'escalated_human' ? 'warning' : 'info') %>">
+                  <%= action_labels[log.action_taken] || log.action_taken %>
+                </span>
+                <div style="font-size: 0.7rem; color: var(--neutral-muted); margin-top: 0.2rem;">
+                  Güven: <strong>%<%= log.confidence_score %></strong>
+                </div>
+              </td>
+              <td style="max-width: 380px;">
+                <div style="font-size: 0.775rem; color: #334155; line-height: 1.45; background: #f8fafc; padding: 0.45rem 0.65rem; border-radius: 4px; border: 1px solid #e2e8f0; font-family: monospace;">
+                  <%= truncate(log.reasoning, length: 140) %>
+                </div>
+              </td>
+              <td>
+                <% if log.human_approved.nil? && log.action_taken == 'escalated_human' %>
+                  <span class="table-badge badge-warning">Onay Bekliyor</span>
+                <% elsif log.human_approved == true %>
+                  <span class="table-badge badge-success">Onaylandı</span>
+                <% elsif log.human_approved == false %>
+                  <span class="table-badge badge-danger">Reddedildi</span>
+                <% else %>
+                  <span class="table-badge badge-info">Otonom</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div style="text-align: center; padding: 2.5rem; color: var(--neutral-muted); font-size: 0.9rem;">
+      Henüz bir ajan işlem kaydı bulunmuyor. Yukarıdan <strong>"⚡ 10 Biletlik Bayram Fırtınası Simülasyonu Başlat"</strong> butonuna basarak ilk dalgayı başlatabilirsiniz!
+    </div>
+  <% end %>
+</div>

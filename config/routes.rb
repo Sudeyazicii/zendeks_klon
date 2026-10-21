@@ -1,6 +1,16 @@
 Rails.application.routes.draw do
   root "tickets#index"
 
+  # Agent Marketplace (Pazaryeri & Bayram Paketi)
+  get    "marketplace", to: "marketplace#index", as: :marketplace
+  post   "marketplace/hire_bayram_pack", to: "marketplace#hire_bayram_pack", as: :hire_bayram_pack_marketplace
+  post   "marketplace/rent_agent/:id", to: "marketplace#rent_agent", as: :rent_agent_marketplace
+  delete "marketplace/cancel_rental/:id", to: "marketplace#cancel_rental", as: :cancel_rental_marketplace
+  post   "marketplace/simulate_surge", to: "marketplace#simulate_surge", as: :simulate_surge_marketplace
+  get    "marketplace/review_queue", to: "marketplace#review_queue", as: :review_queue_marketplace
+  post   "marketplace/approve_log/:id", to: "marketplace#approve_log", as: :approve_log_marketplace
+  post   "marketplace/reject_log/:id", to: "marketplace#reject_log", as: :reject_log_marketplace
+
   resources :tickets do
     member do
       patch :update_status

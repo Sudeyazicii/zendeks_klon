@@ -37,6 +37,45 @@
   </div>
 <% end %>
 
+<!-- Human-in-the-Loop (HITL) İnceleme Banner'ı -->
+<% hitl_log = @ticket.agent_execution_logs.pending_review.first %>
+<% if @ticket.needs_human_review? && hitl_log.present? %>
+  <div class="card" style="margin-bottom: 1.5rem; background: #fffbeb; border: 2px solid #f59e0b; border-left: 6px solid #d97706; padding: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 320px;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span style="font-size: 1.5rem;">⚠️</span>
+          <h3 style="margin: 0; color: #92400e; font-size: 1.15rem; font-weight: 800;">
+            Human-in-the-Loop: Kiralık Ajan İnsan Onayı Bekliyor
+          </h3>
+          <span class="table-badge badge-warning">Güven: %<%= hitl_log.confidence_score %></span>
+        </div>
+        <p style="font-size: 0.85rem; color: #78350f; margin-bottom: 0.75rem;">
+          <strong><%= hitl_log.ai_agent.avatar %> <%= hitl_log.ai_agent.name %> (<%= hitl_log.ai_agent.role_title %>)</strong> bu bilette yüksek meblağ veya risk tespit ettiği için otonom kapatmadı ve onayınıza sundu.
+        </p>
+
+        <div style="background: white; border: 1px solid #fde68a; border-radius: 6px; padding: 0.85rem; margin-bottom: 0.75rem;">
+          <strong style="font-size: 0.8rem; color: #92400e; text-transform: uppercase;">🧠 Ajanın Akıl Yürütmesi (Chain of Thought):</strong>
+          <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.85rem; color: #1e293b; margin: 0.35rem 0 0 0; line-height: 1.5;"><%= hitl_log.reasoning %></pre>
+        </div>
+
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 0.85rem;">
+          <strong style="font-size: 0.8rem; color: #065f46; text-transform: uppercase;">✨ Ajanın Önerdiği Müşteri Yanıtı:</strong>
+          <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.875rem; color: #047857; margin: 0.35rem 0 0 0; line-height: 1.55;"><%= hitl_log.suggested_reply %></pre>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; min-width: 180px;">
+        <%= button_to "✓ Ajan Yanıtını Onayla ve Gönder", approve_log_marketplace_path(hitl_log), method: :post, class: "btn btn-success", style: "width: 100%; font-weight: 700; padding: 0.65rem 1rem;" %>
+        <%= button_to "✕ Öneriyi Reddet & Manuel Devral", reject_log_marketplace_path(hitl_log), method: :post, class: "btn", style: "width: 100%; background: #ef4444; color: white; padding: 0.65rem 1rem;" %>
+        <a href="<%= marketplace_path %>" class="btn btn-secondary btn-sm" style="text-align: center;">
+          🏪 Pazaryerine Dön
+        </a>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <!-- Ana Bilet Başlık Kartı -->
 <div class="card" style="padding: 1.75rem; margin-bottom: 1.5rem;">
   <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
@@ -74,6 +113,16 @@
         <% if @ticket.merged_into_ticket_id.present? %>
           <span class="table-badge" style="background: #fef3c7; color: #92400e;">
             🔗 Birleştirildi (#<%= @ticket.merged_into_ticket&.ticket_number %>)
+          </span>
+        <% end %>
+        <% if @ticket.assigned_ai_agent.present? %>
+          <span class="table-badge" style="background: <%= @ticket.assigned_ai_agent.badge_color %>20; color: <%= @ticket.assigned_ai_agent.badge_color %>; font-weight: 700; border: 1px solid <%= @ticket.assigned_ai_agent.badge_color %>50;">
+            <%= @ticket.assigned_ai_agent.avatar %> <%= @ticket.assigned_ai_agent.name %> (Kiralık AI Destek Ajanı)
+          </span>
+        <% end %>
+        <% if @ticket.needs_human_review? %>
+          <span class="table-badge badge-warning" style="font-weight: 800;">
+            ⚠️ HITL İnsan Onayı Bekliyor
           </span>
         <% end %>
       </div>
@@ -197,6 +246,27 @@
       </div>
     <% end %>
   </div>
+
+  <% if @ticket.ai_agent_reasoning.present? %>
+    <!-- 🧠 Kiralık Destek Ajanı Akıl Yürütme ve Karar Kartı (CoT) -->
+    <div style="margin-top: 1.25rem; padding: 1.15rem 1.25rem; background: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid <%= @ticket.assigned_ai_agent&.badge_color || '#4338ca' %>; border-radius: var(--radius-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.25rem;"><%= @ticket.assigned_ai_agent&.avatar || '🤖' %></span>
+          <strong style="color: #1e293b; font-size: 0.95rem;">
+            <%= @ticket.assigned_ai_agent&.name || 'Kiralık Ajan' %> — Akıl Yürütme & RAG Karar Süreci (Chain of Thought)
+          </strong>
+        </div>
+        <% if @ticket.assigned_ai_agent.present? %>
+          <span class="table-badge" style="background: <%= @ticket.assigned_ai_agent.badge_color %>20; color: <%= @ticket.assigned_ai_agent.badge_color %>; font-weight: 700;">
+            <%= @ticket.assigned_ai_agent.role_title %>
+          </span>
+        <% end %>
+      </div>
+
+      <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.85rem; color: #334155; line-height: 1.55; margin: 0; background: white; padding: 0.85rem; border-radius: 6px; border: 1px solid #e2e8f0;"><%= @ticket.ai_agent_reasoning %></pre>
+    </div>
+  <% end %>
 
   <% if @ticket.e_invoice? %>
     <!-- 100+ Puan Adaptasyonu: e-Fatura / GİB Entegrasyon Kartı -->

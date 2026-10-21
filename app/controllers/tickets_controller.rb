@@ -20,6 +20,10 @@ class TicketsController < ApplicationController
       @tickets = @tickets.unassigned
     when "paused"
       @tickets = @tickets.where.not(sla_paused_at: nil)
+    when "needs_review"
+      @tickets = @tickets.needs_human_review
+    when "ai_handled"
+      @tickets = @tickets.handled_by_ai
     end
 
     if @priority_filter.present? && Ticket::PRIORITIES.include?(@priority_filter)
@@ -62,6 +66,8 @@ class TicketsController < ApplicationController
     @gib_pending_count = Ticket.gib_pending_invoices.count
     @paused_count      = Ticket.where.not(sla_paused_at: nil).count
     @paused_sla_count  = @paused_count
+    @hitl_count        = Ticket.needs_human_review.count
+    @ai_handled_count  = Ticket.handled_by_ai.count
 
     # Hafif Yerel Sayfalama (Pagination)
     @page = [params[:page].to_i, 1].max
@@ -93,6 +99,7 @@ class TicketsController < ApplicationController
     @similar_tickets = @ticket.similar_tickets
     @suggested_articles = Article.search_relevant("#{@ticket.subject} #{@ticket.category}")
     @ai_draft = params[:ai_draft]
+    @execution_logs = @ticket.agent_execution_logs.recent_first
   end
 
   def new

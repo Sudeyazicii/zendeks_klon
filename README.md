@@ -3,7 +3,7 @@
 [![CI](https://github.com/Sudeyazicii/zendeks_klon/actions/workflows/ci.yml/badge.svg)](https://github.com/Sudeyazicii/zendeks_klon/actions)
 ![Ruby](https://img.shields.io/badge/Ruby-3.2%2B-red.svg)
 ![Rails](https://img.shields.io/badge/Rails-8.1-CC0000.svg)
-![Tests](https://img.shields.io/badge/Tests-85%20Passed%20(100%25)-success.svg)
+![Tests](https://img.shields.io/badge/Tests-102%20Passed%20(100%25)-success.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ---
@@ -12,7 +12,9 @@
 
 - **Canlı Dağıtım URL'si:** `https://zendeks-klon.onrender.com`
 - **GitHub Deposu:** `https://github.com/Sudeyazicii/zendeks_klon`
+- **Meydan Okuma Günlüğü:** [`CHALLENGE_LOG.md`](CHALLENGE_LOG.md)
 - **Ajan & Mimari Kılavuzu:** [`AGENT.md`](AGENT.md)
+- **AI Agent Marketplace:** [Ajan Pazaryeri & Bayram Paketi Kiralama](file:///c:/Users/PC/Desktop/zendesk/app/views/marketplace/index.html.erb) (`/marketplace`)
 - **Slayt Teslim Dokümantasyonu (docs/ G1–G5):**
   - [G1: DSL, Niyet ≈ Kod, Token Ölçümü & Zaman Kuralları Tablosu](docs/G1_dsl_ve_zaman_kurallari.md)
   - [G2: Fortune 500 SaaS Araştırması & Uber/Tesco Kanıtları](docs/G2_fortune500_ve_saas_pazari.md)
