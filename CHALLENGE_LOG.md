@@ -50,7 +50,7 @@
   - Test Çıktısı Kanıtı: `102 runs, 398 assertions, 0 failures, 0 errors, 0 skips (19.05s)`
 
 - **Canlı Demo Adımları (Hocaya Sunum Rehberi):**
-  1. **Pazaryerine Giriş:** Üst menüden **"🏪 Ajan Pazaryeri [🌙 BAYRAM]"** sekmesine tıklayın.
+  1. **Pazaryerine Giriş:** Üst menüden **"🏪 Ajan Pazaryeri"** sekmesine tıklayın.
   2. **5 Ajanı İnceleme:** Kargo/İade Uzmanı (`Aura`), e-Fatura/GİB Mevzuat Uzmanı (`Atlas`), 7/24 Nöbetçi SLA Koruyucu (`Volt`), Teknik/API Uzmanı (`Nova`) ve Müşteri Yatıştırıcı (`Seren`) profillerini, saatlik/günlük ücretlerini ve başarı oranlarını görün.
   3. **Bayram Paketini Başlatma:** **"🚀 5 Ajanı 1 Tıkla Kirala (7 Günlük Bayram Kalkanı)"** butonuna tıklayın. 5 ajanın da aktif nöbete geçtiğini doğrulayın.
   4. **Bayram Fırtınası Simülasyonu:** **"⚡ 10 Biletlik Bayram Fırtınası Simülasyonu Başlat"** butonuna basın.
