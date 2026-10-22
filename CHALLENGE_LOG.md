@@ -35,7 +35,8 @@
 
 ## Yapılanlar ve kanıt
 - **Commit Linkleri & Kod Değişiklikleri:**
-  - Bu haftanın uygulama commit'i: [`5847fa6`](https://github.com/Sudeyazicii/zendeks_klon/commit/5847fa6) ("Pivot to AI Agent Marketplace: implement bayram 5-agent hire pack, autonomous dispatch, and human-in-the-loop review")
+  - Bu haftanın pivot commit'i: [`5847fa6`](https://github.com/Sudeyazicii/zendeks_klon/commit/5847fa6) ("Pivot to AI Agent Marketplace: implement bayram 5-agent hire pack, autonomous dispatch, and human-in-the-loop review")
+  - Pazaryeri & Ekip Arayüzü Geliştirmesi: [`9b9d243`](https://github.com/Sudeyazicii/zendeks_klon/commit/9b9d243) ("Enhance marketplace with dedicated tabs: catalog store vs my hired agents team dashboard")
   - Veritabanı Modelleri & Migrasyon: `AiAgent`, `AgentRental`, `AgentExecutionLog`, `Ticket` HITL alanları (`20261021200000_create_agent_marketplace.rb`)
   - Ajan Orkestrasyon & Akıl Yürütme Motoru: [`app/services/agent_orchestrator_service.rb`](file:///c:/Users/PC/Desktop/zendesk/app/services/agent_orchestrator_service.rb)
   - Marketplace & HITL Kontrolcüsü: [`app/controllers/marketplace_controller.rb`](file:///c:/Users/PC/Desktop/zendesk/app/controllers/marketplace_controller.rb)
